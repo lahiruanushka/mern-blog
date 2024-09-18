@@ -46,7 +46,7 @@ export const signup = async (req, res, next) => {
     // Save the new user
     await newUser.save();
 
-    res.json({ sucess: true, message: "Signup Successfull" });
+    res.json({ success: true, message: "Signup Successfull" });
   } catch (error) {
     next(error);
   }
@@ -81,7 +81,7 @@ export const signin = async (req, res, next) => {
       .cookie("access_token", token, {
         httpOnly: true,
       })
-      .json(rest);
+      .json({ success: true, user: rest });
   } catch (error) {
     next(error);
   }
