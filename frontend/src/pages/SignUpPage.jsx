@@ -5,7 +5,7 @@ import { HiInformationCircle } from "react-icons/hi";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({});
-  const [errors, setErros] = useState(null);
+  const [errors, setErrors] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -18,12 +18,12 @@ const SignUpPage = () => {
     e.preventDefault();
 
     if (!formData.username || !formData.email || !formData.password) {
-      return setErros("Please fill out all fields");
+      return setErrors("Please fill out all fields");
     }
 
     try {
       setLoading(true);
-      setErros(null);
+      setErrors(null);
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -32,13 +32,14 @@ const SignUpPage = () => {
 
       const data = await res.json();
 
-      if (!data.sucess) {
-        return setErros(data.message);
+      if (!data.success) {
+        return setErrors(data.message);
       } else {
         navigate("/sign-in");
       }
     } catch (error) {
       console.log(error);
+      setErrors("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -68,6 +69,9 @@ const SignUpPage = () => {
         
         {/* Right section */}
         <div className="flex-1">
+        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
+            Sign Up
+          </h1>
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <Label
