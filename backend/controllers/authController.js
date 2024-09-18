@@ -11,12 +11,10 @@ export const signup = async (req, res, next) => {
 
   if (!email) {
     next(errorHandler(400, "Email is required"));
-
   }
 
   if (!password) {
     next(errorHandler(400, "Password is required"));
-
   }
 
   try {
@@ -47,7 +45,7 @@ export const signup = async (req, res, next) => {
     // Save the new user
     await newUser.save();
 
-    res.json({ message: "Signup Successfull" });
+    res.json({ sucess: true, message: "Signup Successfull" });
   } catch (error) {
     next(error);
   }
