@@ -2,13 +2,20 @@ import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HiInformationCircle } from "react-icons/hi";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../features/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import OAuth from "../components/OAuth";
 
 const SignInPage = () => {
   const [formData, setFormData] = useState({});
-  const [errors, setErrors] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -18,12 +25,11 @@ const SignInPage = () => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
-      return setErrors("Please fill out all fields");
+      return dispatch(signInFailure("Please fill out all fields"));
     }
 
     try {
-      setLoading(true);
-      setErrors(null);
+      dispatch(signInStart());
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -34,15 +40,14 @@ const SignInPage = () => {
       console.log(data); // Check the response structure
 
       if (!data.success) {
-        return setErrors(data.message);
+        dispatch(signInFailure(data.message));
       } else {
+        dispatch(signInSuccess(data));
         navigate("/");
       }
     } catch (error) {
-      console.log(error);
-      setErrors("An unexpected error occurred.");
-    } finally {
-      setLoading(false);
+      console.log(error)
+      dispatch(signInFailure("An unexepted error occured"));
     }
   };
 
@@ -120,6 +125,7 @@ const SignInPage = () => {
                 "Sign In"
               )}
             </Button>
+            <OAuth />
           </form>
           <div className="flex justify-between mt-6 text-sm">
             <span className="text-gray-600 dark:text-gray-400">
@@ -131,9 +137,9 @@ const SignInPage = () => {
           </div>
 
           {/* Error Message */}
-          {errors && (
+          {error && (
             <Alert color="failure" icon={HiInformationCircle} className="mt-4">
-              <span>{errors}</span>
+              <span>{error}</span>
             </Alert>
           )}
         </div>
