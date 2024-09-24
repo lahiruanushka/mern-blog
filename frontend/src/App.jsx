@@ -6,6 +6,8 @@ import SignUpPage from "./pages/SignUpPage";
 import Dashborad from "./pages/Dashborad";
 import Header from "./components/Header";
 import Footer from "./components/FooterComponent";
+import PrivateRoute from "./components/PrivateRoute";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const App = () => {
   return (
@@ -16,7 +18,10 @@ const App = () => {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/sign-in" element={<SignInPage />} />
         <Route path="/sign-up" element={<SignUpPage />} />
-        <Route path="/dashborad" element={<Dashborad />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<Dashborad />} />
+        </Route>
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />
     </Router>
