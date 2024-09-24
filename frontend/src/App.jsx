@@ -3,7 +3,7 @@ import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
-import Dashborad from "./pages/Dashborad";
+import Dashborad from "./pages/DashboradPage";
 import Header from "./components/Header";
 import Footer from "./components/FooterComponent";
 import PrivateRoute from "./components/PrivateRoute";
