@@ -23,6 +23,7 @@ const DashSidebar = () => {
               active={tab === "profile"}
               icon={HiUser}
               className="cursor-pointer"
+              as="div"
             >
               Profile
             </Sidebar.Item>
@@ -32,6 +33,7 @@ const DashSidebar = () => {
             <Sidebar.Item
               icon={HiArrowSmRight}
               className="cursor-pointer"
+              as="div"
             >
               Sign Out
             </Sidebar.Item>
