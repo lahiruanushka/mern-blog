@@ -10,6 +10,13 @@ import {
 import { app } from "../firebase";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import {
+  updateStart,
+  updateSuccess,
+  updateFailure,
+} from "../features/user/userSlice.js";
+
+import { useDispatch } from "react-redux";
 
 const DashProfile = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -18,7 +25,12 @@ const DashProfile = () => {
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null);
   const [imageFileUploading, setImageFileUploading] = useState(false);
   const [imageFileUploadError, setImageFileUploadError] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
+  const [updateUserError, setUpdateUserError] = useState(null);
+
   const filePickerRef = useRef();
+  const dispatch = useDispatch();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -27,7 +39,6 @@ const DashProfile = () => {
       setImageFileUrl(URL.createObjectURL(file));
     }
   };
-
   useEffect(() => {
     if (imageFile) {
       uploadImage();
@@ -37,17 +48,16 @@ const DashProfile = () => {
   const uploadImage = async () => {
     setImageFileUploading(true);
     setImageFileUploadError(null);
-
     const storage = getStorage(app);
-    const fileName = `${new Date().getTime()}_${imageFile.name}`;
+    const fileName = new Date().getTime() + imageFile.name;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, imageFile);
-
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+
         setImageFileUploadProgress(progress.toFixed(0));
       },
       (error) => {
@@ -62,11 +72,70 @@ const DashProfile = () => {
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setImageFileUrl(downloadURL);
+          setFormData({ ...formData, profilePicture: downloadURL });
           setImageFileUploading(false);
-          setImageFileUploadProgress(null); // Reset progress after completion
         });
       }
     );
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUpdateUserError(null);
+    setUpdateUserSuccess(null);
+
+    // Basic front-end validations before submitting
+    if (!formData.username || formData.username.length < 6) {
+      setUpdateUserError("Username must be at least 6 characters");
+      return;
+    }
+    if (formData.username && /\s/.test(formData.username)) {
+      setUpdateUserError("Username cannot contain spaces");
+      return;
+    }
+    if (formData.email && !/^\S+@\S+\.\S+$/.test(formData.email)) {
+      setUpdateUserError("Invalid email format");
+      return;
+    }
+    if (formData.password && formData.password.length < 6) {
+      setUpdateUserError("Password must be at least 6 characters");
+      return;
+    }
+
+    if (Object.keys(formData).length === 0) {
+      setUpdateUserError("No changes made");
+      return;
+    }
+    if (imageFileUploading) {
+      setUpdateUserError("Please wait for image to upload");
+      return;
+    }
+
+    try {
+      dispatch(updateStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        dispatch(updateFailure(data.message));
+        setUpdateUserError(data.message);
+      } else {
+        dispatch(updateSuccess(data));
+        setUpdateUserSuccess("Profile updated successfully");
+      }
+    } catch (error) {
+      dispatch(updateFailure(error.message));
+      setUpdateUserError(error.message);
+    }
   };
 
   return (
@@ -74,7 +143,7 @@ const DashProfile = () => {
       <h1 className="my-7 text-center font-semibold text-3xl text-gray-800 dark:text-white">
         Profile
       </h1>
-      <form className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="file"
           accept="image/*"
@@ -126,6 +195,7 @@ const DashProfile = () => {
           placeholder="Username"
           defaultValue={currentUser.username}
           className="dark:bg-gray-700 dark:text-white"
+          onChange={handleChange}
         />
         <TextInput
           type="email"
@@ -133,18 +203,19 @@ const DashProfile = () => {
           placeholder="Email"
           defaultValue={currentUser.email}
           className="dark:bg-gray-700 dark:text-white"
+          onChange={handleChange}
+          // Currently disabled; enable and validate email in future updates
+          disabled
         />
+
         <TextInput
           type="password"
           id="password"
           placeholder="Password"
           className="dark:bg-gray-700 dark:text-white"
+          onChange={handleChange}
         />
-        <Button
-          type="submit"
-          gradientDuoTone="purpleToBlue"
-          className="dark:!bg-purple-700"
-        >
+        <Button type="submit" gradientDuoTone="purpleToBlue" outline>
           Update
         </Button>
         <div className="flex justify-between mt-5">
@@ -153,6 +224,17 @@ const DashProfile = () => {
           </span>
         </div>
       </form>
+
+      {updateUserSuccess && (
+        <Alert color="success" className="mt-5">
+          {updateUserSuccess}
+        </Alert>
+      )}
+      {updateUserError && (
+        <Alert color="failure" className="mt-5">
+          {updateUserError}
+        </Alert>
+      )}
     </div>
   );
 };
