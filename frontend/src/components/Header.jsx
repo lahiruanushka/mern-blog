@@ -51,6 +51,7 @@ const Header = () => {
       <Button className="w-12 h-10 lg:hidden" color="gray" pill>
         <FaSearch />
       </Button>
+
       <div className="flex gap-2 md:order-2">
         <Button
           className="w-12 h-10 hidden sm:inline"
@@ -65,7 +66,12 @@ const Header = () => {
             arrowIcon={false}
             inline
             label={
-              <Avatar alt="user" img={currentUser.profilePicture} rounded />
+              <Avatar
+                alt="user"
+                img={currentUser.profilePicture || "/default-avatar.png"} // Fallback image
+                rounded
+                className="w-full"
+              />
             }
           >
             <Dropdown.Header>
@@ -97,6 +103,7 @@ const Header = () => {
 
         <Navbar.Toggle />
       </div>
+
       <Navbar.Collapse>
         <Navbar.Link
           as={Link}

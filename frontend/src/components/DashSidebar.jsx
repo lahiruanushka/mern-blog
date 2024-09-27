@@ -36,7 +36,6 @@ const DashSidebar = () => {
     <Sidebar className="w-full md:w-56">
       <Sidebar.Items>
         <Sidebar.ItemGroup>
-          {/* Wrap Sidebar.Item inside Link to avoid nesting issues */}
           <Link to="/dashboard?tab=profile" className="w-full">
             <Sidebar.Item
               active={tab === "profile"}
