@@ -18,6 +18,7 @@ import {
   deleteUserStart,
   deleteUserSuccess,
   deleteUserFailure,
+  signoutSuccess,
 } from "../features/user/userSlice.js";
 
 import { useDispatch } from "react-redux";
@@ -163,6 +164,22 @@ const DashProfile = () => {
     }
   };
 
+  const handleSignout = async () => {
+    try {
+      const res = await fetch("/api/user/signout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signoutSuccess());
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold text-3xl text-gray-800 dark:text-white">
@@ -249,6 +266,12 @@ const DashProfile = () => {
             onClick={() => setShowModal(true)}
           >
             Delete Account
+          </span>
+          <span
+            className="text-green-500 dark:text-green-400 cursor-pointer"
+            onClick={handleSignout}
+          >
+            Sign Out
           </span>
         </div>
       </form>
