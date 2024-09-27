@@ -72,7 +72,11 @@ export const signin = async (req, res, next) => {
     if (!validPassword) {
       return next(errorHandler(400, "Invalid email or password"));
     }
-    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+
+    const token = jwt.sign(
+      { id: validUser._id, isAdmin: validUser.isAdmin },
+      process.env.JWT_SECRET
+    );
 
     const { password: pass, ...rest } = validUser._doc;
 
@@ -104,10 +108,13 @@ export const google = async (req, res, next) => {
         })
         .json(rest);
     } else {
+      
       const generatedPassword =
         Math.random().toString(36).slice(-8) +
         Math.random().toString(36).slice(-8);
+
       const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+
       const newUser = new User({
         username:
           name.toLowerCase().split(' ').join('') +
@@ -116,11 +123,14 @@ export const google = async (req, res, next) => {
         password: hashedPassword,
         profilePicture: googlePhotoUrl,
       });
+
       await newUser.save();
+
       const token = jwt.sign(
         { id: newUser._id, isAdmin: newUser.isAdmin },
         process.env.JWT_SECRET
       );
+
       const { password, ...rest } = newUser._doc;
       res
         .status(200)
