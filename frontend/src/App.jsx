@@ -10,6 +10,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import NotFoundPage from "./pages/NotFoundPage";
 import OnlyAdminPrivateRoute from "./components/OnlyAdminPrivateRoute";
 import CreatePostPage from "./pages/CreatePostPage";
+import UpdatePostPage from "./pages/UpdatePostPage";
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
         </Route>
         <Route element={<OnlyAdminPrivateRoute />}>
           <Route path="/create-post" element={<CreatePostPage />} />
+          <Route path='/update-post/:postId' element={<UpdatePostPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
