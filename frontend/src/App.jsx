@@ -11,6 +11,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import OnlyAdminPrivateRoute from "./components/OnlyAdminPrivateRoute";
 import CreatePostPage from "./pages/CreatePostPage";
 import UpdatePostPage from "./pages/UpdatePostPage";
+import PostPage from "./pages/PostPage";
 
 const App = () => {
   return (
@@ -28,6 +29,8 @@ const App = () => {
           <Route path="/create-post" element={<CreatePostPage />} />
           <Route path='/update-post/:postId' element={<UpdatePostPage />} />
         </Route>
+
+        <Route path='/post/:postSlug' element={<PostPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />
