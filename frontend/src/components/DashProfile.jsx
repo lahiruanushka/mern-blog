@@ -19,10 +19,12 @@ import {
   deleteUserSuccess,
   deleteUserFailure,
   signoutSuccess,
+  clearError,
 } from "../features/user/userSlice.js";
 
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import defaultAvatar from "/src/assets/default-avatar.png";
 
 const DashProfile = () => {
   const { currentUser, error, loading } = useSelector((state) => state.user);
@@ -40,6 +42,11 @@ const DashProfile = () => {
   const filePickerRef = useRef();
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    // Clear any existing errors when the component mounts
+    dispatch(clearError());
+  }, [dispatch]);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -47,6 +54,7 @@ const DashProfile = () => {
       setImageFileUrl(URL.createObjectURL(file));
     }
   };
+
   useEffect(() => {
     if (imageFile) {
       uploadImage();
@@ -220,7 +228,7 @@ const DashProfile = () => {
             />
           )}
           <img
-            src={imageFileUrl || currentUser.profilePicture}
+            src={imageFileUrl || currentUser.profilePicture || defaultAvatar}
             alt="user"
             className={`rounded-full w-full h-full object-cover border-8 border-[lightgray] ${
               imageFileUploadProgress && imageFileUploadProgress < 100

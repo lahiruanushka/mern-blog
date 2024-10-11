@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { toggleTheme } from "../features/theme/themeSlice";
 import { signoutSuccess } from "../features/user/userSlice";
+import defaultAvatar from '/src/assets/default-avatar.png'
 
 const Header = () => {
   const { pathname } = useLocation();
@@ -68,7 +69,7 @@ const Header = () => {
             label={
               <Avatar
                 alt="user"
-                img={currentUser.profilePicture || "/default-avatar.png"} // Fallback image
+                img={currentUser.profilePicture || defaultAvatar} // Fallback image
                 rounded
                 className="w-full"
               />
