@@ -4,6 +4,7 @@ import DashSidebar from "../components/DashSidebar";
 import DashProfile from "../components/DashProfile";
 import DashPosts from "../components/DashPosts";
 import DashUsers from "../components/DashUser";
+import DashComments from "../components/DashComments";
 
 const DashboradPage = () => {
   const location = useLocation();
@@ -23,11 +24,13 @@ const DashboradPage = () => {
         {/* Sidebar */}
         <DashSidebar />
       </div>
-       {/* posts... */}
-       {tab === 'posts' && <DashPosts />}
+      {/* posts... */}
+      {tab === "posts" && <DashPosts />}
       {/* Profile */}
       {tab === "profile" && <DashProfile />}
-      {tab === 'users' && <DashUsers />}
+      {tab === "users" && <DashUsers />}
+      {/* comments  */}
+      {tab === "comments" && <DashComments />}
     </div>
   );
 };
