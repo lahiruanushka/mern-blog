@@ -1,6 +1,7 @@
 
 export const errorHandler = (statusCode, message) => {
-  const error = new Error(message);
+  const error = new Error();
   error.statusCode = statusCode;
-  throw error; // Throw the error to be caught by the error middleware
+  error.message = message;
+  return error;
 };

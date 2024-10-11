@@ -76,7 +76,12 @@ export const signin = async (req, res, next) => {
       if (user.failedAttempts >= 5) {
         user.lockUntil = Date.now() + 15 * 60 * 1000; // Lock for 15 minutes
         await user.save();
-        return next(errorHandler(423, "Account locked due to too many failed attempts. Try again later."));
+        return next(
+          errorHandler(
+            423,
+            "Account locked due to too many failed attempts. Try again later."
+          )
+        );
       }
 
       await user.save();
@@ -96,7 +101,7 @@ export const signin = async (req, res, next) => {
     res
       .status(200)
       .cookie("access_token", token, { httpOnly: true })
-      .json({ success: true, user: rest });
+      .json(rest);
   } catch (error) {
     next(error);
   }
