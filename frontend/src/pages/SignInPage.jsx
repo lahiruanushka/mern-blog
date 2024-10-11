@@ -1,11 +1,12 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HiInformationCircle } from "react-icons/hi";
 import {
   signInStart,
   signInSuccess,
   signInFailure,
+  clearError,
 } from "../features/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import OAuth from "../components/OAuth";
@@ -16,6 +17,11 @@ const SignInPage = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Clear any existing errors when the component mounts
+    dispatch(clearError());
+  }, [dispatch]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -37,17 +43,19 @@ const SignInPage = () => {
       });
 
       const data = await res.json();
-      console.log(data); // Check the response structure
+      //  console.log(data);
 
-      if (!data.success) {
-        dispatch(signInFailure(data.message));
-      } else {
+      if (res.ok) {
         dispatch(signInSuccess(data));
         navigate("/");
+      } else {
+        dispatch(signInFailure(data.message));
       }
     } catch (error) {
-      console.log(error)
-      dispatch(signInFailure("An unexepted error occured"));
+      console.error(error);
+      dispatch(
+        signInFailure("An unexpected error occurred. Please try again later.")
+      );
     }
   };
 

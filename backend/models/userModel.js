@@ -25,6 +25,14 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    failedAttempts: {
+      type: Number,
+      default: 0,
+    }, // Track failed attempts
+    lockUntil: {
+      type: Date,
+      default: null,
+    }, // Lock the account until this time
   },
   { timestamps: true }
 );

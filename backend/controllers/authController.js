@@ -55,36 +55,47 @@ export const signup = async (req, res, next) => {
 export const signin = async (req, res, next) => {
   const { email, password } = req.body;
 
-  if (!email) {
-    next(errorHandler(400, "Email is required"));
-  }
-
-  if (!password) {
-    next(errorHandler(400, "Password is required"));
+  if (!email || !password) {
+    return next(errorHandler(400, "Email and password are required"));
   }
 
   try {
-    const validUser = await User.findOne({ email });
-    if (!validUser) {
+    const user = await User.findOne({ email });
+    if (!user) {
       return next(errorHandler(404, "Invalid email or password"));
     }
-    const validPassword = bcryptjs.compareSync(password, validUser.password);
-    if (!validPassword) {
+
+    if (user.lockUntil && user.lockUntil > Date.now()) {
+      return next(errorHandler(423, "Account is locked. Try again later."));
+    }
+
+    const isPasswordValid = bcryptjs.compareSync(password, user.password);
+    if (!isPasswordValid) {
+      user.failedAttempts += 1;
+
+      if (user.failedAttempts >= 5) {
+        user.lockUntil = Date.now() + 15 * 60 * 1000; // Lock for 15 minutes
+        await user.save();
+        return next(errorHandler(423, "Account locked due to too many failed attempts. Try again later."));
+      }
+
+      await user.save();
       return next(errorHandler(400, "Invalid email or password"));
     }
 
+    user.failedAttempts = 0;
+    user.lockUntil = null;
+    await user.save();
+
     const token = jwt.sign(
-      { id: validUser._id, isAdmin: validUser.isAdmin },
+      { id: user._id, isAdmin: user.isAdmin },
       process.env.JWT_SECRET
     );
-
-    const { password: pass, ...rest } = validUser._doc;
+    const { password: pass, ...rest } = user._doc;
 
     res
       .status(200)
-      .cookie("access_token", token, {
-        httpOnly: true,
-      })
+      .cookie("access_token", token, { httpOnly: true })
       .json({ success: true, user: rest });
   } catch (error) {
     next(error);
@@ -103,12 +114,11 @@ export const google = async (req, res, next) => {
       const { password, ...rest } = user._doc;
       res
         .status(200)
-        .cookie('access_token', token, {
+        .cookie("access_token", token, {
           httpOnly: true,
         })
         .json(rest);
     } else {
-      
       const generatedPassword =
         Math.random().toString(36).slice(-8) +
         Math.random().toString(36).slice(-8);
@@ -117,7 +127,7 @@ export const google = async (req, res, next) => {
 
       const newUser = new User({
         username:
-          name.toLowerCase().split(' ').join('') +
+          name.toLowerCase().split(" ").join("") +
           Math.random().toString(9).slice(-4),
         email,
         password: hashedPassword,
@@ -134,7 +144,7 @@ export const google = async (req, res, next) => {
       const { password, ...rest } = newUser._doc;
       res
         .status(200)
-        .cookie('access_token', token, {
+        .cookie("access_token", token, {
           httpOnly: true,
         })
         .json(rest);
