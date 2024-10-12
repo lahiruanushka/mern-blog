@@ -141,7 +141,7 @@ export default function Search() {
         {showMore && (
           <Button
             onClick={handleShowMore}
-            className="mt-8 w-full text-teal-500 text-lg hover:underline"
+            className="mt-8 w-auto bg-teal-500 text-white text-lg"
           >
             Show More
           </Button>

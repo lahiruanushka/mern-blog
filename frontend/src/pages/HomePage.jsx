@@ -14,19 +14,24 @@ export default function Home() {
     fetchPosts();
   }, []);
   return (
-    <div>
-      <div className="flex flex-col gap-6 p-28 px-3 max-w-6xl mx-auto ">
-        <h1 className="text-3xl font-bold lg:text-6xl">Welcome to Blog Nest</h1>
-        <p className="text-gray-500 text-xs sm:text-sm">
-          Here you'll find a variety of articles and tutorials on topics such as
-          web development, software engineering, and programming languages.
-        </p>
-        <Link
-          to="/search"
-          className="text-xs sm:text-sm text-teal-500 font-bold hover:underline"
-        >
-          View all posts
-        </Link>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <div className="p-12">
+        <div className="max-w-6xl mx-auto flex flex-col gap-6 items-center text-center">
+          <h1 className="text-4xl md:text-6xl font-extrabold">
+            Welcome to Blog Nest
+          </h1>
+          <p className="text-lg md:text-xl font-light max-w-2xl">
+            Discover high-quality articles and tutorials on web development,
+            software engineering, and programming languages.
+          </p>
+          <Link
+            to="/search"
+            className="mt-4 px-8 py-3 bg-white text-teal-500 font-semibold rounded-full shadow-lg hover:bg-teal-100 transition duration-300"
+          >
+            Explore Posts
+          </Link>
+        </div>
       </div>
 
       <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 py-7">
