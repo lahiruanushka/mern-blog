@@ -1,17 +1,32 @@
 import { Avatar, Button, Dropdown, Navbar, TextInput } from "flowbite-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaMoon, FaSearch, FaSun } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { toggleTheme } from "../features/theme/themeSlice";
 import { signoutSuccess } from "../features/user/userSlice";
-import defaultAvatar from '/src/assets/default-avatar.png'
+import defaultAvatar from "/src/assets/default-avatar.png";
+import { useEffect, useState } from "react";
 
 const Header = () => {
   const { pathname } = useLocation();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchFromUrl = urlParams.get("searchTerm");
+
+    if (searchFromUrl) {
+      setSearchTerm(searchFromUrl);
+    }
+  }, [location.search]);
 
   const handleSignout = async () => {
     try {
@@ -29,6 +44,15 @@ const Header = () => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const urlParms = new URLSearchParams(location.search);
+    urlParms.set("searchTerm", searchTerm);
+
+    const searchQuery = urlParms.toString();
+    navigate(`/search?${searchQuery}`);
+  };
+
   return (
     <Navbar className="border-b-2">
       <Link
@@ -41,12 +65,14 @@ const Header = () => {
         Nest
       </Link>
 
-      <form>
+      <form onSubmit={handleSubmit}>
         <TextInput
           type="text"
           placeholder="Search..."
           className="hidden lg:inline-block rounded-md p-2"
           rightIcon={FaSearch}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </form>
       <Button className="w-12 h-10 lg:hidden" color="gray" pill>
