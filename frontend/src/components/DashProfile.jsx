@@ -274,17 +274,6 @@ const DashProfile = () => {
         >
           {loading ? "Updating..." : "Update"}
         </Button>
-        {currentUser.isAdmin && (
-          <Link to={"/create-post"}>
-            <Button
-              type="button"
-              gradientDuoTone="purpleToPink"
-              className="w-full"
-            >
-              Create a post
-            </Button>
-          </Link>
-        )}
         <div className="flex justify-between mt-5">
           <span
             className="text-red-500 cursor-pointer dark:text-red-400"
