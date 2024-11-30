@@ -3,19 +3,56 @@ import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 
+// In-memory store for tracking signup attempts
+const signupAttempts = new Map();
+
+// Clean up old attempts periodically
+function cleanupSignupAttempts() {
+  const now = Date.now();
+  for (const [ip, attempt] of signupAttempts.entries()) {
+    if (now - attempt.timestamp > 60 * 60 * 1000) { // 1 hour
+      signupAttempts.delete(ip);
+    }
+  }
+}
+
+// Run cleanup every hour
+setInterval(cleanupSignupAttempts, 60 * 60 * 1000);
+
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
+  
+  // Get client IP (works with proxies)
+  const ip = 
+    req.headers['x-forwarded-for'] || 
+    req.headers['x-real-ip'] || 
+    req.socket.remoteAddress;
 
+  // Validate input fields
   if (!username) {
-    next(errorHandler(400, "Username is required"));
+    return next(errorHandler(400, "Username is required"));
   }
 
   if (!email) {
-    next(errorHandler(400, "Email is required"));
+    return next(errorHandler(400, "Email is required"));
   }
 
   if (!password) {
-    next(errorHandler(400, "Password is required"));
+    return next(errorHandler(400, "Password is required"));
+  }
+
+  // Rate limiting logic
+  const now = Date.now();
+  const ipAttempt = signupAttempts.get(ip) || { count: 0, timestamp: now };
+
+  // Allow max 5 signup attempts per hour from same IP
+  if (ipAttempt.count >= 5) {
+    const timeSinceFirstAttempt = now - ipAttempt.timestamp;
+    
+    // If more than 5 attempts within an hour, block
+    if (timeSinceFirstAttempt < 60 * 60 * 1000) {
+      return next(errorHandler(429, "Too many signup attempts. Please try again later."));
+    }
   }
 
   try {
@@ -33,6 +70,12 @@ export const signup = async (req, res, next) => {
       return res.status(400).json({ message: "Email address already exists" });
     }
 
+    // Update signup attempts
+    signupAttempts.set(ip, {
+      count: ipAttempt.count + 1,
+      timestamp: ipAttempt.timestamp || now
+    });
+
     // Hash the password
     const hashedPassword = bcryptjs.hashSync(password, 10);
 
@@ -46,7 +89,10 @@ export const signup = async (req, res, next) => {
     // Save the new user
     await newUser.save();
 
-    res.json({ success: true, message: "Signup Successfull" });
+    // Reset signup attempts on successful signup
+    signupAttempts.delete(ip);
+
+    res.json({ success: true, message: "Signup Successful" });
   } catch (error) {
     next(error);
   }
