@@ -55,8 +55,11 @@ const Header = () => {
 
   return (
     <Navbar className="border-b-2">
-      <Link to="/" className="inline-block">
-        <div className="px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-md font-semibold">
+      <Link
+        to="/"
+        className="inline-block transition-all duration-300 ease-in-out hover:scale-105 hover:brightness-110 active:scale-95"
+      >
+        <div className="px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-md font-semibold transition-all duration-300 ease-in-out transform hover:shadow-md">
           ByteThoughts
         </div>
       </Link>

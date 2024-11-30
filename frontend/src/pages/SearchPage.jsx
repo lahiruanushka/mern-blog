@@ -122,7 +122,7 @@ export default function Search() {
       {/* Main Content */}
       <div className="flex-1 p-7">
         <h1 className="text-3xl font-semibold mb-6 border-b border-gray-300">
-          Posts Results
+          Posts
         </h1>
         <div className="flex flex-wrap gap-6">
           {!loading && posts.length === 0 && (
