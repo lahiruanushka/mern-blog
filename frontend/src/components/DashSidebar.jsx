@@ -6,7 +6,8 @@ import {
   HiDocumentText,
   HiOutlineUserGroup,
   HiAnnotation,
-  HiChartPie
+  HiChartPie,
+  HiOutlineTag
 } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
 import { signoutSuccess } from "../features/user/userSlice";
@@ -86,6 +87,15 @@ const DashSidebar = () => {
                   as="div"
                 >
                   Comments
+                </Sidebar.Item>
+              </Link>
+              <Link to="/dashboard?tab=categories">
+                <Sidebar.Item
+                  active={tab === "categories"}
+                  icon={HiOutlineTag}
+                  as="div"
+                >
+                  Categories
                 </Sidebar.Item>
               </Link>
             </>

@@ -9,6 +9,7 @@ import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
 
 dotenv.config();
 
@@ -18,10 +19,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: "http://http://localhost:5173/",
-  credentials: true, // Enable credentials if cookies are used
-}));
+app.use(cors());
 
 // MongoDB Connection
 mongoose
@@ -37,6 +35,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/comment", commentRoutes);
+app.use("/api/category", categoryRoutes);
 
 // Handle undefined routes
 app.use((req, res, next) => {

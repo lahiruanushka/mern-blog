@@ -8,7 +8,7 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +19,8 @@ const CreatePostPage = () => {
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
+  const [categories, setCategories] = useState([]);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -82,6 +84,23 @@ const CreatePostPage = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/category/all");
+        const data = await response.json();
+
+        if (response.ok) {
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <div className="p-3 max-w-3xl mx-auto min-h-screen">
       <h1 className="text-center text-3xl my-7 font-semibold">Create a post</h1>
@@ -103,9 +122,11 @@ const CreatePostPage = () => {
             }
           >
             <option value="uncategorized">Select a category</option>
-            <option value="javascript">JavaScript</option>
-            <option value="reactjs">React.js</option>
-            <option value="nextjs">Next.js</option>
+            {categories.map((category) => (
+              <option key={category._id} value={category.slug}>
+                {category.name}
+              </option>
+            ))}
           </Select>
         </div>
         <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
