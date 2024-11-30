@@ -66,17 +66,16 @@ const SignInPage = () => {
         <div className="flex-1 mb-8 md:mb-0">
           <Link
             to="/"
-            className="text-4xl font-extrabold text-gray-900 dark:text-white"
+            className="text-4xl font-extrabold text-gray-900 dark:text-white inline-block transition-all duration-300 ease-in-out hover:scale-105 hover:brightness-110 active:scale-95"
           >
-            <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white">
-              Blog
-            </span>
-            Nest
+            <div className="px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-md font-semibold transition-all duration-300 ease-in-out transform hover:shadow-md">
+              ByteThoughts
+            </div>
           </Link>
           <p className="mt-5 text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-            Welcome to BlogNest, where you can share your stories and connect
-            with others. Log in to access your account and start engaging with
-            our community.
+            Welcome to ByteThoughts, where you can explore stories and connect
+            with a vibrant community. Log in to access your account and start
+            reading, commenting, and engaging with posts today.
           </p>
         </div>
 
