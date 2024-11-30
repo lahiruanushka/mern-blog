@@ -1,55 +1,158 @@
+import React from "react";
+import { Card, Badge, Timeline, List, Button } from "flowbite-react";
+import {
+  HiAcademicCap,
+  HiCode,
+  HiGlobeAlt,
+  HiLightBulb,
+  HiUserGroup,
+} from "react-icons/hi";
+
 const AboutPage = () => {
+  const features = [
+    {
+      icon: HiCode,
+      title: "In-depth Tutorials",
+      description:
+        "Comprehensive guides on programming languages and frameworks",
+    },
+    {
+      icon: HiGlobeAlt,
+      title: "Web Development Trends",
+      description: "Latest insights and best practices in the tech world",
+    },
+    {
+      icon: HiLightBulb,
+      title: "Skill Enhancement",
+      description: "Tips and tricks to level up your coding skills",
+    },
+    {
+      icon: HiAcademicCap,
+      title: "Expert Insights",
+      description: "Learning directly from industry professionals",
+    },
+    {
+      icon: HiUserGroup,
+      title: "Community Driven",
+      description: "A supportive network of learners and creators",
+    },
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto p-6 md:p-12">
-      <h1 className="text-4xl font-bold text-center mb-6 text-gray-900 dark:text-gray-100">
-        About BlogNest
-      </h1>
-      <p className="text-lg text-gray-700 dark:text-gray-300 leading-8 mb-4">
-        Welcome to{" "}
-        <span className="font-semibold text-teal-500 dark:text-teal-400">
-          BlogNest
-        </span>
-        ! Our mission is to provide developers, tech enthusiasts, and beginners
-        with high-quality articles and tutorials on web development, software
-        engineering, and programming languages. Whether you're looking to
-        sharpen your coding skills or dive into a new technology, BlogNest has
-        something for everyone.
-      </p>
-      <p className="text-lg text-gray-700 dark:text-gray-300 leading-8 mb-4">
-        Created as a dynamic platform for educational purposes, BlogNest aims to
-        foster a community of learners and creators, encouraging knowledge
-        sharing and growth. We feature content on topics ranging from the basics
-        of HTML and CSS to advanced JavaScript frameworks, backend development
-        with Laravel, and more. Our goal is to create a repository of reliable
-        and up-to-date content to help developers excel.
-      </p>
-      <p className="text-lg text-gray-700 dark:text-gray-300 leading-8 mb-4">
-        Our platform allows users to explore recent posts, filter by categories,
-        and find posts that match their interests. We are constantly working on
-        enhancing the user experience and adding new features to improve the way
-        our readers engage with content.
-      </p>
-      <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900 dark:text-gray-100">
-        What You'll Find on BlogNest
-      </h2>
-      <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 leading-7">
-        <li>
-          In-depth tutorials on various programming languages and frameworks
-        </li>
-        <li>Latest trends and best practices in web development</li>
-        <li>Tips and tricks for improving your coding skills</li>
-        <li>Insights from industry experts</li>
-        <li>A supportive community of fellow learners</li>
-      </ul>
-      <p className="text-lg text-gray-700 dark:text-gray-300 leading-8 mt-8">
-        We're excited to have you here and can't wait for you to explore the
-        world of development with us. Whether you're a seasoned developer or
-        just starting, BlogNest is your go-to resource for all things tech.
-      </p>
-      <p className="text-lg text-gray-700 dark:text-gray-300 leading-8 mt-4">
-        Feel free to explore, contribute, and share your own insights with our
-        growing community. Happy learning and coding!
-      </p>
+    <div className="max-w-6xl mx-auto p-6 md:p-12">
+      <Card className="mb-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+            About ByteThoughts
+          </h1>
+          <Badge color="info" className="mx-auto mb-4">
+            Tech Learning Platform
+          </Badge>
+          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-4xl mx-auto">
+            Your ultimate destination for cutting-edge web development and
+            programming knowledge.
+          </p>
+        </div>
+      </Card>
+
+      <div className="grid md:grid-cols-2 gap-8">
+        <Card>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+            Our Mission
+          </h2>
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+            ByteThoughts is dedicated to empowering developers and tech
+            enthusiasts with high-quality, accessible learning resources. From
+            beginner tutorials to advanced technical insights, we're committed
+            to fostering growth and innovation in the tech community.
+          </p>
+        </Card>
+
+        <Card>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+            What We Offer
+          </h2>
+          <List>
+            <List.Item icon={HiCode}>
+              Tutorials on Programming Languages
+            </List.Item>
+            <List.Item icon={HiGlobeAlt}>Web Development Frameworks</List.Item>
+            <List.Item icon={HiLightBulb}>
+              Skill Enhancement Resources
+            </List.Item>
+            <List.Item icon={HiAcademicCap}>Expert-Led Content</List.Item>
+          </List>
+        </Card>
+      </div>
+
+      <Card className="mt-8">
+        <h2 className="text-2xl font-semibold mb-6 text-center text-gray-900 dark:text-gray-100">
+          Our Key Features
+        </h2>
+        <div className="grid md:grid-cols-3 gap-6">
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+            >
+              <feature.icon className="mx-auto mb-4 h-12 w-12 text-teal-500 dark:text-teal-400" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
+                {feature.title}
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300">
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="mt-8">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+          Our Journey
+        </h2>
+        <Timeline>
+          <Timeline.Item>
+            <Timeline.Point />
+            <Timeline.Content>
+              <Timeline.Title>Platform Launch</Timeline.Title>
+              <Timeline.Body>
+                Established ByteThoughts as a comprehensive learning platform
+                for developers.
+              </Timeline.Body>
+            </Timeline.Content>
+          </Timeline.Item>
+          <Timeline.Item>
+            <Timeline.Point />
+            <Timeline.Content>
+              <Timeline.Title>Community Growth</Timeline.Title>
+              <Timeline.Body>
+                Expanding our reach and connecting tech enthusiasts worldwide.
+              </Timeline.Body>
+            </Timeline.Content>
+          </Timeline.Item>
+          <Timeline.Item>
+            <Timeline.Point />
+            <Timeline.Content>
+              <Timeline.Title>Continuous Innovation</Timeline.Title>
+              <Timeline.Body>
+                Committed to providing up-to-date, high-quality content.
+              </Timeline.Body>
+            </Timeline.Content>
+          </Timeline.Item>
+        </Timeline>
+      </Card>
+
+      <Card className="mt-8 text-center">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+          Join Our Community
+        </h2>
+        <p className="text-gray-700 dark:text-gray-300 mb-6">
+          Ready to start your learning journey? Explore our content, connect
+          with fellow developers, and grow your skills.
+        </p>
+        <Button gradientDuoTone="tealToLime">Start Exploring</Button>
+      </Card>
     </div>
   );
 };
