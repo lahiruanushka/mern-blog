@@ -59,13 +59,6 @@ const FavoriteButton = ({ post }) => {
           ${isFavorite ? "fill-current" : ""}
         `}
       />
-      <span className="text-sm font-medium">
-        {loading
-          ? "Processing..."
-          : isFavorite
-          ? "Remove from Favorites"
-          : "Add to Favorites"}
-      </span>
       {loading && (
         <div className="w-4 h-4 border-2 border-red-500 rounded-full animate-spin border-t-transparent ml-1"></div>
       )}

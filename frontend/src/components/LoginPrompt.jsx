@@ -46,10 +46,6 @@ const LoginPrompt = ({ isOpen = true, onClose = () => {} }) => {
       text: "Access your personalized profile",
     },
     {
-      icon: HiPencil,
-      text: "Create and share your stories",
-    },
-    {
       icon: HiBookmark,
       text: "Save posts to read later",
     },

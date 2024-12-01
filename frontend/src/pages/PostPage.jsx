@@ -1,6 +1,8 @@
-import { Button, Spinner } from "flowbite-react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Button, Spinner, Badge, Card } from "flowbite-react";
 import { Link, useParams } from "react-router-dom";
+import { HiClock, HiCalendar, HiTag } from "react-icons/hi";
 import CommentSection from "../components/CommentSection";
 import PostCard from "../components/PostCard";
 import FavoriteButton from "../components/FavoriteButton";
@@ -37,19 +39,32 @@ const PostPage = () => {
   }, [postSlug]);
 
   useEffect(() => {
-    try {
-      const fetchRecentPosts = async () => {
+    const fetchRecentPosts = async () => {
+      try {
         const res = await fetch(`/api/post/getposts?limit=3`);
         const data = await res.json();
         if (res.ok) {
           setRecentPosts(data.posts);
         }
-      };
-      fetchRecentPosts();
-    } catch (error) {
-      console.log(error.message);
-    }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+
+    fetchRecentPosts();
   }, []);
+
+  const pageVariants = {
+    initial: { opacity: 0, y: 20 },
+    in: { opacity: 1, y: 0 },
+    out: { opacity: 0, y: -20 },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.5,
+  };
 
   if (loading)
     return (
@@ -59,49 +74,97 @@ const PostPage = () => {
     );
 
   return (
-    <main className="p-3 flex flex-col max-w-6xl mx-auto min-h-screen">
-      <h1 className="text-3xl mt-10 p-3 text-center font-serif max-w-2xl mx-auto lg:text-4xl">
-        {post && post.title}
-      </h1>
-      <Link
-        to={`/search?category=${post && post.category}`}
-        className="self-center mt-5"
+    <motion.main
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      transition={pageTransition}
+      className="p-3 flex flex-col max-w-6xl mx-auto min-h-screen"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="text-center mb-8"
       >
-        <Button color="gray" pill size="xs">
-          {post && post.category}
-        </Button>
-      </Link>
+        <h1 className="text-4xl mt-10 font-bold text-gray-900 dark:text-gray-100 mb-4">
+          {post && post.title}
+        </h1>
 
-      <img
-        src={post && post.image}
-        alt={post && post.title}
-        className="mt-10 p-3 max-h-[600px] w-full object-cover"
-      />
-      <div className="flex justify-between p-3 border-b border-slate-500 mx-auto w-full max-w-2xl text-xs">
-        <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
-        <span className="italic">
-          {post && (post.content.length / 1000).toFixed(0)} mins read
-        </span>
+        <div className="flex justify-center items-center space-x-4 mb-6">
+          <Link to={`/search?category=${post && post.category}`}>
+            <Badge color="info" icon={HiTag} className="cursor-pointer">
+              {post && post.category}
+            </Badge>
+          </Link>
+        </div>
+      </motion.div>
 
-        {/* Add to Favorites Button */}
-        <FavoriteButton post={post} />
-      </div>
-      <div
-        className="p-3 max-w-2xl mx-auto w-full post-content"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="mb-8 flex justify-center"
+      >
+        <img
+          src={post && post.image}
+          alt={post && post.title}
+          className="w-auto max-h-[350px] object-contain rounded-xl shadow-lg"
+        />
+      </motion.div>
+
+      <Card className="max-w-2xl mx-auto w-full mb-8">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <HiCalendar className="text-gray-500" />
+            <span className="text-sm text-gray-600">
+              {post && new Date(post.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+          <div className="flex items-center space-x-4">
+            <HiClock className="text-gray-500" />
+            <span className="text-sm text-gray-600 italic">
+              {post && (post.content.length / 1000).toFixed(0)} mins read
+            </span>
+          </div>
+          <FavoriteButton post={post} />
+        </div>
+      </Card>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
+        className="max-w-2xl mx-auto w-full prose dark:prose-invert"
         dangerouslySetInnerHTML={{ __html: post && post.content }}
-      ></div>
+      />
 
-      {/* Comment Section */}
       <CommentSection postId={post._id} />
 
-      <div className="flex flex-col justify-center items-center mb-5">
-        <h1 className="text-xl mt-5">Recent articles</h1>
-        <div className="flex flex-wrap gap-5 mt-5 justify-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="mt-12 text-center"
+      >
+        <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
+          Recent Articles
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {recentPosts &&
-            recentPosts.map((post) => <PostCard key={post._id} post={post} />)}
+            recentPosts.map((recentPost) => (
+              <motion.div
+                key={recentPost._id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <PostCard post={recentPost} />
+              </motion.div>
+            ))}
         </div>
-      </div>
-    </main>
+      </motion.div>
+    </motion.main>
   );
 };
 
