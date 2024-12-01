@@ -6,8 +6,12 @@ import {
 } from "../features/favorites/favoritesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useToast } from "../context/ToastContext";
+import LoginPrompt from "./LoginPrompt";
+import { useState } from "react";
 
 export default function PostCard({ post }) {
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+
   const dispatch = useDispatch();
   const { showToast } = useToast();
 
@@ -28,7 +32,7 @@ export default function PostCard({ post }) {
   // Handle favorite toggle
   const handleFavoriteToggle = async () => {
     if (!currentUser) {
-      showToast("Please log in to manage favorites.", "warning");
+      setIsLoginPromptOpen(true);
       return;
     }
     try {
@@ -42,6 +46,10 @@ export default function PostCard({ post }) {
     } catch (error) {
       showToast(error.message || "Failed to update favorites", "error");
     }
+  };
+
+  const handleCloseLoginPrompt = () => {
+    setIsLoginPromptOpen(false);
   };
 
   return (
@@ -61,23 +69,22 @@ export default function PostCard({ post }) {
       <div className="p-3 flex flex-col gap-2">
         <div className="flex justify-between items-center">
           <p className="text-xl font-semibold line-clamp-2">{post.title}</p>
-          {currentUser && (
-            <button
-              className={`relative group/btn p-2 rounded-full transition-transform duration-300 hover:scale-110 active:scale-95
+          <button
+            className={`relative group/btn p-2 rounded-full transition-transform duration-300 hover:scale-110 active:scale-95
                 ${loading ? "cursor-not-allowed" : "cursor-pointer"}
                 ${
                   isFavorite
                     ? "text-red-500"
                     : "text-teal-500 hover:text-red-500"
                 }`}
-              onClick={handleFavoriteToggle}
-              disabled={loading}
-              aria-label={
-                isFavorite ? "Remove from favorites" : "Add to favorites"
-              }
-            >
-              <HiHeart
-                className={`h-6 w-6 transition-all duration-300 ease-in-out
+            onClick={handleFavoriteToggle}
+            disabled={loading}
+            aria-label={
+              isFavorite ? "Remove from favorites" : "Add to favorites"
+            }
+          >
+            <HiHeart
+              className={`h-6 w-6 transition-all duration-300 ease-in-out
                   ${
                     isFavorite
                       ? "fill-current animate-favorite"
@@ -85,20 +92,15 @@ export default function PostCard({ post }) {
                   }
                   ${loading ? "opacity-50" : "opacity-100"}
                 `}
-              />
-              {loading && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-4 h-4 border-2 border-current rounded-full animate-spin border-t-transparent"></div>
-                </div>
-              )}
-            </button>
-          )}
+            />
+            {loading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-4 h-4 border-2 border-current rounded-full animate-spin border-t-transparent"></div>
+              </div>
+            )}
+          </button>
         </div>
-        {error && (
-          <p className="text-red-500 text-sm mt-1">
-            {typeof error === "object" ? error.message : error}
-          </p>
-        )}
+
         <Link
           to={`/post/${post.slug}`}
           className="z-10 group-hover:bottom-0 absolute bottom-4 left-0 right-0 border border-teal-500 text-teal-500 hover:bg-teal-500 hover:text-white transition-all duration-300 text-center py-2 rounded-md !rounded-tl-none m-2"
@@ -106,6 +108,11 @@ export default function PostCard({ post }) {
           Read article
         </Link>
       </div>
+
+      <LoginPrompt
+        isOpen={isLoginPromptOpen}
+        onClose={handleCloseLoginPrompt}
+      />
     </div>
   );
 }
