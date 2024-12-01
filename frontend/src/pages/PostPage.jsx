@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import CommentSection from "../components/CommentSection";
 import PostCard from "../components/PostCard";
+import FavoriteButton from "../components/FavoriteButton";
 
 const PostPage = () => {
   const { postSlug } = useParams();
@@ -70,6 +71,7 @@ const PostPage = () => {
           {post && post.category}
         </Button>
       </Link>
+
       <img
         src={post && post.image}
         alt={post && post.title}
@@ -80,11 +82,15 @@ const PostPage = () => {
         <span className="italic">
           {post && (post.content.length / 1000).toFixed(0)} mins read
         </span>
+
+        {/* Add to Favorites Button */}
+        <FavoriteButton post={post} />
       </div>
       <div
         className="p-3 max-w-2xl mx-auto w-full post-content"
         dangerouslySetInnerHTML={{ __html: post && post.content }}
       ></div>
+
       {/* Comment Section */}
       <CommentSection postId={post._id} />
 

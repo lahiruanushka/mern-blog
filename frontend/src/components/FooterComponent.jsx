@@ -70,10 +70,30 @@ const FooterComponent = () => {
             className="text-gray-600 dark:text-gray-400"
           />
           <div className="flex gap-6 sm:mt-0 mt-4 sm:justify-center">
-            <Footer.Icon href="#" icon={BsFacebook} />
-            <Footer.Icon href="#" icon={BsInstagram} />
-            <Footer.Icon href="#" icon={BsTwitter} />
-            <Footer.Icon href="#" icon={BsPinterest} />
+            <Footer.Icon
+              href="https://www.facebook.com"
+              icon={BsFacebook}
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+            <Footer.Icon
+              href="https://www.instagram.com"
+              icon={BsInstagram}
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+            <Footer.Icon
+              href="https://www.twitter.com"
+              icon={BsTwitter}
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+            <Footer.Icon
+              href="https://www.pinterest.com"
+              icon={BsPinterest}
+              target="_blank"
+              rel="noopener noreferrer"
+            />
           </div>
         </div>
       </div>

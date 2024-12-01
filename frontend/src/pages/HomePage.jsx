@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Card, Badge, Button, Carousel } from "flowbite-react";
 import { HiCode, HiDatabase, HiDesktopComputer, HiSearch } from "react-icons/hi";
 import PostCard from "../components/PostCard";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
-
+  
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -56,7 +56,7 @@ export default function Home() {
               color="light" 
               size="lg" 
               className="group"
-              href="/search"
+              to="/search"
               as={Link}
             >
               <HiSearch className="mr-2 h-5 w-5 group-hover:animate-pulse" />
@@ -66,7 +66,7 @@ export default function Home() {
               color="dark" 
               size="lg" 
               outline 
-              href="/about"
+              to="/about"
               as={Link}
             >
               Learn More
@@ -113,7 +113,7 @@ export default function Home() {
               <Button 
                 color="teal" 
                 size="lg" 
-                href="/search"
+                to="/search"
                 as={Link}
               >
                 View All Posts

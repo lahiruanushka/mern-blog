@@ -25,19 +25,22 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    favorites: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Post'
+    }],
     failedAttempts: {
       type: Number,
       default: 0,
-    }, // Track failed attempts
+    },
     lockUntil: {
       type: Date,
       default: null,
-    }, // Lock the account until this time
+    },
   },
   { timestamps: true }
 );
 
-// Create user model
 const User = mongoose.model("User", userSchema);
 
 export default User;

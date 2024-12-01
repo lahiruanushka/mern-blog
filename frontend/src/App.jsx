@@ -14,15 +14,21 @@ import UpdatePostPage from "./pages/UpdatePostPage";
 import PostPage from "./pages/PostPage";
 import ScrollToTop from "./components/ScrollToTop";
 import SearchPage from "./pages/SearchPage";
+import ToastComponent from "./components/ToastComponent";
+import FavoritesPage from "./pages/FavoritesPage";
 
 const App = () => {
   return (
     <Router>
-       <ScrollToTop />
+      <ScrollToTop />
       <Header />
+
+      <ToastComponent />
+
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/sign-in" element={<SignInPage />} />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route path="/search" element={<SearchPage />} />
@@ -31,10 +37,10 @@ const App = () => {
         </Route>
         <Route element={<OnlyAdminPrivateRoute />}>
           <Route path="/create-post" element={<CreatePostPage />} />
-          <Route path='/update-post/:postId' element={<UpdatePostPage />} />
+          <Route path="/update-post/:postId" element={<UpdatePostPage />} />
         </Route>
 
-        <Route path='/post/:postSlug' element={<PostPage />} />
+        <Route path="/post/:postSlug" element={<PostPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />
