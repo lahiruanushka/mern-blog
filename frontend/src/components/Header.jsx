@@ -153,6 +153,13 @@ const Header = () => {
         >
           About
         </Navbar.Link>
+        <Navbar.Link
+          as={Link}
+          to="/favorites"
+          className={pathname === "/favorites" ? "text-blue-500" : ""}
+        >
+          Favorites
+        </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>
   );

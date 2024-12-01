@@ -7,8 +7,11 @@ import {
   HiLightBulb,
   HiUserGroup,
 } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
 
 const AboutPage = () => {
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: HiCode,
@@ -151,7 +154,13 @@ const AboutPage = () => {
           Ready to start your learning journey? Explore our content, connect
           with fellow developers, and grow your skills.
         </p>
-        <Button gradientDuoTone="tealToLime">Start Exploring</Button>
+
+        <Button
+          gradientDuoTone="tealToLime"
+          onClick={() => navigate("/search")}
+        >
+          Start Exploring
+        </Button>
       </Card>
     </div>
   );
