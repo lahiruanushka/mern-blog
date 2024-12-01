@@ -80,13 +80,14 @@ const Header = () => {
 
       <div className="flex gap-2 md:order-2">
         <Button
-          className="w-12 h-10 hidden sm:inline"
+          className="w-12 h-10 sm:inline"
           color="gray"
           pill
           onClick={() => dispatch(toggleTheme())}
         >
           {theme === "light" ? <FaMoon /> : <FaSun />}
         </Button>
+
         {currentUser ? (
           <Dropdown
             arrowIcon={false}
@@ -94,7 +95,7 @@ const Header = () => {
             label={
               <Avatar
                 alt="user"
-                img={currentUser.profilePicture || defaultAvatar} // Fallback image
+                img={currentUser.profilePicture || defaultAvatar}
                 rounded
                 className="w-full"
               />
@@ -125,11 +126,6 @@ const Header = () => {
             <Link to="/sign-in">
               <Button gradientDuoTone="purpleToBlue" outline>
                 Sign In
-              </Button>
-            </Link>
-            <Link to="/sign-up">
-              <Button gradientDuoTone="purpleToBlue" outline>
-                Sign Up
               </Button>
             </Link>
           </>

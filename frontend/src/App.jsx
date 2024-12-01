@@ -16,11 +16,11 @@ import ScrollToTop from "./components/ScrollToTop";
 import SearchPage from "./pages/SearchPage";
 import ToastComponent from "./components/ToastComponent";
 import FavoritesPage from "./pages/FavoritesPage";
+import AutoScrollToTop from "./components/AutoScrollToTop";
 
 const App = () => {
   return (
     <Router>
-      <ScrollToTop />
       <Header />
 
       <ToastComponent />
@@ -43,6 +43,9 @@ const App = () => {
         <Route path="/post/:postSlug" element={<PostPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+
+      <ScrollToTop />
+      <AutoScrollToTop />
       <Footer />
     </Router>
   );

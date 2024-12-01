@@ -1,27 +1,77 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { HiOutlineChevronUp } from "react-icons/hi";
 
 const ScrollToTop = () => {
-  const [shouldScroll, setShouldScroll] = useState(false);
-  const location = useLocation();
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Show button when page is scrolled up to given distance
+  const toggleVisibility = () => {
+    if (window.pageYOffset > 300) {
+      setIsVisible(true);
+    } else {
+      setIsVisible(false);
+    }
+  };
+
+  // Scroll the page to the top
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
-    // Whenever the location changes, set the shouldScroll flag to true
-    setShouldScroll(true);
+    // Add scroll event listener
+    window.addEventListener("scroll", toggleVisibility);
 
-    // Scroll to the top of the page
-    window.scrollTo(0, 0);
+    // Clean up the event listener
+    return () => {
+      window.removeEventListener("scroll", toggleVisibility);
+    };
+  }, []);
 
-    // Reset the shouldScroll flag after the scroll has completed
-    const scrollTimeout = setTimeout(() => {
-      setShouldScroll(false);
-    }, 100);
-
-    return () => clearTimeout(scrollTimeout);
-  }, [location]);
-
-  // Don't render anything, this component just handles the scrolling behavior
-  return null;
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.button
+          initial={{
+            opacity: 0,
+            scale: 0.5,
+            y: 50,
+          }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            transition: {
+              type: "spring",
+              stiffness: 300,
+              damping: 20,
+            },
+          }}
+          exit={{
+            opacity: 0,
+            scale: 0.5,
+            y: 50,
+            transition: {
+              duration: 0.2,
+            },
+          }}
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 bg-teal-500 text-white 
+          p-3 rounded-full shadow-lg hover:bg-teal-600 
+          focus:outline-none focus:ring-2 focus:ring-teal-500 
+          focus:ring-offset-2 transition-all duration-300 
+          dark:bg-teal-600 dark:hover:bg-teal-700"
+          aria-label="Scroll to top"
+        >
+          <HiOutlineChevronUp className="h-6 w-6" />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
 };
 
 export default ScrollToTop;
