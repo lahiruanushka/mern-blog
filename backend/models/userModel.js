@@ -25,10 +25,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    favorites: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Post'
-    }],
+    favorites: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
     failedAttempts: {
       type: Number,
       default: 0,
@@ -37,6 +39,8 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    passwordResetToken: { type: String },
+    passwordResetExpires: { type: Date },
   },
   { timestamps: true }
 );

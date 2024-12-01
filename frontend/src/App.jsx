@@ -17,6 +17,8 @@ import SearchPage from "./pages/SearchPage";
 import ToastComponent from "./components/ToastComponent";
 import FavoritesPage from "./pages/FavoritesPage";
 import AutoScrollToTop from "./components/AutoScrollToTop";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 const App = () => {
   return (
@@ -32,6 +34,9 @@ const App = () => {
         <Route path="/sign-in" element={<SignInPage />} />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashborad />} />
         </Route>

@@ -132,6 +132,14 @@ const SignInPage = () => {
                 "Sign In"
               )}
             </Button>
+            
+            <Link
+              to="/forgot-password"
+              className="text-indigo-500 hover:underline mt-4 block text-sm"
+            >
+              Forgot Password?
+            </Link>
+
             <OAuth />
           </form>
           <div className="flex justify-between mt-6 text-sm">
