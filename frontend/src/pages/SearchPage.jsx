@@ -1,9 +1,10 @@
-import { Alert, Button, Select, Spinner, TextInput } from "flowbite-react";
+import { Alert, Button, Select, Spinner, TextInput, Card } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { HiArrowRight, HiFilter, HiSearch } from "react-icons/hi";
 import PostCard from "../components/PostCard";
 
-export default function Search() {
+export default function SearchPage() {
   const [sidebarData, setSidebarData] = useState({
     searchTerm: "",
     sort: "desc",
@@ -33,15 +34,19 @@ export default function Search() {
     const fetchPosts = async () => {
       setLoading(true);
       const searchQuery = urlParams.toString();
-      const res = await fetch(`/api/post/getposts?${searchQuery}`);
-      if (!res.ok) {
+      try {
+        const res = await fetch(`/api/post/getposts?${searchQuery}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch posts');
+        }
+        const data = await res.json();
+        setPosts(data.posts);
+        setShowMore(data.posts.length === 9);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      } finally {
         setLoading(false);
-        return;
       }
-      const data = await res.json();
-      setPosts(data.posts);
-      setLoading(false);
-      setShowMore(data.posts.length === 9);
     };
     fetchPosts();
   }, [location.search]);
@@ -64,88 +69,150 @@ export default function Search() {
     const urlParams = new URLSearchParams(location.search);
     urlParams.set("startIndex", startIndex);
     const searchQuery = urlParams.toString();
-    const res = await fetch(`/api/post/getposts?${searchQuery}`);
-    if (res.ok) {
-      const data = await res.json();
-      setPosts([...posts, ...data.posts]);
-      setShowMore(data.posts.length === 9);
+    try {
+      const res = await fetch(`/api/post/getposts?${searchQuery}`);
+      if (res.ok) {
+        const data = await res.json();
+        setPosts([...posts, ...data.posts]);
+        setShowMore(data.posts.length === 9);
+      }
+    } catch (error) {
+      console.error("Error loading more posts:", error);
     }
   };
 
   return (
-    <div className="flex flex-col md:flex-row">
-      {/* Sidebar */}
-      <div className="p-7 border-b md:border-r md:min-h-screen border-gray-300">
-        <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-          <div className="flex items-center gap-2">
-            <label htmlFor="searchTerm" className="font-semibold">
-              Search Term:
-            </label>
-            <TextInput
-              placeholder="Search..."
-              id="searchTerm"
-              type="text"
-              value={sidebarData.searchTerm}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <label htmlFor="sort" className="font-semibold">
-              Sort:
-            </label>
-            <Select id="sort" value={sidebarData.sort} onChange={handleChange}>
-              <option value="desc">Latest</option>
-              <option value="asc">Oldest</option>
-            </Select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label htmlFor="category" className="font-semibold">
-              Category:
-            </label>
-            <Select
-              id="category"
-              value={sidebarData.category}
-              onChange={handleChange}
-            >
-              <option value="uncategorized">Uncategorized</option>
-              <option value="reactjs">React.js</option>
-              <option value="nextjs">Next.js</option>
-              <option value="javascript">JavaScript</option>
-            </Select>
-          </div>
-          <Button type="submit" gradientDuoTone="purpleToPink">
-            Apply Filters
-          </Button>
-        </form>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto grid md:grid-cols-[300px_1fr] gap-8">
+        {/* Enhanced Sidebar */}
+        <Card 
+          className="h-fit sticky top-4 
+            bg-white dark:bg-gray-800 
+            border border-gray-200 dark:border-gray-700 
+            transition-colors duration-300"
+        >
+          <form 
+            className="flex flex-col space-y-6" 
+            onSubmit={handleSubmit}
+          >
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 mb-2">
+                <HiSearch className="text-gray-500 dark:text-gray-400" />
+                <label 
+                  htmlFor="searchTerm" 
+                  className="font-semibold text-gray-700 dark:text-gray-200"
+                >
+                  Search Term
+                </label>
+              </div>
+              <TextInput
+                icon={HiSearch}
+                placeholder="Search posts..."
+                id="searchTerm"
+                type="text"
+                value={sidebarData.searchTerm}
+                onChange={handleChange}
+                className="w-full"
+              />
+            </div>
 
-      {/* Main Content */}
-      <div className="flex-1 p-7">
-        <h1 className="text-3xl font-semibold mb-6 border-b border-gray-300">
-          Posts
-        </h1>
-        <div className="flex flex-wrap gap-6">
-          {!loading && posts.length === 0 && (
-            <Alert color="info">
-              <span className="font-medium">Sorry!</span> No posts found.
-            </Alert>
-          )}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 mb-2">
+                <HiFilter className="text-gray-500 dark:text-gray-400" />
+                <label 
+                  htmlFor="sort" 
+                  className="font-semibold text-gray-700 dark:text-gray-200"
+                >
+                  Sort Order
+                </label>
+              </div>
+              <Select 
+                id="sort" 
+                value={sidebarData.sort} 
+                onChange={handleChange}
+              >
+                <option value="desc">Latest Posts</option>
+                <option value="asc">Oldest Posts</option>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 mb-2">
+                <HiFilter className="text-gray-500 dark:text-gray-400" />
+                <label 
+                  htmlFor="category" 
+                  className="font-semibold text-gray-700 dark:text-gray-200"
+                >
+                  Category
+                </label>
+              </div>
+              <Select
+                id="category"
+                value={sidebarData.category}
+                onChange={handleChange}
+              >
+                <option value="uncategorized">All Categories</option>
+                <option value="reactjs">React.js</option>
+                <option value="nextjs">Next.js</option>
+                <option value="javascript">JavaScript</option>
+              </Select>
+            </div>
+
+            <Button 
+              type="submit" 
+              gradientDuoTone="purpleToPink" 
+              className="w-full"
+            >
+              Apply Filters
+              <HiArrowRight className="ml-2" />
+            </Button>
+          </form>
+        </Card>
+
+        {/* Main Content Area */}
+        <div>
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-8 pb-4 border-b-2 border-purple-500">
+            Search Results
+          </h1>
+
+          {/* Loading State */}
           {loading && (
-            <div className="flex justify-center items-center w-full min-h-screen">
-              <Spinner size="xl" />
+            <div className="flex justify-center items-center min-h-[500px]">
+              <Spinner size="xl" color="purple" />
             </div>
           )}
-          {!loading &&
-            posts.map((post) => <PostCard key={post._id} post={post} />)}
+
+          {/* No Posts Found */}
+          {!loading && posts.length === 0 && (
+            <Alert 
+              color="failure" 
+              className="max-w-2xl mx-auto"
+            >
+              <span className="font-medium">No posts found!</span> Try adjusting your search filters.
+            </Alert>
+          )}
+
+          {/* Posts Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {!loading && posts.map((post) => (
+              <PostCard key={post._id} post={post} />
+            ))}
+          </div>
+
+          {/* Show More Button */}
+          {showMore && (
+            <div className="text-center mt-8">
+              <Button 
+                onClick={handleShowMore} 
+                gradientDuoTone="greenToBlue"
+                className="mx-auto"
+              >
+                Load More Posts
+                <HiArrowRight className="ml-2" />
+              </Button>
+            </div>
+          )}
         </div>
-        {showMore && (
-          <Button
-            onClick={handleShowMore}
-            className="mt-8 w-auto bg-teal-500 text-white text-lg"
-          >
-            Show More
-          </Button>
-        )}
       </div>
     </div>
   );
