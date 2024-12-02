@@ -11,11 +11,14 @@ import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
+import path from "path";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 8000;
 const app = express();
+
+const __dirname = path.resolve();
 
 // Middleware
 app.use(express.json());
@@ -37,7 +40,13 @@ app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/comment", commentRoutes);
 app.use("/api/category", categoryRoutes);
-app.use("/api/favorites", favoriteRoutes)
+app.use("/api/favorites", favoriteRoutes);
+
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+});
 
 // Handle undefined routes
 app.use((req, res, next) => {
