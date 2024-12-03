@@ -23,87 +23,6 @@ const SignInPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    // Clear any previous errors
-    dispatch(clearError());
-  
-    // Check for login blocks
-    checkLoginBlock();
-  
-    // Load reCAPTCHA script only in production
-    const loadRecaptchaScript = () => {
-      // Remove existing script if any
-      const existingScript = document.querySelector('script[src^="https://www.google.com/recaptcha/api.js"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
-  
-      // Always load the script, but use environment check for execution
-      const script = document.createElement("script");
-      script.src = `https://www.google.com/recaptcha/api.js?render=${
-        import.meta.env.VITE_RECAPTCHA_SITE_KEY
-      }`;
-      script.async = true;
-      script.onerror = () => {
-        console.error("Failed to load reCAPTCHA script");
-      };
-      document.body.appendChild(script);
-  
-      script.onload = () => {
-        console.log("reCAPTCHA script loaded successfully");
-      };
-    };
-  
-    // Conditionally load script
-    if (import.meta.env.PROD) {
-      loadRecaptchaScript();
-    }
-  
-    return () => {
-      // Clean up script on component unmount
-      const script = document.querySelector('script[src^="https://www.google.com/recaptcha/api.js"]');
-      if (script) {
-        document.body.removeChild(script);
-      }
-    };
-  }, [dispatch]);
-  
-  // Modify executeRecaptcha to add more error handling
-  const executeRecaptcha = () => {
-    return new Promise((resolve, reject) => {
-      console.log("Executing reCAPTCHA", {
-        env: import.meta.env.VITE_NODE_ENV,
-        siteKey: import.meta.env.VITE_RECAPTCHA_SITE_KEY,
-        isProduction: import.meta.env.PROD
-      });
-  
-      if (!window.grecaptcha) {
-        reject(new Error("reCAPTCHA library not loaded"));
-        return;
-      }
-  
-      try {
-        window.grecaptcha.ready(() => {
-          window.grecaptcha
-            .execute(import.meta.env.VITE_RECAPTCHA_SITE_KEY, {
-              action: "login",
-            })
-            .then((token) => {
-              console.log("reCAPTCHA token generated");
-              resolve(token);
-            })
-            .catch((error) => {
-              console.error("reCAPTCHA execution error:", error);
-              reject(error);
-            });
-        });
-      } catch (error) {
-        console.error("reCAPTCHA execution failed:", error);
-        reject(error);
-      }
-    });
-  };
-
   // Handle reCAPTCHA script loading
   useEffect(() => {
     // Clear any previous errors
@@ -154,21 +73,21 @@ const SignInPage = () => {
     }
   };
 
-  // // Execute reCAPTCHA verification
-  // const executeRecaptcha = () => {
-  //   return new Promise((resolve, reject) => {
-  //     if (window.grecaptcha && window.grecaptcha.execute) {
-  //       window.grecaptcha
-  //         .execute(import.meta.env.VITE_RECAPTCHA_SITE_KEY, {
-  //           action: "login",
-  //         })
-  //         .then((token) => resolve(token))
-  //         .catch(reject);
-  //     } else {
-  //       reject(new Error("reCAPTCHA not loaded"));
-  //     }
-  //   });
-  // };
+  // Execute reCAPTCHA verification
+  const executeRecaptcha = () => {
+    return new Promise((resolve, reject) => {
+      if (window.grecaptcha && window.grecaptcha.execute) {
+        window.grecaptcha
+          .execute(import.meta.env.VITE_RECAPTCHA_SITE_KEY, {
+            action: "login",
+          })
+          .then((token) => resolve(token))
+          .catch(reject);
+      } else {
+        reject(new Error("reCAPTCHA not loaded"));
+      }
+    });
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {

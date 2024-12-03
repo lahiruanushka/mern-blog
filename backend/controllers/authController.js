@@ -6,7 +6,7 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import axios from "axios";
 import zxcvbn from "zxcvbn";
-import AuthLog from "../models/authLogModel.js"; 
+import AuthLog from "../models/authLogModel.js";
 
 // Rate limiting configuration
 const loginAttempts = new Map();
@@ -271,13 +271,6 @@ export const signin = async (req, res, next) => {
             },
           }
         );
-
-        console.log("CAPTCHA Response:", {
-          success: captchaResponse.data.success,
-          score: captchaResponse.data.score,
-          action: captchaResponse.data.action,
-          hostname: captchaResponse.data.hostname,
-        });
 
         // Check score (0.5 is a common threshold)
         if (
