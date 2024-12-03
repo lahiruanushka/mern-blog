@@ -2,8 +2,9 @@ import { Alert, Button, Modal, Textarea } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 import Comment from "./Comment";
+import LoginPrompt from "./LoginPrompt";
 
 export default function CommentSection({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
@@ -12,6 +13,7 @@ export default function CommentSection({ postId }) {
   const [comments, setComments] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -63,7 +65,7 @@ export default function CommentSection({ postId }) {
   const handleLike = async (commentId) => {
     try {
       if (!currentUser) {
-        navigate("/sign-in");
+        setIsLoginPromptOpen(true);
         return;
       }
       const res = await fetch(`/api/comment/likeComment/${commentId}`, {
@@ -113,6 +115,10 @@ export default function CommentSection({ postId }) {
     } catch (error) {
       console.log(error.message);
     }
+  };
+
+  const handleCloseLoginPrompt = () => {
+    setIsLoginPromptOpen(false);
   };
 
   return (
@@ -221,6 +227,11 @@ export default function CommentSection({ postId }) {
           </div>
         </Modal.Body>
       </Modal>
+
+      <LoginPrompt
+        isOpen={isLoginPromptOpen}
+        onClose={handleCloseLoginPrompt}
+      />
     </div>
   );
 }
