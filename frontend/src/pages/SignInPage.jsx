@@ -175,7 +175,7 @@ const SignInPage = () => {
             </div>
           </Link>
           <p className="mt-5 text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-          Welcome to ByteThoughts, where you can explore stories and connect
+            Welcome to ByteThoughts, where you can explore stories and connect
             with a vibrant community. Log in to access your account and start
             reading, commenting, and engaging with posts today.
           </p>
@@ -282,7 +282,7 @@ const SignInPage = () => {
 
           {/* Error Message */}
           {error && (
-            <Alert color="failure" icon={HiInformationCircle}>
+            <Alert color="failure" icon={HiInformationCircle} className="mt-4">
               {error}
             </Alert>
           )}
