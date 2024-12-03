@@ -6,6 +6,8 @@ import {
   google,
   forgotPassword,
   resetPassword,
+  verifyEmail,
+  resendVerificationEmail,
 } from "../controllers/authController.js";
 import { errorHandler } from "../utils/error.js";
 
@@ -27,17 +29,67 @@ const loginLimiter = rateLimit({
   },
 });
 
-router.post("/signup", signup);
+// Define rate limiting for signup
+const signupLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // Limit each IP to 3 signup attempts per windowMs
+  handler: (req, res, next) => {
+    next(errorHandler(429, "Too many signup attempts, please try again later"));
+  },
+});
 
-// Apply the rate limiter to login route
+// Define rate limiting for forgot password requests
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // Limit each IP to 3 forgot password requests per windowMs
+  handler: (req, res, next) => {
+    next(
+      errorHandler(
+        429,
+        "Too many password reset requests, please try again later"
+      )
+    );
+  },
+});
+
+// Define rate limiting for password reset
+const resetPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // Limit each IP to 3 password reset attempts per windowMs
+  handler: (req, res, next) => {
+    next(
+      errorHandler(
+        429,
+        "Too many password reset attempts, please try again later"
+      )
+    );
+  },
+});
+
+// Define rate limiting for resend verification email
+const resendVerificationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // Limit each IP to 3 resend verification requests per windowMs
+  handler: (req, res, next) => {
+    next(
+      errorHandler(
+        429,
+        "Too many verification email requests, please try again later"
+      )
+    );
+  },
+});
+
+router.post("/signup", signupLimiter, signup);
 router.post("/signin", loginLimiter, signin);
-
 router.post("/google", google);
-
-// Endpoint for "forgot password"
-router.post("/forgot-password", forgotPassword);
-
-// Endpoint for "reset password"
-router.post("/reset-password", resetPassword);
+router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
+router.post("/reset-password", resetPasswordLimiter, resetPassword);
+router.get("/verify-email/:token", verifyEmail);
+router.post(
+  "/resend-verification-email",
+  resendVerificationLimiter,
+  resendVerificationEmail
+);
 
 export default router;

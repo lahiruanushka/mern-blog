@@ -1,7 +1,8 @@
 import { TextInput, Button, Alert, Progress } from "flowbite-react";
 import { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Lock, Eye, EyeOff, Check, Loader, KeyRound } from "lucide-react";
+import zxcvbn from "zxcvbn";
 
 const ResetPasswordPage = () => {
   const { token } = useParams();
@@ -16,12 +17,8 @@ const ResetPasswordPage = () => {
   const [error, setError] = useState("");
 
   const getPasswordStrength = (password) => {
-    let strength = 0;
-    if (password.length >= 8) strength += 25;
-    if (password.match(/[A-Z]/)) strength += 25;
-    if (password.match(/[0-9]/)) strength += 25;
-    if (password.match(/[^A-Za-z0-9]/)) strength += 25;
-    return strength;
+    const result = zxcvbn(password);
+    return result.score * 25; // zxcvbn returns a score from 0 to 4, multiplying by 25 for percentage
   };
 
   const passwordStrength = getPasswordStrength(formData.password);

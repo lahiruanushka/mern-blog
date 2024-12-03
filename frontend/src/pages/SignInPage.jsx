@@ -1,58 +1,160 @@
-import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { HiInformationCircle, HiEye, HiEyeOff } from "react-icons/hi";
+import { useDispatch, useSelector } from "react-redux";
 import {
   signInStart,
   signInSuccess,
   signInFailure,
   clearError,
 } from "../features/user/userSlice";
-import { useDispatch, useSelector } from "react-redux";
 import OAuth from "../components/OAuth";
 
 const SignInPage = () => {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [lastAttempt, setLastAttempt] = useState(null);
   const { loading, error } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // Handle reCAPTCHA script loading
   useEffect(() => {
-    // Clear any existing errors when the component mounts
+    // Clear any previous errors
     dispatch(clearError());
+
+    // Check for login blocks
+    checkLoginBlock();
+
+    // Load reCAPTCHA script only in production
+    if (import.meta.env.VITE_NODE_ENV === "production") {
+      const script = document.createElement("script");
+      script.src = `https://www.google.com/recaptcha/api.js?render=${
+        import.meta.env.VITE_RECAPTCHA_SITE_KEY
+      }`;
+      script.async = true;
+      document.body.appendChild(script);
+
+      return () => {
+        // Clean up script on component unmount
+        document.body.removeChild(script);
+      };
+    }
   }, [dispatch]);
 
+  // Handle form input changes
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value.trim(),
+    }));
   };
 
+  // Check if user is temporarily blocked from logging in
+  const checkLoginBlock = () => {
+    const blockUntil = localStorage.getItem("loginBlockedUntil");
+    if (blockUntil && parseInt(blockUntil) > Date.now()) {
+      const remainingTime = Math.ceil(
+        (parseInt(blockUntil) - Date.now()) / 1000 / 60
+      );
+      dispatch(
+        signInFailure(
+          `Too many login attempts. Please try again in ${remainingTime} minutes`
+        )
+      );
+    } else {
+      localStorage.removeItem("loginBlockedUntil");
+    }
+  };
+
+  // Execute reCAPTCHA verification
+  const executeRecaptcha = () => {
+    return new Promise((resolve, reject) => {
+      if (window.grecaptcha && window.grecaptcha.execute) {
+        window.grecaptcha
+          .execute(import.meta.env.VITE_RECAPTCHA_SITE_KEY, {
+            action: "login",
+          })
+          .then((token) => resolve(token))
+          .catch(reject);
+      } else {
+        reject(new Error("reCAPTCHA not loaded"));
+      }
+    });
+  };
+
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Prevent rapid repeated attempts
+    if (lastAttempt && Date.now() - lastAttempt < 2000) {
+      dispatch(signInFailure("Please wait before trying again"));
+      return;
+    }
+
+    // Validate required fields
     if (!formData.email || !formData.password) {
-      return dispatch(signInFailure("Please fill out all fields"));
+      dispatch(signInFailure("Please fill out all fields"));
+      return;
     }
 
     try {
+      setLastAttempt(Date.now());
       dispatch(signInStart());
+
+      // Execute reCAPTCHA only in production
+      let recaptchaToken = null;
+      if (import.meta.env.VITE_NODE_ENV === "production") {
+        try {
+          recaptchaToken = await executeRecaptcha();
+        } catch (recaptchaError) {
+          dispatch(signInFailure("reCAPTCHA verification failed"));
+          return;
+        }
+      }
+
+      // Send login request
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          recaptchaToken,
+        }),
+        credentials: "include",
       });
 
       const data = await res.json();
 
       if (res.ok) {
+        // Clear login block on successful login
+        localStorage.removeItem("loginAttempts");
+        localStorage.removeItem("loginBlockedUntil");
+
         dispatch(signInSuccess(data));
         navigate("/");
       } else {
+        // Handle failed login attempts
+        const attempts =
+          parseInt(localStorage.getItem("loginAttempts") || "0") + 1;
+        localStorage.setItem("loginAttempts", attempts);
+
+        if (attempts >= 5) {
+          const blockUntil = Date.now() + 15 * 60 * 1000; // 15 minutes block
+          localStorage.setItem("loginBlockedUntil", blockUntil);
+        }
+
         dispatch(signInFailure(data.message));
       }
     } catch (error) {
-      console.error(error);
+      console.error("Login error:", error);
       dispatch(
         signInFailure("An unexpected error occurred. Please try again later.")
       );
@@ -62,7 +164,7 @@ const SignInPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
       <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 max-w-4xl w-full mx-auto md:flex md:space-x-8">
-        {/* Left section */}
+        {/* Left section - Branding */}
         <div className="flex-1 mb-8 md:mb-0">
           <Link
             to="/"
@@ -73,13 +175,13 @@ const SignInPage = () => {
             </div>
           </Link>
           <p className="mt-5 text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-            Welcome to ByteThoughts, where you can explore stories and connect
+          Welcome to ByteThoughts, where you can explore stories and connect
             with a vibrant community. Log in to access your account and start
             reading, commenting, and engaging with posts today.
           </p>
         </div>
 
-        {/* Right section */}
+        {/* Right section - Login Form */}
         <div className="flex-1">
           <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
             Sign In
@@ -90,37 +192,39 @@ const SignInPage = () => {
                 htmlFor="email"
                 className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Your email
+                Email
               </Label>
               <TextInput
                 type="email"
-                placeholder="Email"
                 id="email"
+                placeholder="Email"
                 required
-                className="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:border-indigo-500 focus:ring-indigo-500"
                 onChange={handleChange}
+                className="w-full"
+                autoComplete="email"
               />
             </div>
+
             <div>
               <Label
                 htmlFor="password"
                 className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Your password
+                Password
               </Label>
               <div className="relative">
                 <TextInput
                   type={showPassword ? "text" : "password"}
-                  placeholder="********"
                   id="password"
                   required
-                  className="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:border-indigo-500 focus:ring-indigo-500"
                   onChange={handleChange}
+                  className="w-full"
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                   onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 >
                   {showPassword ? (
                     <HiEyeOff className="w-5 h-5" />
@@ -130,6 +234,7 @@ const SignInPage = () => {
                 </button>
               </div>
             </div>
+
             <Button
               gradientDuoTone="purpleToPink"
               type="submit"
@@ -139,35 +244,46 @@ const SignInPage = () => {
               {loading ? (
                 <>
                   <Spinner size="sm" className="mr-2" />
-                  <span>Please wait...</span>
+                  <span>Signing in...</span>
                 </>
               ) : (
                 "Sign In"
               )}
             </Button>
 
-            <Link
-              to="/forgot-password"
-              className="text-indigo-500 hover:underline mt-4 block text-sm"
-            >
-              Forgot Password?
-            </Link>
+            <div className="flex flex-col space-y-2 text-sm text-center">
+              <Link
+                to="/forgot-password"
+                className="text-indigo-500 hover:underline"
+              >
+                Forgot your password?
+              </Link>
+              <span className="text-gray-500 dark:text-gray-400">
+                Don't have an account?{" "}
+                <Link to="/sign-up" className="text-indigo-500 hover:underline">
+                  Sign up
+                </Link>
+              </span>
+            </div>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400">
+                  Or continue with
+                </span>
+              </div>
+            </div>
 
             <OAuth />
           </form>
-          <div className="flex justify-between mt-6 text-sm">
-            <span className="text-gray-600 dark:text-gray-400">
-              Don't have an account?
-            </span>
-            <Link to="/sign-up" className="text-indigo-500 hover:underline">
-              Sign Up
-            </Link>
-          </div>
 
           {/* Error Message */}
           {error && (
-            <Alert color="failure" icon={HiInformationCircle} className="mt-4">
-              <span>{error}</span>
+            <Alert color="failure" icon={HiInformationCircle}>
+              {error}
             </Alert>
           )}
         </div>

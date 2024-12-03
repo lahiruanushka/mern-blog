@@ -205,7 +205,11 @@ const AboutPage = () => {
             with fellow developers, and grow your skills.
           </p>
 
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex justify-center items-center" // Center the button horizontally and vertically
+          >
             <Button
               gradientDuoTone="tealToLime"
               onClick={() => navigate("/search")}

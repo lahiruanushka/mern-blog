@@ -19,10 +19,20 @@ import FavoritesPage from "./pages/FavoritesPage";
 import AutoScrollToTop from "./components/AutoScrollToTop";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import useRecaptchaBadgeRemoval from "./hooks/useRecaptchaBadgeRemoval";
+import EmailVerificationPage from "./pages/EmailVerificationPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
+
+// Separate component to use the useRecaptchaBadgeRemoval hook
+const RecaptchaBadgeRemovalWrapper = () => {
+  useRecaptchaBadgeRemoval();
+  return null;
+};
 
 const App = () => {
   return (
     <Router>
+      <RecaptchaBadgeRemovalWrapper />
       <Header />
 
       <ToastComponent />
@@ -36,6 +46,11 @@ const App = () => {
         <Route path="/search" element={<SearchPage />} />
         <Route path="forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route
+          path="/verify-email/:token"
+          element={<EmailVerificationPage />}
+        />
 
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashborad />} />
