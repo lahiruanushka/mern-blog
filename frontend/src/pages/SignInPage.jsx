@@ -1,7 +1,7 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { HiInformationCircle } from "react-icons/hi";
+import { HiInformationCircle, HiEye, HiEyeOff } from "react-icons/hi";
 import {
   signInStart,
   signInSuccess,
@@ -13,6 +13,7 @@ import OAuth from "../components/OAuth";
 
 const SignInPage = () => {
   const [formData, setFormData] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
   const { loading, error } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
@@ -43,7 +44,6 @@ const SignInPage = () => {
       });
 
       const data = await res.json();
-      //  console.log(data);
 
       if (res.ok) {
         dispatch(signInSuccess(data));
@@ -108,14 +108,27 @@ const SignInPage = () => {
               >
                 Your password
               </Label>
-              <TextInput
-                type="password"
-                placeholder="********"
-                id="password"
-                required
-                className="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:border-indigo-500 focus:ring-indigo-500"
-                onChange={handleChange}
-              />
+              <div className="relative">
+                <TextInput
+                  type={showPassword ? "text" : "password"}
+                  placeholder="********"
+                  id="password"
+                  required
+                  className="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:border-indigo-500 focus:ring-indigo-500"
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <HiEyeOff className="w-5 h-5" />
+                  ) : (
+                    <HiEye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
             <Button
               gradientDuoTone="purpleToPink"
@@ -125,14 +138,14 @@ const SignInPage = () => {
             >
               {loading ? (
                 <>
-                  <Spinner size="sm" className="mr-2" />{" "}
+                  <Spinner size="sm" className="mr-2" />
                   <span>Please wait...</span>
                 </>
               ) : (
                 "Sign In"
               )}
             </Button>
-            
+
             <Link
               to="/forgot-password"
               className="text-indigo-500 hover:underline mt-4 block text-sm"
