@@ -18,6 +18,8 @@ dotenv.config();
 const PORT = process.env.PORT || 8000;
 const app = express();
 
+app.set('trust proxy', true);
+
 const __dirname = path.resolve();
 
 // Middleware
