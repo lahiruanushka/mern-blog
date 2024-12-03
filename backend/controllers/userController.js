@@ -1,21 +1,171 @@
 import bcryptjs from "bcryptjs";
 import User from "../models/userModel.js";
 import { errorHandler } from "../utils/error.js";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
+import Otp from "../models/otpModel.js";
 
 export const test = (req, res) => {
   res.json({ message: "API is working" });
 };
 
+export const requestPasswordUpdateOTP = async (req, res, next) => {
+  const { currentPassword } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id).select('+password');
+    if (!user) {
+      return next(errorHandler(404, "User not found"));
+    }
+
+    // Verify current password first
+    const isCurrentPasswordCorrect = await bcryptjs.compare(currentPassword, user.password);
+    if (!isCurrentPasswordCorrect) {
+      return next(errorHandler(400, "Current password is incorrect"));
+    }
+
+    // Generate 6-digit OTP
+    const otpCode = crypto.randomInt(100000, 999999).toString();
+    const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes expiry
+
+    // Remove any existing OTP for this user
+    await Otp.deleteMany({ user: user._id });
+
+    // Create and save new OTP
+    const newOtp = new Otp({
+      user: user._id,
+      otp: otpCode,
+      expiry: otpExpiry
+    });
+    await newOtp.save();
+
+    // Send OTP via email
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: "Password Update OTP",
+      text: `Your OTP for password update is: ${otpCode}. 
+             This OTP will expire in 15 minutes.`,
+    });
+
+    res.status(200).json({ message: "OTP sent to your email" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserPassword = async (req, res, next) => {
+  const { currentPassword, newPassword, otp } = req.body;
+
+  try {
+    // Find the user with the full document to access the password
+    const user = await User.findById(req.user.id).select("+password");
+    if (!user) {
+      return next(errorHandler(404, "User not found"));
+    }
+
+    // More robust password verification
+    const isCurrentPasswordCorrect = await bcryptjs.compare(
+      currentPassword,
+      user.password
+    );
+    if (!isCurrentPasswordCorrect) {
+      return next(errorHandler(400, "Current password is incorrect"));
+    }
+
+    // Verify OTP
+    const storedOTP = await Otp.findOne({ 
+      user: user._id, 
+      otp: otp,
+      expiry: { $gt: new Date() } 
+    });
+
+    if (!storedOTP) {
+      return next(errorHandler(400, "Invalid or expired OTP"));
+    }
+
+    // Comprehensive password validation
+    const passwordValidationErrors = [];
+
+    // Minimum length
+    if (newPassword.length < 8) {
+      passwordValidationErrors.push(
+        "Password must be at least 8 characters long"
+      );
+    }
+
+    // At least one uppercase letter
+    if (!/[A-Z]/.test(newPassword)) {
+      passwordValidationErrors.push(
+        "Password must contain at least one uppercase letter"
+      );
+    }
+
+    // At least one lowercase letter
+    if (!/[a-z]/.test(newPassword)) {
+      passwordValidationErrors.push(
+        "Password must contain at least one lowercase letter"
+      );
+    }
+
+    // At least one number
+    if (!/[0-9]/.test(newPassword)) {
+      passwordValidationErrors.push(
+        "Password must contain at least one number"
+      );
+    }
+
+    // At least one special character
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)) {
+      passwordValidationErrors.push(
+        "Password must contain at least one special character"
+      );
+    }
+
+    // Prevent reusing the current password
+    const isNewPasswordSameAsCurrent = await bcryptjs.compare(
+      newPassword,
+      user.password
+    );
+    if (isNewPasswordSameAsCurrent) {
+      passwordValidationErrors.push(
+        "New password cannot be the same as the current password"
+      );
+    }
+
+    // If there are any validation errors, return them
+    if (passwordValidationErrors.length > 0) {
+      return next(errorHandler(400, passwordValidationErrors.join(". ")));
+    }
+
+    // Hash new password
+    const hashedPassword = await bcryptjs.hash(newPassword, 10);
+
+    // Update user password
+    await User.findByIdAndUpdate(user._id, {
+      password: hashedPassword,
+    });
+
+    // Remove the used OTP
+    await Otp.deleteOne({ _id: storedOTP._id });
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateUser = async (req, res, next) => {
   if (req.user.id !== req.params.userId) {
     return next(errorHandler(403, "You are not allowed to update this user"));
-  }
-
-  if (req.body.password) {
-    if (req.body.password.length < 6) {
-      return next(errorHandler(400, "Password must be at least 6 characters"));
-    }
-    req.body.password = bcryptjs.hashSync(req.body.password, 10);
   }
 
   // Ensure username is provided and validate it
@@ -64,7 +214,6 @@ export const updateUser = async (req, res, next) => {
           username: req.body.username,
           email: req.body.email,
           profilePicture: req.body.profilePicture,
-          password: req.body.password,
         },
       },
       { new: true }
@@ -136,12 +285,11 @@ export const getUsers = async (req, res, next) => {
   }
 };
 
-
 export const getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId);
     if (!user) {
-      return next(errorHandler(404, 'User not found'));
+      return next(errorHandler(404, "User not found"));
     }
     const { password, ...rest } = user._doc;
     res.status(200).json(rest);

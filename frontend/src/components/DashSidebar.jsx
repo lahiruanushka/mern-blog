@@ -64,7 +64,7 @@ const DashSidebar = () => {
               icon={HiUser}
               className="cursor-pointer"
               as="div"
-              label={currentUser.isAdmin ? "Admin" : "User"}
+              label={currentUser.isAdmin && "Admin"}
             >
               Profile
             </Sidebar.Item>

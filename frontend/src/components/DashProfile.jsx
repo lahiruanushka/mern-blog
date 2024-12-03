@@ -23,8 +23,8 @@ import {
 } from "../features/user/userSlice.js";
 
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
 import defaultAvatar from "/src/assets/default-avatar.png";
+import PasswordUpdateSection from "./PasswordUpdateSection.jsx";
 
 const DashProfile = () => {
   const { currentUser, error, loading } = useSelector((state) => state.user);
@@ -38,6 +38,7 @@ const DashProfile = () => {
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
   const [updateUserError, setUpdateUserError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [isEdited, setIsEdited] = useState(false);
 
   const filePickerRef = useRef();
   const dispatch = useDispatch();
@@ -98,6 +99,7 @@ const DashProfile = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
+    setIsEdited(true);
   };
 
   const handleSubmit = async (e) => {
@@ -116,10 +118,6 @@ const DashProfile = () => {
     }
     if (formData.email && !/^\S+@\S+\.\S+$/.test(formData.email)) {
       setUpdateUserError("Invalid email format");
-      return;
-    }
-    if (formData.password && formData.password.length < 6) {
-      setUpdateUserError("Password must be at least 6 characters");
       return;
     }
 
@@ -148,6 +146,7 @@ const DashProfile = () => {
       } else {
         dispatch(updateSuccess(data));
         setUpdateUserSuccess("Profile updated successfully");
+        setIsEdited(false);
       }
     } catch (error) {
       dispatch(updateFailure(error.message));
@@ -255,25 +254,20 @@ const DashProfile = () => {
           defaultValue={currentUser.email}
           className="dark:bg-gray-700 dark:text-white"
           onChange={handleChange}
-          // Currently disabled; enable and validate email in future updates
           disabled
         />
 
-        <TextInput
-          type="password"
-          id="password"
-          placeholder="Password"
-          className="dark:bg-gray-700 dark:text-white"
-          onChange={handleChange}
-        />
         <Button
           type="submit"
           gradientDuoTone="purpleToBlue"
           outline
-          disabled={loading || imageFileUploading}
+          disabled={!isEdited || loading || imageFileUploading}
         >
           {loading ? "Updating..." : "Update"}
         </Button>
+
+        <PasswordUpdateSection />
+
         <div className="flex justify-between mt-5">
           <span
             className="text-red-500 cursor-pointer dark:text-red-400"
