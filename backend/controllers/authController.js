@@ -6,6 +6,7 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import axios from "axios";
 import zxcvbn from "zxcvbn";
+import AuthLog from "../models/authLogModel.js"; 
 
 // Rate limiting configuration
 const loginAttempts = new Map();
@@ -270,6 +271,13 @@ export const signin = async (req, res, next) => {
             },
           }
         );
+
+        console.log("CAPTCHA Response:", {
+          success: captchaResponse.data.success,
+          score: captchaResponse.data.score,
+          action: captchaResponse.data.action,
+          hostname: captchaResponse.data.hostname,
+        });
 
         // Check score (0.5 is a common threshold)
         if (
@@ -603,10 +611,7 @@ export const verifyEmail = async (req, res, next) => {
 
   try {
     // Hash the provided token to match the stored token in the database
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     // Find the user by the hashed token and check expiration
     const user = await User.findOne({
@@ -626,7 +631,7 @@ export const verifyEmail = async (req, res, next) => {
     user.emailVerificationExpires = undefined; // Clear the expiration
     // Add last verified date for audit purposes
     user.emailVerifiedAt = new Date();
-    
+
     await user.save();
 
     res.status(200).json({
@@ -637,7 +642,6 @@ export const verifyEmail = async (req, res, next) => {
     next(error);
   }
 };
-
 
 // Resend verification email handler
 export const resendVerificationEmail = async (req, res, next) => {
@@ -656,8 +660,16 @@ export const resendVerificationEmail = async (req, res, next) => {
     }
 
     // Check if the verification token has expired (24 hours by default)
-    if (user.emailVerificationExpires && Date.now() < user.emailVerificationExpires) {
-      return next(errorHandler(400, "Verification email is still valid. Please check your inbox"));
+    if (
+      user.emailVerificationExpires &&
+      Date.now() < user.emailVerificationExpires
+    ) {
+      return next(
+        errorHandler(
+          400,
+          "Verification email is still valid. Please check your inbox"
+        )
+      );
     }
 
     // Generate a new verification token
