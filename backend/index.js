@@ -44,12 +44,6 @@ app.use("/api/comment", commentRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/favorites", favoriteRoutes);
 
-app.use(express.static(path.join(__dirname, "/frontend/dist")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
-});
-
 // Handle undefined routes
 app.use((req, res, next) => {
   res.status(404).json({ message: "Route not found" });
@@ -57,6 +51,12 @@ app.use((req, res, next) => {
 
 // Centralized error-handling middleware
 app.use(handleError);
+
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+});
 
 // Start server
 app.listen(PORT, () => {

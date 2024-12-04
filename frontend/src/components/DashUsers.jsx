@@ -5,6 +5,7 @@ import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import Loading from "./Loading";
 import { useToast } from "../context/ToastContext";
+import UserDetailsModal from "./UserDetailsModal";
 
 export default function DashUsers() {
   const { currentUser } = useSelector((state) => state.user);
@@ -14,6 +15,8 @@ export default function DashUsers() {
   const [userIdToDelete, setUserIdToDelete] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
   const { showToast } = useToast();
 
@@ -79,6 +82,11 @@ export default function DashUsers() {
     }
   };
 
+  const handleViewUserDetails = (userId) => {
+    setSelectedUserId(userId);
+    setIsUserModalOpen(true);
+  };
+
   return (
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500">
       {loading ? (
@@ -107,7 +115,14 @@ export default function DashUsers() {
                       className="w-10 h-10 object-cover bg-gray-500 rounded-full"
                     />
                   </Table.Cell>
-                  <Table.Cell>{user.username}</Table.Cell>
+                  <Table.Cell>
+                    <span
+                      onClick={() => handleViewUserDetails(user._id)}
+                      className="text-blue-500 hover:underline cursor-pointer"
+                    >
+                      {user.username}
+                    </span>
+                  </Table.Cell>
                   <Table.Cell>{user.email}</Table.Cell>
                   <Table.Cell>
                     {user.isAdmin ? (
@@ -172,6 +187,16 @@ export default function DashUsers() {
           </div>
         </Modal.Body>
       </Modal>
+
+      {/* User Details Modal */}
+      <UserDetailsModal
+        isOpen={isUserModalOpen}
+        onClose={() => {
+          setIsUserModalOpen(false);
+          setSelectedUserId(null);
+        }}
+        userId={selectedUserId}
+      />
     </div>
   );
 }

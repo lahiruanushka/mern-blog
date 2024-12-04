@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import Loading from "./Loading";
 import { useToast } from "../context/ToastContext";
+import UserDetailsModal from "./UserDetailsModal";
 
 export default function DashComments() {
   const { currentUser } = useSelector((state) => state.user);
@@ -13,27 +14,94 @@ export default function DashComments() {
   const [commentIdToDelete, setCommentIdToDelete] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
   const { showToast } = useToast();
+
+  const handleApiResponse = async (response) => {
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error("Server returned non-JSON response");
+    }
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  };
+
+  const fetchPostAndUserDetails = async (comments) => {
+    const enrichedComments = await Promise.all(
+      comments.map(async (comment) => {
+        let postTitle = "Untitled Post";
+        let postCategory = "Uncategorized";
+        try {
+          const postRes = await fetch(`/api/post/getpost/${comment.postId}`);
+          if (postRes.ok) {
+            const postData = await postRes.json();
+            postTitle = postData.title || postTitle;
+            postCategory = postData.category || postCategory;
+          }
+        } catch (postError) {
+          console.error(
+            `Error fetching post for comment ${comment._id}:`,
+            postError
+          );
+        }
+
+        let username = "Unknown User";
+        try {
+          const userRes = await fetch(`/api/user/getuser/${comment.userId}`);
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            username = userData.username || username;
+          }
+        } catch (userError) {
+          console.error(
+            `Error fetching user for comment ${comment._id}:`,
+            userError
+          );
+        }
+
+        return {
+          ...comment,
+          postTitle,
+          postCategory,
+          username,
+        };
+      })
+    );
+    return enrichedComments;
+  };
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
         setLoading(true);
         const res = await fetch(`/api/comment/getcomments`);
-        const data = await res.json();
-        if (res.ok) {
-          setComments(data.comments);
+        const data = await handleApiResponse(res);
+
+        console.log("Fetch comments response:", data);
+
+        if (data.success === false) {
+          console.error("API reported failure:", data);
+          showToast("Failed to load comments", "error");
+        } else {
+          const enrichedComments = await fetchPostAndUserDetails(data.comments);
+          setComments(enrichedComments);
+
           if (data.comments.length < 9) {
             setShowMore(false);
           }
         }
       } catch (error) {
-        console.log(error.message);
+        console.error("Error fetching comments:", error);
+        showToast("Failed to load comments", "error");
       } finally {
         setLoading(false);
       }
     };
+
     if (currentUser.isAdmin) {
       fetchComments();
     }
@@ -46,15 +114,20 @@ export default function DashComments() {
       const res = await fetch(
         `/api/comment/getcomments?startIndex=${startIndex}`
       );
-      const data = await res.json();
-      if (res.ok) {
-        setComments((prev) => [...prev, ...data.comments]);
+      const data = await handleApiResponse(res);
+
+      if (data.success) {
+        const enrichedComments = await fetchPostAndUserDetails(data.comments);
+        setComments((prev) => [...prev, ...enrichedComments]);
         if (data.comments.length < 9) {
           setShowMore(false);
         }
+      } else {
+        showToast("Failed to load more comments", "error");
       }
     } catch (error) {
-      console.log(error.message);
+      console.error("Error loading more comments:", error);
+      showToast("Failed to load more comments", "error");
     } finally {
       setLoadingMore(false);
     }
@@ -69,21 +142,25 @@ export default function DashComments() {
           method: "DELETE",
         }
       );
-      const data = await res.json();
-      if (res.ok) {
+      const data = await handleApiResponse(res);
+
+      if (data.success) {
         setComments((prev) =>
           prev.filter((comment) => comment._id !== commentIdToDelete)
         );
-        setShowModal(false);
         showToast("Comment deleted successfully", "success");
       } else {
-        console.log(data.message);
-        showToast("Failed to delete comment. Please try again.", "error");
+        showToast(data.message || "Failed to delete comment", "error");
       }
     } catch (error) {
-      console.log(error.message);
-      showToast("Failed to delete comment. Please try again.", "error");
+      console.error("Error deleting comment:", error);
+      showToast("Failed to delete comment", "error");
     }
+  };
+
+  const handleViewUserDetails = (userId) => {
+    setSelectedUserId(userId);
+    setIsUserModalOpen(true);
   };
 
   return (
@@ -97,8 +174,9 @@ export default function DashComments() {
               <Table.HeadCell>Date updated</Table.HeadCell>
               <Table.HeadCell>Comment content</Table.HeadCell>
               <Table.HeadCell>Number of likes</Table.HeadCell>
-              <Table.HeadCell>PostId</Table.HeadCell>
-              <Table.HeadCell>UserId</Table.HeadCell>
+              <Table.HeadCell>Post Title</Table.HeadCell>
+              <Table.HeadCell>Post Category</Table.HeadCell>
+              <Table.HeadCell>Username</Table.HeadCell>
               <Table.HeadCell>Delete</Table.HeadCell>
             </Table.Head>
             {comments.map((comment) => (
@@ -109,8 +187,16 @@ export default function DashComments() {
                   </Table.Cell>
                   <Table.Cell>{comment.content}</Table.Cell>
                   <Table.Cell>{comment.numberOfLikes}</Table.Cell>
-                  <Table.Cell>{comment.postId}</Table.Cell>
-                  <Table.Cell>{comment.userId}</Table.Cell>
+                  <Table.Cell>{comment.postTitle}</Table.Cell>
+                  <Table.Cell>{comment.postCategory}</Table.Cell>
+                  <Table.Cell>
+                    <span
+                      onClick={() => handleViewUserDetails(comment.userId)}
+                      className="text-blue-500 hover:underline cursor-pointer"
+                    >
+                      {comment.username}
+                    </span>
+                  </Table.Cell>
                   <Table.Cell>
                     <span
                       onClick={() => {
@@ -167,6 +253,16 @@ export default function DashComments() {
           </div>
         </Modal.Body>
       </Modal>
+
+      {/* User Details Modal */}
+      <UserDetailsModal
+        isOpen={isUserModalOpen}
+        onClose={() => {
+          setIsUserModalOpen(false);
+          setSelectedUserId(null);
+        }}
+        userId={selectedUserId}
+      />
     </div>
   );
 }
