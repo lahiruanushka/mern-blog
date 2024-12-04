@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,11 +15,21 @@ const FavoritesPage = () => {
     error,
   } = useSelector((state) => state.favorites);
 
+  // Add state to track if we've had items before
+  const [hasHadItems, setHasHadItems] = useState(false);
+
   useEffect(() => {
     if (currentUser) {
       dispatch(fetchFavorites());
     }
   }, [dispatch, currentUser]);
+
+  // Update hasHadItems when favorites change
+  useEffect(() => {
+    if (favorites?.length > 0) {
+      setHasHadItems(true);
+    }
+  }, [favorites]);
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -123,7 +133,8 @@ const FavoritesPage = () => {
     );
   }
 
-  if (!favorites?.length) {
+  // Only show the "No favorites yet" message if we've never had items
+  if (!favorites?.length && !hasHadItems) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -172,7 +183,7 @@ const FavoritesPage = () => {
           variants={itemVariants}
           className="bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-400 text-sm font-medium px-3 py-1 rounded-full"
         >
-          {favorites.length} {favorites.length === 1 ? "Post" : "Posts"}
+          {favorites?.length || 0} {favorites?.length === 1 ? "Post" : "Posts"}
         </motion.span>
       </motion.div>
 
@@ -181,7 +192,7 @@ const FavoritesPage = () => {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
       >
         <AnimatePresence>
-          {favorites.map((post) => (
+          {favorites?.map((post) => (
             <motion.div
               key={post.id}
               initial={{ opacity: 0, scale: 0.9 }}

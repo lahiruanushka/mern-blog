@@ -2,6 +2,7 @@ import { HiHeart } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import {
   addToFavorites,
+  fetchFavorites,
   removeFromFavorites,
 } from "../features/favorites/favoritesSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -45,6 +46,8 @@ export default function PostCard({ post }) {
       }
     } catch (error) {
       showToast(error.message || "Failed to update favorites", "error");
+    } finally {
+      dispatch(fetchFavorites());
     }
   };
 
@@ -71,14 +74,12 @@ export default function PostCard({ post }) {
           <p className="text-xl font-semibold line-clamp-2">{post.title}</p>
           <button
             className={`relative group/btn p-2 rounded-full transition-transform duration-300 hover:scale-110 active:scale-95
-                ${loading ? "cursor-not-allowed" : "cursor-pointer"}
                 ${
                   isFavorite
                     ? "text-red-500"
                     : "text-teal-500 hover:text-red-500"
                 }`}
             onClick={handleFavoriteToggle}
-            disabled={loading}
             aria-label={
               isFavorite ? "Remove from favorites" : "Add to favorites"
             }
@@ -93,11 +94,6 @@ export default function PostCard({ post }) {
                   ${loading ? "opacity-50" : "opacity-100"}
                 `}
             />
-            {loading && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-4 h-4 border-2 border-current rounded-full animate-spin border-t-transparent"></div>
-              </div>
-            )}
           </button>
         </div>
 

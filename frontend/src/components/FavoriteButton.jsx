@@ -41,11 +41,9 @@ const FavoriteButton = ({ post }) => {
   return (
     <button
       onClick={handleFavoriteToggle}
-      disabled={loading}
       className={`
         group inline-flex items-center gap-2 px-3 py-2 rounded-full
         transition-all duration-300 focus:outline-none
-        ${loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}
         ${
           isFavorite
             ? "bg-red-50 text-red-500"
@@ -59,9 +57,6 @@ const FavoriteButton = ({ post }) => {
           ${isFavorite ? "fill-current" : ""}
         `}
       />
-      {loading && (
-        <div className="w-4 h-4 border-2 border-red-500 rounded-full animate-spin border-t-transparent ml-1"></div>
-      )}
     </button>
   );
 };

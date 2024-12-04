@@ -2,16 +2,17 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Alert, Button, Select, Spinner, TextInput, Card } from "flowbite-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { HiArrowRight, HiFilter, HiSearch } from "react-icons/hi";
+import { HiArrowRight, HiFilter, HiSearch, HiX } from "react-icons/hi";
 import PostCard from "../components/PostCard";
 
 export default function SearchPage() {
-  const [sidebarData, setSidebarData] = useState({
+  const defaultFilters = {
     searchTerm: "",
     sort: "desc",
     category: "uncategorized",
-  });
+  };
 
+  const [sidebarData, setSidebarData] = useState(defaultFilters);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showMore, setShowMore] = useState(false);
@@ -63,6 +64,11 @@ export default function SearchPage() {
     urlParams.set("sort", sidebarData.sort);
     urlParams.set("category", sidebarData.category);
     navigate(`/search?${urlParams.toString()}`);
+  };
+
+  const handleClearFilters = () => {
+    setSidebarData(defaultFilters);
+    navigate('/search');
   };
 
   const handleShowMore = async () => {
@@ -208,7 +214,10 @@ export default function SearchPage() {
                 </Select>
               </motion.div>
 
-              <motion.div variants={itemVariants}>
+              <motion.div 
+                variants={itemVariants}
+                className="flex flex-col gap-3"
+              >
                 <Button 
                   type="submit" 
                   gradientDuoTone="purpleToPink" 
@@ -216,6 +225,16 @@ export default function SearchPage() {
                 >
                   Apply Filters
                   <HiArrowRight className="ml-2" />
+                </Button>
+                
+                <Button 
+                  type="button"
+                  color="gray"
+                  onClick={handleClearFilters}
+                  className="w-full"
+                >
+                  Clear Filters
+                  <HiX className="ml-2" />
                 </Button>
               </motion.div>
             </form>
@@ -265,7 +284,7 @@ export default function SearchPage() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6"
           >
             <AnimatePresence>
               {!loading && posts.map((post) => (
