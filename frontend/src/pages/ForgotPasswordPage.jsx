@@ -1,5 +1,5 @@
 import { TextInput, Button, Alert } from 'flowbite-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft, Loader } from 'lucide-react';
 
@@ -8,19 +8,76 @@ const ForgotPasswordPage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [lastAttempt, setLastAttempt] = useState(null);
+
+  // Handle reCAPTCHA script loading
+  useEffect(() => {
+    if (import.meta.env.VITE_NODE_ENV === "production") {
+      const script = document.createElement("script");
+      script.src = `https://www.google.com/recaptcha/api.js?render=${
+        import.meta.env.VITE_RECAPTCHA_SITE_KEY
+      }`;
+      script.async = true;
+      document.body.appendChild(script);
+
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
+  }, []);
+
+  // Execute reCAPTCHA verification
+  const executeRecaptcha = () => {
+    return new Promise((resolve, reject) => {
+      if (window.grecaptcha && window.grecaptcha.execute) {
+        window.grecaptcha
+          .execute(import.meta.env.VITE_RECAPTCHA_SITE_KEY, {
+            action: 'forgot_password',
+          })
+          .then((token) => resolve(token))
+          .catch(reject);
+      } else {
+        reject(new Error("reCAPTCHA not loaded"));
+      }
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevent rapid repeated attempts
+    if (lastAttempt && Date.now() - lastAttempt < 2000) {
+      setError("Please wait before trying again");
+      return;
+    }
+
     setLoading(true);
     setError("");
     setSuccess("");
+    setLastAttempt(Date.now());
 
     try {
+      // Execute reCAPTCHA only in production
+      let recaptchaToken = null;
+      if (import.meta.env.VITE_NODE_ENV === "production") {
+        try {
+          recaptchaToken = await executeRecaptcha();
+        } catch (recaptchaError) {
+          setError("reCAPTCHA verification failed");
+          setLoading(false);
+          return;
+        }
+      }
+
       const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ 
+          email,
+          recaptchaToken 
+        }),
       });
+      
       const data = await res.json();
       if (res.ok) {
         setSuccess(data.message || "Check your email for a reset link.");
@@ -39,7 +96,6 @@ const ForgotPasswordPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-lg transition-all">
         <div className="p-8">
-          {/* Header Section */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Forgot Password?
@@ -49,7 +105,6 @@ const ForgotPasswordPage = () => {
             </p>
           </div>
 
-          {/* Form Section */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <div className="relative">
@@ -83,7 +138,6 @@ const ForgotPasswordPage = () => {
               )}
             </Button>
 
-            {/* Back to Login Link */}
             <div className="text-center mt-6">
               <Link
                 to="/sign-in"
@@ -95,7 +149,6 @@ const ForgotPasswordPage = () => {
             </div>
           </form>
 
-          {/* Alert Messages */}
           {success && (
             <Alert 
               color="success" 

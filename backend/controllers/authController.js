@@ -552,8 +552,54 @@ export const google = async (req, res, next) => {
 };
 
 export const forgotPassword = async (req, res, next) => {
-  const { email } = req.body;
-  const ip = req.ip || req.connection.remoteAddress;
+  const { email, recaptchaToken } = req.body;
+  const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] ||
+    req.headers["x-real-ip"] ||
+    req.socket.remoteAddress;
+
+  // reCAPTCHA validation
+  if (process.env.NODE_ENV === "production") {
+    if (!recaptchaToken) {
+      return next(errorHandler(400, "reCAPTCHA token is required"));
+    }
+
+    try {
+      const captchaResponse = await axios.post(
+        `https://www.google.com/recaptcha/api/siteverify`,
+        null,
+        {
+          params: {
+            secret: process.env.RECAPTCHA_SECRET_KEY,
+            response: recaptchaToken,
+            remoteip: ip,
+          },
+        }
+      );
+
+      const { success, score, action, hostname } = captchaResponse.data;
+
+      if (!success || score <= 0.7) {
+        console.warn("reCAPTCHA validation failed:", {
+          success,
+          score,
+          action,
+          hostname,
+          ip,
+        });
+        return next(
+          errorHandler(400, "Security check failed. Please try again.")
+        );
+      }
+    } catch (error) {
+      console.error("CAPTCHA verification failed:", {
+        error: error.message,
+        ip,
+        email,
+      });
+      return next(errorHandler(500, "Security verification failed"));
+    }
+  }
 
   // Check rate limiting
   const attempts = resetAttempts.get(ip) || { count: 0, timestamp: Date.now() };
@@ -571,33 +617,45 @@ export const forgotPassword = async (req, res, next) => {
       return next(errorHandler(400, "Email is required"));
     }
 
-    // Don't reveal if user exists
     const user = await User.findOne({ email });
+    
+    // If user doesn't exist, send generic response
     if (!user) {
       return res.json({
         message: "If an account exists, a reset link will be sent.",
       });
     }
 
-    // Generate secure random token
+    // Check if user uses social authentication
+    if (user.authProvider !== 'local') {
+      // Log the attempt for security monitoring
+      console.warn("Password reset attempted for social auth account:", {
+        email,
+        authProvider: user.authProvider,
+        ip,
+      });
+      
+      // Send a specific message for social auth users
+      return res.status(400).json({
+        message: `This account uses ${user.authProvider} authentication. Please sign in with ${user.authProvider}.`,
+      });
+    }
+
     const resetToken = crypto.randomBytes(32).toString("hex");
     const resetTokenHash = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
 
-    // Store hashed token
     user.passwordResetToken = resetTokenHash;
-    user.passwordResetExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+    user.passwordResetExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    // Update rate limiting
     resetAttempts.set(ip, {
       count: attempts.count + 1,
       timestamp: attempts.timestamp,
     });
 
-    // Create reset URL with unguessable token
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
     const transporter = nodemailer.createTransport({
@@ -606,7 +664,6 @@ export const forgotPassword = async (req, res, next) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      // Enable TLS
       secure: true,
     });
 
@@ -637,27 +694,71 @@ export const forgotPassword = async (req, res, next) => {
 };
 
 export const resetPassword = async (req, res, next) => {
-  const { token, newPassword } = req.body;
+  const { token, newPassword, recaptchaToken } = req.body;
+  const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] ||
+    req.headers["x-real-ip"] ||
+    req.socket.remoteAddress;
+
+  // reCAPTCHA validation
+  if (process.env.NODE_ENV === "production") {
+    if (!recaptchaToken) {
+      return next(errorHandler(400, "reCAPTCHA token is required"));
+    }
+
+    try {
+      const captchaResponse = await axios.post(
+        `https://www.google.com/recaptcha/api/siteverify`,
+        null,
+        {
+          params: {
+            secret: process.env.RECAPTCHA_SECRET_KEY,
+            response: recaptchaToken,
+            remoteip: ip,
+          },
+        }
+      );
+
+      const { success, score, action, hostname } = captchaResponse.data;
+
+      if (!success || score <= 0.7) {
+        console.warn("reCAPTCHA validation failed:", {
+          success,
+          score,
+          action,
+          hostname,
+          ip,
+        });
+        return next(
+          errorHandler(400, "Security check failed. Please try again.")
+        );
+      }
+    } catch (error) {
+      console.error("CAPTCHA verification failed:", {
+        error: error.message,
+        ip,
+      });
+      return next(errorHandler(500, "Security verification failed"));
+    }
+  }
 
   try {
     if (!token || !newPassword) {
       return next(errorHandler(400, "Token and new password are required"));
     }
 
-    // Validate password strength
+    // Rest of the resetPassword implementation remains the same...
     if (newPassword.length < 8) {
       return next(
         errorHandler(400, "Password must be at least 8 characters long")
       );
     }
 
-    // Hash the token from the URL
     const resetTokenHash = crypto
       .createHash("sha256")
       .update(token)
       .digest("hex");
 
-    // Find user with valid token
     const user = await User.findOne({
       passwordResetToken: resetTokenHash,
       passwordResetExpires: { $gt: Date.now() },
@@ -667,16 +768,13 @@ export const resetPassword = async (req, res, next) => {
       return next(errorHandler(400, "Invalid or expired reset token"));
     }
 
-    // Hash new password
     const hashedPassword = await bcryptjs.hash(newPassword, 12);
 
-    // Update password and clear reset token
     user.password = hashedPassword;
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save();
 
-    // Clear any failed login attempts
     user.failedAttempts = 0;
     user.lockUntil = undefined;
     await user.save();

@@ -1,5 +1,5 @@
 import { TextInput, Button, Alert, Progress } from "flowbite-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Lock, Eye, EyeOff, Check, Loader, KeyRound } from "lucide-react";
 import zxcvbn from "zxcvbn";
@@ -15,10 +15,43 @@ const ResetPasswordPage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [lastAttempt, setLastAttempt] = useState(null);
+
+  // Handle reCAPTCHA script loading
+  useEffect(() => {
+    if (import.meta.env.VITE_NODE_ENV === "production") {
+      const script = document.createElement("script");
+      script.src = `https://www.google.com/recaptcha/api.js?render=${
+        import.meta.env.VITE_RECAPTCHA_SITE_KEY
+      }`;
+      script.async = true;
+      document.body.appendChild(script);
+
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
+  }, []);
+
+  // Execute reCAPTCHA verification
+  const executeRecaptcha = () => {
+    return new Promise((resolve, reject) => {
+      if (window.grecaptcha && window.grecaptcha.execute) {
+        window.grecaptcha
+          .execute(import.meta.env.VITE_RECAPTCHA_SITE_KEY, {
+            action: 'reset_password',
+          })
+          .then((token) => resolve(token))
+          .catch(reject);
+      } else {
+        reject(new Error("reCAPTCHA not loaded"));
+      }
+    });
+  };
 
   const getPasswordStrength = (password) => {
     const result = zxcvbn(password);
-    return result.score * 25; // zxcvbn returns a score from 0 to 4, multiplying by 25 for percentage
+    return result.score * 25;
   };
 
   const passwordStrength = getPasswordStrength(formData.password);
@@ -32,6 +65,13 @@ const ResetPasswordPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevent rapid repeated attempts
+    if (lastAttempt && Date.now() - lastAttempt < 2000) {
+      setError("Please wait before trying again");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords don't match");
       return;
@@ -43,12 +83,31 @@ const ResetPasswordPage = () => {
 
     setLoading(true);
     setError("");
+    setLastAttempt(Date.now());
+
     try {
+      // Execute reCAPTCHA only in production
+      let recaptchaToken = null;
+      if (import.meta.env.VITE_NODE_ENV === "production") {
+        try {
+          recaptchaToken = await executeRecaptcha();
+        } catch (recaptchaError) {
+          setError("reCAPTCHA verification failed");
+          setLoading(false);
+          return;
+        }
+      }
+
       const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, newPassword: formData.password }),
+        body: JSON.stringify({ 
+          token, 
+          newPassword: formData.password,
+          recaptchaToken 
+        }),
       });
+      
       const data = await res.json();
       if (res.ok) {
         setSuccess("Password reset successful. Redirecting to login...");
@@ -84,7 +143,6 @@ const ResetPasswordPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
-              {/* Password Input */}
               <div className="space-y-2">
                 <div className="relative">
                   <Lock
@@ -111,7 +169,6 @@ const ResetPasswordPage = () => {
                   </button>
                 </div>
 
-                {/* Password Strength Indicator */}
                 {formData.password && (
                   <div className="space-y-2">
                     <Progress
@@ -133,7 +190,6 @@ const ResetPasswordPage = () => {
                 )}
               </div>
 
-              {/* Confirm Password Input */}
               <div className="relative">
                 <Lock
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"

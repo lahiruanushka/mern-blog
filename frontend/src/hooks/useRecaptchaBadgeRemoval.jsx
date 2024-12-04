@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const useRecaptchaBadgeRemoval = () => {
   const location = useLocation();
@@ -8,18 +8,27 @@ const useRecaptchaBadgeRemoval = () => {
     const manageBadge = () => {
       const badges = document.querySelectorAll(".grecaptcha-badge");
       badges.forEach((badge) => {
-        // Hide badge on all pages EXCEPT sign-in and sign-up pages
-        if (location.pathname !== '/sign-in' && location.pathname !== '/sign-up') {
-          badge.style.display = 'none';
-          badge.style.opacity = '0';
-          badge.style.visibility = 'hidden';
-          badge.setAttribute('aria-hidden', 'true');
+        // Check if the current path starts with /reset-password/
+        const isResetPasswordPage =
+          location.pathname.startsWith("/reset-password/");
+
+        // Hide badge on all pages EXCEPT specified auth pages
+        if (
+          location.pathname !== "/sign-in" &&
+          location.pathname !== "/sign-up" &&
+          location.pathname !== "/forgot-password" &&
+          !isResetPasswordPage
+        ) {
+          badge.style.display = "none";
+          badge.style.opacity = "0";
+          badge.style.visibility = "hidden";
+          badge.setAttribute("aria-hidden", "true");
         } else {
-          // Ensure badge is visible on sign-in and sign-up pages
-          badge.style.display = '';
-          badge.style.opacity = '';
-          badge.style.visibility = 'visible';
-          badge.removeAttribute('aria-hidden');
+          // Ensure badge is visible on auth pages
+          badge.style.display = "";
+          badge.style.opacity = "";
+          badge.style.visibility = "visible";
+          badge.removeAttribute("aria-hidden");
         }
       });
     };
