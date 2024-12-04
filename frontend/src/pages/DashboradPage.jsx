@@ -7,17 +7,24 @@ import DashUsers from "../components/DashUsers";
 import DashComments from "../components/DashComments";
 import DashboardComp from "../components/DashboardComp";
 import DashCategories from "../components/DashCategories";
+import DashCreatePost from "../components/DashCreatePost";
+import DashUpdatePost from "../components/DashUpdatePost";
 
 const DashboradPage = () => {
   const location = useLocation();
   const [tab, setTab] = useState();
+  const [postId, setPostId] = useState();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const tabFromUrl = urlParams.get("tab");
+    const postIdFromUrl = urlParams.get("id");
 
     if (tabFromUrl) {
       setTab(tabFromUrl);
+    }
+    if (postIdFromUrl) {
+      setPostId(postIdFromUrl);
     }
   }, [location.search]);
   return (
@@ -28,6 +35,8 @@ const DashboradPage = () => {
       </div>
       {/* posts */}
       {tab === "posts" && <DashPosts />}
+      {tab === "create-post" && <DashCreatePost />}
+      {tab === "update-post" && postId && <DashUpdatePost postId={postId} />}
       {/* Profile */}
       {tab === "profile" && <DashProfile />}
       {/* Users */}

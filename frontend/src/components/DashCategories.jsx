@@ -3,6 +3,7 @@ import { Button, Modal, Table, TextInput, Label } from "flowbite-react";
 import { useSelector } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import Loading from "./Loading";
+import { useToast } from "../context/ToastContext";
 
 const DashCategories = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -11,6 +12,8 @@ const DashCategories = () => {
   const [showAddEditModal, setShowAddEditModal] = useState(false);
   const [categoryIdToDelete, setCategoryIdToDelete] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const { showToast } = useToast();
 
   // State for add/edit form
   const [currentCategory, setCurrentCategory] = useState({
@@ -49,13 +52,16 @@ const DashCategories = () => {
       const data = await res.json();
       if (!res.ok) {
         console.log(data.message);
+        showToast("Failed to remove category. Please try again.", "error");
       } else {
         setCategories((prev) =>
           prev.filter((category) => category._id !== categoryIdToDelete)
         );
+        showToast("Category deleted successfully", "success");
       }
     } catch (error) {
       console.log(error.message);
+      showToast("Failed to remove category. Please try again.", "error");
     }
   };
 
@@ -86,9 +92,11 @@ const DashCategories = () => {
           setCategories((prev) =>
             prev.map((cat) => (cat._id === currentCategory._id ? data : cat))
           );
+          showToast("Category updated successfully", "success");
         } else {
           // Add new category
           setCategories((prev) => [...prev, data]);
+          showToast("Category added successfully", "success");
         }
 
         // Reset form and close modal
@@ -99,6 +107,7 @@ const DashCategories = () => {
       }
     } catch (error) {
       console.log(error.message);
+      showToast("Failed to update category. Please try again.", "error");
     }
   };
 

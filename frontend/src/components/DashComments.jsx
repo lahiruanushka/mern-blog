@@ -2,8 +2,8 @@ import { Modal, Table, Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-import { FaCheck, FaTimes } from "react-icons/fa";
 import Loading from "./Loading";
+import { useToast } from "../context/ToastContext";
 
 export default function DashComments() {
   const { currentUser } = useSelector((state) => state.user);
@@ -13,6 +13,8 @@ export default function DashComments() {
   const [commentIdToDelete, setCommentIdToDelete] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  const { showToast } = useToast();
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -73,11 +75,14 @@ export default function DashComments() {
           prev.filter((comment) => comment._id !== commentIdToDelete)
         );
         setShowModal(false);
+        showToast("Comment deleted successfully", "success");
       } else {
         console.log(data.message);
+        showToast("Failed to delete comment. Please try again.", "error");
       }
     } catch (error) {
       console.log(error.message);
+      showToast("Failed to delete comment. Please try again.", "error");
     }
   };
 

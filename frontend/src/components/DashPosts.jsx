@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import Loading from "./Loading";
+import { useToast } from "../context/ToastContext";
 
 const DashPosts = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -14,6 +15,8 @@ const DashPosts = () => {
   const [postIdToDelete, setPostIdToDelete] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  const { showToast } = useToast();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -50,13 +53,16 @@ const DashPosts = () => {
       const data = await res.json();
       if (!res.ok) {
         console.log(data.message);
+        showToast("Failed to delete post. Please try again.", "error");
       } else {
         setUserPosts((prev) =>
           prev.filter((post) => post._id !== postIdToDelete)
         );
+        showToast("Post deleted successfully", "success");
       }
     } catch (error) {
       console.log(error.message);
+      showToast("Failed to delete post. Please try again.", "error");
     }
   };
 
@@ -85,7 +91,7 @@ const DashPosts = () => {
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500">
       {currentUser?.isAdmin && (
         <div className="mb-4">
-          <Link to={"/create-post"}>
+          <Link to={"/dashboard?tab=create-post"}>
             <Button type="button" gradientDuoTone="purpleToPink">
               Create a post
             </Button>
@@ -149,7 +155,7 @@ const DashPosts = () => {
                   <Table.Cell>
                     <Link
                       className="text-teal-500 hover:underline"
-                      to={`/update-post/${post._id}`}
+                      to={`/dashboard?tab=update-post&id=${post._id}`}
                     >
                       <span>Edit</span>
                     </Link>

@@ -9,8 +9,6 @@ import Footer from "./components/FooterComponent";
 import PrivateRoute from "./components/PrivateRoute";
 import NotFoundPage from "./pages/NotFoundPage";
 import OnlyAdminPrivateRoute from "./components/OnlyAdminPrivateRoute";
-import CreatePostPage from "./pages/CreatePostPage";
-import UpdatePostPage from "./pages/UpdatePostPage";
 import PostPage from "./pages/PostPage";
 import ScrollToTop from "./components/ScrollToTop";
 import SearchPage from "./pages/SearchPage";
@@ -54,10 +52,6 @@ const App = () => {
 
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashborad />} />
-        </Route>
-        <Route element={<OnlyAdminPrivateRoute />}>
-          <Route path="/create-post" element={<CreatePostPage />} />
-          <Route path="/update-post/:postId" element={<UpdatePostPage />} />
         </Route>
 
         <Route path="/post/:postSlug" element={<PostPage />} />

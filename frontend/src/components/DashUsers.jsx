@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import Loading from "./Loading";
+import { useToast } from "../context/ToastContext";
 
 export default function DashUsers() {
   const { currentUser } = useSelector((state) => state.user);
@@ -13,6 +14,8 @@ export default function DashUsers() {
   const [userIdToDelete, setUserIdToDelete] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  const { showToast } = useToast();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -65,11 +68,14 @@ export default function DashUsers() {
       if (res.ok) {
         setUsers((prev) => prev.filter((user) => user._id !== userIdToDelete));
         setShowModal(false);
+        showToast("User account deleted successfully", "success");
       } else {
         console.log(data.message);
+        showToast("Failed to delete user account. Please try again.", "error");
       }
     } catch (error) {
       console.log(error.message);
+      showToast("Failed to delete user account. Please try again.", "error");
     }
   };
 

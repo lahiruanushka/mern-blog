@@ -11,18 +11,16 @@ import { app } from "../firebase";
 import { useEffect, useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-const UpdatePostPage = () => {
+const DashUpdatePost = ({ postId }) => {
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
   const [categories, setCategories] = useState([]);
-
-  const { postId } = useParams();
 
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
@@ -131,7 +129,7 @@ const UpdatePostPage = () => {
   }, []);
 
   return (
-    <div className="p-3 max-w-3xl mx-auto min-h-screen">
+    <div className="p-3 max-w-3xl mx-auto min-h-screen w-full">
       <h1 className="text-center text-3xl my-7 font-semibold">Update post</h1>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-4 sm:flex-row justify-between">
@@ -216,4 +214,4 @@ const UpdatePostPage = () => {
   );
 };
 
-export default UpdatePostPage;
+export default DashUpdatePost;
