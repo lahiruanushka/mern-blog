@@ -4,6 +4,8 @@ import { errorHandler } from "../utils/error.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 import Otp from "../models/otpModel.js";
+import zxcvbn from 'zxcvbn';
+import generatePasswordFeedback from "../utils/generatePasswordFeedback.js";
 
 export const test = (req, res) => {
   res.json({ message: "API is working" });
@@ -66,9 +68,16 @@ export const updateUserPassword = async (req, res, next) => {
   const { currentPassword, newPassword, otp } = req.body;
 
   try {
+    console.log('Password Update Request:', { 
+      userId: req.user.id, 
+      currentPasswordProvided: !!currentPassword,
+      otpProvided: !!otp
+    });
+
     // Find the user with the full document to access the password
     const user = await User.findById(req.user.id).select("+password");
     if (!user) {
+      console.error('User not found');
       return next(errorHandler(404, "User not found"));
     }
 
@@ -78,6 +87,7 @@ export const updateUserPassword = async (req, res, next) => {
       user.password
     );
     if (!isCurrentPasswordCorrect) {
+      console.error('Current password incorrect');
       return next(errorHandler(400, "Current password is incorrect"));
     }
 
@@ -89,44 +99,27 @@ export const updateUserPassword = async (req, res, next) => {
     });
 
     if (!storedOTP) {
+      console.error('Invalid or expired OTP');
       return next(errorHandler(400, "Invalid or expired OTP"));
     }
 
+    // Password strength validation using zxcvbn
+    const strengthResult = zxcvbn(newPassword);
+    
     // Comprehensive password validation
     const passwordValidationErrors = [];
 
+    // Minimum strength threshold (you can adjust this)
+    if (strengthResult.score < 2) {
+      const strengthFeedback = generatePasswordFeedback(strengthResult);
+      passwordValidationErrors.push(strengthFeedback);
+    }
+
+    // Additional custom validation rules (optional)
     // Minimum length
     if (newPassword.length < 8) {
       passwordValidationErrors.push(
         "Password must be at least 8 characters long"
-      );
-    }
-
-    // At least one uppercase letter
-    if (!/[A-Z]/.test(newPassword)) {
-      passwordValidationErrors.push(
-        "Password must contain at least one uppercase letter"
-      );
-    }
-
-    // At least one lowercase letter
-    if (!/[a-z]/.test(newPassword)) {
-      passwordValidationErrors.push(
-        "Password must contain at least one lowercase letter"
-      );
-    }
-
-    // At least one number
-    if (!/[0-9]/.test(newPassword)) {
-      passwordValidationErrors.push(
-        "Password must contain at least one number"
-      );
-    }
-
-    // At least one special character
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)) {
-      passwordValidationErrors.push(
-        "Password must contain at least one special character"
       );
     }
 
@@ -143,6 +136,7 @@ export const updateUserPassword = async (req, res, next) => {
 
     // If there are any validation errors, return them
     if (passwordValidationErrors.length > 0) {
+      console.error('Password validation failed:', passwordValidationErrors);
       return next(errorHandler(400, passwordValidationErrors.join(". ")));
     }
 
@@ -157,8 +151,11 @@ export const updateUserPassword = async (req, res, next) => {
     // Remove the used OTP
     await Otp.deleteOne({ _id: storedOTP._id });
 
+    console.log('Password updated successfully');
     res.status(200).json({ message: "Password updated successfully" });
+
   } catch (error) {
+    console.error('Password update error:', error);
     next(error);
   }
 };

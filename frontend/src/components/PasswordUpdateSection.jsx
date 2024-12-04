@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Button, TextInput, Alert } from "flowbite-react";
+import { useState, useEffect } from "react";
+import { Button, TextInput, Alert, Spinner } from "flowbite-react";
 import { Eye, EyeOff, Lock, KeyRound } from "lucide-react";
 import zxcvbn from "zxcvbn";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,10 @@ const PasswordUpdateSection = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+
+  // Loading states
+  const [isRequestingOTP, setIsRequestingOTP] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   // Password visibility states
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -24,6 +28,29 @@ const PasswordUpdateSection = () => {
   const [passwordUpdateSuccess, setPasswordUpdateSuccess] = useState(false);
 
   const navigate = useNavigate();
+
+  // Auto-clear alerts after 5 seconds
+  useEffect(() => {
+    let errorTimer, successTimer;
+
+    if (updateUserError) {
+      errorTimer = setTimeout(() => {
+        setUpdateUserError(null);
+      }, 5000);
+    }
+
+    if (updateUserSuccess) {
+      successTimer = setTimeout(() => {
+        setUpdateUserSuccess(null);
+      }, 5000);
+    }
+
+    // Clear timers on component unmount or when dependencies change
+    return () => {
+      if (errorTimer) clearTimeout(errorTimer);
+      if (successTimer) clearTimeout(successTimer);
+    };
+  }, [updateUserError, updateUserSuccess]);
 
   // Comprehensive password validation
   const validatePasswords = () => {
@@ -68,6 +95,11 @@ const PasswordUpdateSection = () => {
       return;
     }
 
+    // Start loading state
+    setIsRequestingOTP(true);
+    setUpdateUserError(null);
+    setUpdateUserSuccess(null);
+
     try {
       const res = await fetch("/api/user/request-password-update-otp", {
         method: "POST",
@@ -81,12 +113,14 @@ const PasswordUpdateSection = () => {
       if (res.ok) {
         setOtpSent(true);
         setUpdateUserSuccess("OTP sent to your email");
-        setUpdateUserError(null);
       } else {
         setUpdateUserError(data.message);
       }
     } catch (error) {
       setUpdateUserError(error.message);
+    } finally {
+      // End loading state
+      setIsRequestingOTP(false);
     }
   };
 
@@ -100,6 +134,11 @@ const PasswordUpdateSection = () => {
       setUpdateUserError(validationErrors[0]);
       return;
     }
+
+    // Start loading state
+    setIsUpdatingPassword(true);
+    setUpdateUserError(null);
+    setUpdateUserSuccess(null);
 
     try {
       const res = await fetch("/api/user/update-password", {
@@ -118,14 +157,16 @@ const PasswordUpdateSection = () => {
 
       if (res.ok) {
         setUpdateUserSuccess("Password updated successfully");
-        setUpdateUserError(null);
-        setPasswordUpdateSuccess(true); // Add this line
-        resetForm(); // Just reset the form
+        setPasswordUpdateSuccess(true);
+        resetForm();
       } else {
         setUpdateUserError(data.message);
       }
     } catch (error) {
       setUpdateUserError(error.message);
+    } finally {
+      // End loading state
+      setIsUpdatingPassword(false);
     }
   };
 
@@ -142,14 +183,14 @@ const PasswordUpdateSection = () => {
   const passwordStrength = newPassword ? zxcvbn(newPassword) : null;
 
   return (
-    <div className="mt-6 bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-md">
+    <div className="mt-6 bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-md w-full">
       {!passwordUpdateMode || passwordUpdateSuccess ? (
         <Button
           onClick={() => {
             setPasswordUpdateMode(true);
             setPasswordUpdateSuccess(false);
           }}
-          gradientDuoTone="purpleToBlue"
+          gradientDuoTone="greenToBlue"
           className="w-full flex items-center justify-center"
         >
           <Lock className="mr-2 h-5 w-5" />
@@ -170,11 +211,13 @@ const PasswordUpdateSection = () => {
               required
               icon={KeyRound}
               className="pr-10"
+              disabled={isRequestingOTP || isUpdatingPassword}
             />
             <button
               type="button"
               onClick={() => setShowCurrentPassword(!showCurrentPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              disabled={isRequestingOTP || isUpdatingPassword}
             >
               {showCurrentPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -193,11 +236,13 @@ const PasswordUpdateSection = () => {
               required
               icon={Lock}
               className="pr-10"
+              disabled={isRequestingOTP || isUpdatingPassword}
             />
             <button
               type="button"
               onClick={() => setShowNewPassword(!showNewPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              disabled={isRequestingOTP || isUpdatingPassword}
             >
               {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -230,11 +275,13 @@ const PasswordUpdateSection = () => {
               required
               icon={Lock}
               className="pr-10"
+              disabled={isRequestingOTP || isUpdatingPassword}
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              disabled={isRequestingOTP || isUpdatingPassword}
             >
               {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -247,9 +294,22 @@ const PasswordUpdateSection = () => {
               gradientDuoTone="greenToBlue"
               outline
               className="w-full"
-              disabled={!currentPassword}
+              disabled={
+                !currentPassword ||
+                !newPassword ||
+                !confirmPassword ||
+                isRequestingOTP ||
+                isUpdatingPassword
+              }
             >
-              Request OTP
+              {isRequestingOTP ? (
+                <>
+                  <Spinner size="sm" className="mr-2" />
+                  Requesting OTP...
+                </>
+              ) : (
+                "Request OTP"
+              )}
             </Button>
           ) : (
             <div className="space-y-4">
@@ -263,14 +323,27 @@ const PasswordUpdateSection = () => {
                 }}
                 required
                 maxLength={6}
+                disabled={isRequestingOTP || isUpdatingPassword}
               />
               <Button
                 type="submit"
                 gradientDuoTone="purpleToBlue"
                 className="w-full"
-                disabled={!otp || otp.length !== 6}
+                disabled={
+                  !otp ||
+                  otp.length !== 6 ||
+                  isRequestingOTP ||
+                  isUpdatingPassword
+                }
               >
-                Update Password
+                {isUpdatingPassword ? (
+                  <>
+                    <Spinner size="sm" className="mr-2" />
+                    Updating Password...
+                  </>
+                ) : (
+                  "Update Password"
+                )}
               </Button>
             </div>
           )}
@@ -283,6 +356,7 @@ const PasswordUpdateSection = () => {
               }}
               color="gray"
               outline
+              disabled={isRequestingOTP || isUpdatingPassword}
             >
               Cancel
             </Button>
@@ -292,12 +366,20 @@ const PasswordUpdateSection = () => {
 
       {/* Error and Success Alerts */}
       {updateUserError && (
-        <Alert color="failure" className="mt-4">
+        <Alert
+          color="failure"
+          className="mt-4 animate-fade-out"
+          onDismiss={() => setUpdateUserError(null)}
+        >
           {updateUserError}
         </Alert>
       )}
       {updateUserSuccess && (
-        <Alert color="success" className="mt-4">
+        <Alert
+          color="success"
+          className="mt-4 animate-fade-out"
+          onDismiss={() => setUpdateUserSuccess(null)}
+        >
           {updateUserSuccess}
         </Alert>
       )}

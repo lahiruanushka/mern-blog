@@ -7,6 +7,7 @@ import nodemailer from "nodemailer";
 import axios from "axios";
 import zxcvbn from "zxcvbn";
 import AuthLog from "../models/authLogModel.js";
+import generatePasswordFeedback from "../utils/generatePasswordFeedback.js";
 
 // Rate limiting configuration
 const loginAttempts = new Map();
@@ -64,23 +65,6 @@ setInterval(cleanupSignupAttempts, 60 * 60 * 1000);
 function validateEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
-}
-
-// Generate password strength feedback
-function generatePasswordFeedback(strengthResult) {
-  const feedbackMessages = {
-    0: "Password is very weak. Use a stronger combination of characters.",
-    1: "Password is weak. Add more complexity.",
-    2: "Password is moderate. Consider making it stronger.",
-    3: "Password is strong, but could be even better.",
-    4: "Excellent password strength!",
-  };
-
-  // Combine strength message with specific feedback
-  const baseMessage = feedbackMessages[strengthResult.score];
-  const specificFeedback = strengthResult.feedback.suggestions.join(" ");
-
-  return `${baseMessage} ${specificFeedback}`.trim();
 }
 
 // Optional:Email verification function
@@ -403,38 +387,149 @@ export const signin = async (req, res, next) => {
 };
 
 export const google = async (req, res, next) => {
-  const { email, name, googlePhotoUrl } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (user) {
-      const token = jwt.sign(
-        { id: user._id, isAdmin: user.isAdmin },
-        process.env.JWT_SECRET
+  const { email, name, googlePhotoUrl, googleId, recaptchaToken } = req.body;
+
+  // Get client IP (works with proxies)
+  const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] || // Get first IP if multiple
+    req.headers["x-real-ip"] ||
+    req.socket.remoteAddress;
+
+  // reCAPTCHA validation
+  if (process.env.NODE_ENV === "production") {
+    if (!recaptchaToken) {
+      return next(errorHandler(400, "reCAPTCHA token is required"));
+    }
+
+    try {
+      const captchaResponse = await axios.post(
+        `https://www.google.com/recaptcha/api/siteverify`,
+        null,
+        {
+          params: {
+            secret: process.env.RECAPTCHA_SECRET_KEY,
+            response: recaptchaToken,
+            remoteip: ip, // Include IP for better validation
+          },
+        }
       );
-      const { password, ...rest } = user._doc;
-      res
-        .status(200)
-        .cookie("access_token", token, {
-          httpOnly: true,
-        })
-        .json(rest);
+
+      const { success, score, action, hostname } = captchaResponse.data;
+
+      // Enhanced validation checks
+      if (!success || score <= 0.7) {
+        // Verify request origin
+        console.warn("reCAPTCHA validation failed:", {
+          success,
+          score,
+          action,
+          hostname,
+          ip,
+        });
+        return next(
+          errorHandler(400, "Security check failed. Please try again.")
+        );
+      }
+    } catch (error) {
+      console.error("CAPTCHA verification failed:", {
+        error: error.message,
+        ip,
+        email,
+      });
+      return next(errorHandler(500, "Security verification failed"));
+    }
+  }
+
+  // More sophisticated rate limiting
+  const now = Date.now();
+  const ipAttempt = loginAttempts.get(ip) || { count: 0, timestamp: now };
+
+  // Reduced attempts and longer lockout
+  if (ipAttempt.count >= 5) {
+    const timeSinceFirstAttempt = now - ipAttempt.timestamp;
+
+    // If more than 5 attempts within an hour, block for 2 hours
+    if (timeSinceFirstAttempt < 60 * 60 * 1000) {
+      return next(
+        errorHandler(429, "Too many login attempts. Try again later.")
+      );
+    }
+  }
+
+  try {
+    // Validate email format
+    if (!validateEmail(email)) {
+      return next(errorHandler(400, "Invalid email address"));
+    }
+
+    const user = await User.findOne({ email });
+
+    if (user) {
+      // If user exists, check if they previously signed up with Google
+      if (user.authProvider === "google" || user.googleId === null) {
+        // Update Google ID if not set
+        if (!user.googleId) {
+          user.googleId = googleId;
+          user.authProvider = "google";
+          user.profilePicture = googlePhotoUrl;
+          user.lastLoginIP = ip;
+          user.lastLoginAt = new Date();
+          await user.save();
+        }
+
+        // Reset login attempts on successful login
+        loginAttempts.delete(ip);
+
+        const token = jwt.sign(
+          { id: user._id, isAdmin: user.isAdmin },
+          process.env.JWT_SECRET
+        );
+        const { password, ...rest } = user._doc;
+        return res
+          .status(200)
+          .cookie("access_token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+          })
+          .json(rest);
+      } else {
+        // Update login attempts for failed authentication
+        loginAttempts.set(ip, {
+          count: ipAttempt.count + 1,
+          timestamp: ipAttempt.timestamp || now,
+        });
+
+        // User exists but with a different auth method
+        return next(
+          errorHandler(
+            400,
+            "Email already registered with a different authentication method"
+          )
+        );
+      }
     } else {
-      const generatedPassword =
-        Math.random().toString(36).slice(-8) +
-        Math.random().toString(36).slice(-8);
-
-      const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
-
+      // Create new user with Google OAuth
       const newUser = new User({
         username:
           name.toLowerCase().split(" ").join("") +
           Math.random().toString(9).slice(-4),
         email,
-        password: hashedPassword,
         profilePicture: googlePhotoUrl,
+        authProvider: "google",
+        googleId: googleId,
+        registrationIP: ip,
+        lastLoginIP: ip,
+        accountCreatedAt: new Date(),
+        lastLoginAt: new Date(),
+        // Add account verification status
+        isVerified: true, // Since it's Google OAuth
       });
 
       await newUser.save();
+
+      // Reset login attempts on successful signup
+      loginAttempts.delete(ip);
 
       const token = jwt.sign(
         { id: newUser._id, isAdmin: newUser.isAdmin },
@@ -442,10 +537,12 @@ export const google = async (req, res, next) => {
       );
 
       const { password, ...rest } = newUser._doc;
-      res
+      return res
         .status(200)
         .cookie("access_token", token, {
           httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
         })
         .json(rest);
     }

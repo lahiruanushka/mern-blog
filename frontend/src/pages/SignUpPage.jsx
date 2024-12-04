@@ -282,6 +282,17 @@ const SignUpPage = () => {
               )}
             </Button>
 
+            {/* Error Message */}
+            {errors && (
+              <Alert
+                color="failure"
+                icon={HiInformationCircle}
+                className="mt-4 mb-2"
+              >
+                <span>{errors}</span>
+              </Alert>
+            )}
+
             <div className="flex flex-col space-y-2 text-sm text-center">
               <span className="text-gray-500 dark:text-gray-400">
                 Already have an account?
@@ -307,13 +318,6 @@ const SignUpPage = () => {
 
             <OAuth />
           </form>
-
-          {/* Error Message */}
-          {errors && (
-            <Alert color="failure" icon={HiInformationCircle} className="mt-4">
-              <span>{errors}</span>
-            </Alert>
-          )}
         </div>
       </div>
     </div>

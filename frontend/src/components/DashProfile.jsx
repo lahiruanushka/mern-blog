@@ -1,7 +1,23 @@
-import { Alert, Button, TextInput, Modal } from "flowbite-react";
-import { HiOutlineExclamationCircle } from "react-icons/hi";
-import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Alert,
+  Button,
+  TextInput,
+  Modal,
+  Card,
+  Label,
+  Tooltip,
+} from "flowbite-react";
+import {
+  HiOutlineExclamationCircle,
+  HiPencil,
+  HiTrash,
+  HiLogout,
+  HiUpload,
+  HiRefresh,
+  HiUserCircle,
+} from "react-icons/hi";
+import { useSelector, useDispatch } from "react-redux";
 import {
   getStorage,
   uploadBytesResumable,
@@ -21,8 +37,6 @@ import {
   signoutSuccess,
   clearError,
 } from "../features/user/userSlice.js";
-
-import { useDispatch } from "react-redux";
 import defaultAvatar from "/src/assets/default-avatar.png";
 import PasswordUpdateSection from "./PasswordUpdateSection.jsx";
 
@@ -38,29 +52,49 @@ const DashProfile = () => {
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
   const [updateUserError, setUpdateUserError] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [isEdited, setIsEdited] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
-  const filePickerRef = useRef();
+  const filePickerRef = useRef(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // Clear any existing errors when the component mounts
     dispatch(clearError());
   }, [dispatch]);
+
+  // Auto-hide alerts after 3 seconds if not manually dismissed
+  useEffect(() => {
+    let timeoutId;
+    if (updateUserSuccess || updateUserError || imageFileUploadError || error) {
+      timeoutId = setTimeout(() => {
+        setUpdateUserSuccess(null);
+        setUpdateUserError(null);
+        setImageFileUploadError(null);
+        dispatch(clearError());
+      }, 3000);
+    }
+
+    // Cleanup timeout on component unmount or when messages change
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [
+    updateUserSuccess,
+    updateUserError,
+    imageFileUploadError,
+    error,
+    dispatch,
+  ]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImageFile(file);
       setImageFileUrl(URL.createObjectURL(file));
+      setHasChanges(true);
     }
   };
-
-  useEffect(() => {
-    if (imageFile) {
-      uploadImage();
-    }
-  }, [imageFile]);
 
   const uploadImage = async () => {
     setImageFileUploading(true);
@@ -69,12 +103,12 @@ const DashProfile = () => {
     const fileName = new Date().getTime() + imageFile.name;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, imageFile);
+
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-
         setImageFileUploadProgress(progress.toFixed(0));
       },
       (error) => {
@@ -97,9 +131,26 @@ const DashProfile = () => {
     );
   };
 
+  useEffect(() => {
+    if (imageFile) {
+      uploadImage();
+    }
+  }, [imageFile]);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
-    setIsEdited(true);
+    const newValue = e.target.value;
+    const currentValue = currentUser.username;
+
+    // Check if the username has actually changed
+    if (newValue !== currentValue) {
+      setFormData({ ...formData, [e.target.id]: newValue });
+      setHasChanges(true);
+    } else {
+      // Remove the field from formData if it's back to the original value
+      const { [e.target.id]: removedField, ...rest } = formData;
+      setFormData(rest);
+      setHasChanges(Object.keys(rest).length > 0 || imageFile !== null);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -107,24 +158,18 @@ const DashProfile = () => {
     setUpdateUserError(null);
     setUpdateUserSuccess(null);
 
-    // Basic front-end validations before submitting
-    if (!formData.username || formData.username.length < 6) {
-      setUpdateUserError("Username must be at least 6 characters");
-      return;
-    }
-    if (formData.username && /\s/.test(formData.username)) {
-      setUpdateUserError("Username cannot contain spaces");
-      return;
-    }
-    if (formData.email && !/^\S+@\S+\.\S+$/.test(formData.email)) {
-      setUpdateUserError("Invalid email format");
-      return;
+    // Validate username only if it's being changed
+    if (formData.username) {
+      if (formData.username.length < 6) {
+        setUpdateUserError("Username must be at least 6 characters");
+        return;
+      }
+      if (/\s/.test(formData.username)) {
+        setUpdateUserError("Username cannot contain spaces");
+        return;
+      }
     }
 
-    if (Object.keys(formData).length === 0) {
-      setUpdateUserError("No changes made");
-      return;
-    }
     if (imageFileUploading) {
       setUpdateUserError("Please wait for image to upload");
       return;
@@ -146,7 +191,7 @@ const DashProfile = () => {
       } else {
         dispatch(updateSuccess(data));
         setUpdateUserSuccess("Profile updated successfully");
-        setIsEdited(false);
+        setHasChanges(false);
       }
     } catch (error) {
       dispatch(updateFailure(error.message));
@@ -189,117 +234,159 @@ const DashProfile = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-3 w-full">
-      <h1 className="my-7 text-center font-semibold text-3xl text-gray-800 dark:text-white">
-        Profile
-      </h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          ref={filePickerRef}
-          hidden
-        />
-        <div
-          className="w-32 h-32 self-center cursor-pointer shadow-md overflow-hidden rounded-full relative"
-          onClick={() => filePickerRef.current.click()}
-        >
-          {imageFileUploadProgress && imageFileUploading && (
-            <CircularProgressbar
-              value={imageFileUploadProgress || 0}
-              text={`${imageFileUploadProgress}%`}
-              strokeWidth={5}
-              styles={{
-                root: {
-                  width: "100%",
-                  height: "100%",
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                },
-                path: {
-                  stroke: `rgba(62, 152, 199, ${
-                    imageFileUploadProgress / 100
-                  })`,
-                },
-              }}
+    <div className="max-w-xl mx-auto p-6 w-full">
+      <Card className="w-full">
+        <div className="flex flex-col items-center pb-6">
+          <div className="relative mb-4">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              ref={filePickerRef}
+              hidden
             />
+            <div
+              className="w-32 h-32 relative cursor-pointer group"
+              onClick={() => filePickerRef.current.click()}
+            >
+              {imageFileUploadProgress && imageFileUploading && (
+                <div className="absolute inset-0 z-10">
+                  <CircularProgressbar
+                    value={imageFileUploadProgress || 0}
+                    text={`${imageFileUploadProgress}%`}
+                    strokeWidth={5}
+                    styles={{
+                      root: { width: "100%", height: "100%" },
+                      path: {
+                        stroke: `rgba(62, 152, 199, ${
+                          imageFileUploadProgress / 100
+                        })`,
+                      },
+                    }}
+                  />
+                </div>
+              )}
+              <img
+                src={
+                  imageFileUrl || currentUser.profilePicture || defaultAvatar
+                }
+                alt="User profile"
+                className={`w-32 h-32 rounded-full object-cover border-4 border-gray-300 group-hover:opacity-70 transition-opacity ${
+                  imageFileUploadProgress && imageFileUploadProgress < 100
+                    ? "opacity-60"
+                    : ""
+                }`}
+              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <HiUpload className="text-white text-2xl" />
+              </div>
+            </div>
+          </div>
+
+          {imageFileUploadError && (
+            <Alert
+              color="failure"
+              className="mt-2 w-full"
+              onDismiss={() => setImageFileUploadError(null)}
+            >
+              {imageFileUploadError}
+            </Alert>
           )}
-          <img
-            src={imageFileUrl || currentUser.profilePicture || defaultAvatar}
-            alt="user"
-            className={`rounded-full w-full h-full object-cover border-8 border-[lightgray] ${
-              imageFileUploadProgress && imageFileUploadProgress < 100
-                ? "opacity-60"
-                : ""
-            }`}
-          />
-        </div>
-        {imageFileUploadError && (
-          <Alert color="failure">{imageFileUploadError}</Alert>
-        )}
-        <TextInput
-          type="text"
-          id="username"
-          placeholder="Username"
-          defaultValue={currentUser.username}
-          className="dark:bg-gray-700 dark:text-white"
-          onChange={handleChange}
-        />
-        <TextInput
-          type="email"
-          id="email"
-          placeholder="Email"
-          defaultValue={currentUser.email}
-          className="dark:bg-gray-700 dark:text-white"
-          onChange={handleChange}
-          disabled
-        />
 
-        <Button
-          type="submit"
-          gradientDuoTone="purpleToBlue"
-          outline
-          disabled={!isEdited || loading || imageFileUploading}
-        >
-          {loading ? "Updating..." : "Update"}
-        </Button>
-
-        <PasswordUpdateSection />
-
-        <div className="flex justify-between mt-5">
-          <span
-            className="text-red-500 cursor-pointer dark:text-red-400"
-            onClick={() => setShowModal(true)}
+          <form
+            onSubmit={handleSubmit}
+            className="w-full max-w-md space-y-4 mt-4"
           >
-            Delete Account
-          </span>
-          <span
-            className="text-green-500 dark:text-green-400 cursor-pointer"
-            onClick={handleSignout}
-          >
-            Sign Out
-          </span>
+            <div>
+              <Label htmlFor="username">Username</Label>
+              <TextInput
+                id="username"
+                type="text"
+                placeholder="Username"
+                defaultValue={currentUser.username}
+                onChange={handleChange}
+                addon={<HiPencil />}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <TextInput
+                id="email"
+                type="email"
+                placeholder="Email"
+                defaultValue={currentUser.email}
+                disabled
+              />
+            </div>
+
+            <Button
+              gradientDuoTone="purpleToBlue"
+              type="submit"
+              disabled={loading || imageFileUploading || !hasChanges}
+              className="w-full flex items-center justify-center space-x-2"
+            >
+              {loading ? (
+                <>
+                  <HiRefresh className="h-5 w-5 animate-spin mr-2" />
+                  <span>Updating...</span>
+                </>
+              ) : (
+                <>
+                  <HiUserCircle className="h-5 w-5 mr-2" />
+                  <span>Update Profile</span>
+                </>
+              )}
+            </Button>
+          </form>
+
+          {(updateUserSuccess || updateUserError || error) && (
+            <div className="mt-4 w-full space-y-2">
+              {updateUserSuccess && (
+                <Alert
+                  color="success"
+                  onDismiss={() => setUpdateUserSuccess(null)}
+                >
+                  {updateUserSuccess}
+                </Alert>
+              )}
+              {updateUserError && (
+                <Alert
+                  color="failure"
+                  onDismiss={() => setUpdateUserError(null)}
+                >
+                  {updateUserError}
+                </Alert>
+              )}
+              {error && (
+                <Alert color="failure" onDismiss={() => dispatch(clearError())}>
+                  {error}
+                </Alert>
+              )}
+            </div>
+          )}
+
+          {currentUser.authProvider === "local" && <PasswordUpdateSection />}
+
+          <div className="flex justify-between w-full mt-6 space-x-4">
+            <Tooltip content="Delete Account">
+              <Button
+                color="failure"
+                onClick={() => setShowModal(true)}
+                className="flex-1"
+              >
+                <HiTrash className="mr-2" /> Delete Account
+              </Button>
+            </Tooltip>
+            <Tooltip content="Sign Out">
+              <Button color="light" onClick={handleSignout} className="flex-1">
+                <HiLogout className="mr-2" /> Sign Out
+              </Button>
+            </Tooltip>
+          </div>
         </div>
-      </form>
+      </Card>
 
-      {updateUserSuccess && (
-        <Alert color="success" className="mt-5">
-          {updateUserSuccess}
-        </Alert>
-      )}
-      {updateUserError && (
-        <Alert color="failure" className="mt-5">
-          {updateUserError}
-        </Alert>
-      )}
-
-      {error && (
-        <Alert color="failure" className="mt-5">
-          {error}
-        </Alert>
-      )}
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}
@@ -309,13 +396,13 @@ const DashProfile = () => {
         <Modal.Header />
         <Modal.Body>
           <div className="text-center">
-            <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
+            <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
             <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
               Are you sure you want to delete your account?
             </h3>
             <div className="flex justify-center gap-4">
               <Button color="failure" onClick={handleDeleteUser}>
-                Yes, I am sure
+                Yes, I'm sure
               </Button>
               <Button color="gray" onClick={() => setShowModal(false)}>
                 No, cancel

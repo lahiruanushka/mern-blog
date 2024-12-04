@@ -251,6 +251,17 @@ const SignInPage = () => {
               )}
             </Button>
 
+            {/* Error Message */}
+            {error && (
+              <Alert
+                color="failure"
+                icon={HiInformationCircle}
+                className="mt-4 mb-2"
+              >
+                {error}
+              </Alert>
+            )}
+
             <div className="flex flex-col space-y-2 text-sm text-center">
               <Link
                 to="/forgot-password"
@@ -279,13 +290,6 @@ const SignInPage = () => {
 
             <OAuth />
           </form>
-
-          {/* Error Message */}
-          {error && (
-            <Alert color="failure" icon={HiInformationCircle} className="mt-4">
-              {error}
-            </Alert>
-          )}
         </div>
       </div>
     </div>
