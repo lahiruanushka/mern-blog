@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Modal, Table, TextInput, Label } from "flowbite-react";
 import { useSelector } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import Loading from "./Loading";
 
 const DashCategories = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -9,6 +10,7 @@ const DashCategories = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddEditModal, setShowAddEditModal] = useState(false);
   const [categoryIdToDelete, setCategoryIdToDelete] = useState("");
+  const [loading, setLoading] = useState(true);
 
   // State for add/edit form
   const [currentCategory, setCurrentCategory] = useState({
@@ -20,6 +22,7 @@ const DashCategories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        setLoading(true);
         const res = await fetch("/api/category/all");
         const data = await res.json();
         if (res.ok) {
@@ -27,6 +30,8 @@ const DashCategories = () => {
         }
       } catch (error) {
         console.log(error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -119,7 +124,9 @@ const DashCategories = () => {
         </div>
       )}
 
-      {currentUser?.isAdmin && categories.length > 0 ? (
+      {loading ? (
+        <Loading />
+      ) : currentUser?.isAdmin && categories.length > 0 ? (
         <>
           <Table hoverable className="shadow-md">
             <Table.Head>

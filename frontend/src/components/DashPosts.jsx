@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import Loading from "./Loading";
 
 const DashPosts = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -11,10 +12,13 @@ const DashPosts = () => {
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [postIdToDelete, setPostIdToDelete] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
+        setLoading(true);
         const res = await fetch(`/api/post/getposts?userId=${currentUser._id}`);
         const data = await res.json();
         if (res.ok) {
@@ -25,6 +29,8 @@ const DashPosts = () => {
         }
       } catch (error) {
         console.log(error.message);
+      } finally {
+        setLoading(false);
       }
     };
     if (currentUser?.isAdmin) {
@@ -57,6 +63,7 @@ const DashPosts = () => {
   const handleShowMore = async () => {
     const startIndex = userPosts.length;
     try {
+      setLoadingMore(true);
       const res = await fetch(
         `/api/post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`
       );
@@ -69,6 +76,8 @@ const DashPosts = () => {
       }
     } catch (error) {
       console.log(error.message);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -84,7 +93,9 @@ const DashPosts = () => {
         </div>
       )}
 
-      {currentUser?.isAdmin && userPosts.length > 0 ? (
+      {loading ? (
+        <Loading />
+      ) : currentUser?.isAdmin && userPosts.length > 0 ? (
         <>
           <Table hoverable className="shadow-md">
             <Table.Head>
@@ -150,9 +161,14 @@ const DashPosts = () => {
           {showMore && (
             <button
               onClick={handleShowMore}
-              className="w-full text-teal-500 self-center text-sm py-7"
+              disabled={loadingMore}
+              className="w-full text-teal-500 self-center text-sm py-7 flex items-center justify-center"
             >
-              Show more
+              {loadingMore ? (
+                <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                "Show more"
+              )}
             </button>
           )}
         </>
