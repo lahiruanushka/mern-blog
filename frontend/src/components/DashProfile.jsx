@@ -358,11 +358,6 @@ const DashProfile = () => {
                   {updateUserError}
                 </Alert>
               )}
-              {error && (
-                <Alert color="failure" onDismiss={() => dispatch(clearError())}>
-                  {error}
-                </Alert>
-              )}
             </div>
           )}
 

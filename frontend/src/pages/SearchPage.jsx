@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Alert, Button, Select, Spinner, TextInput, Card } from "flowbite-react";
+import {
+  Alert,
+  Button,
+  Select,
+  Spinner,
+  TextInput,
+  Card,
+} from "flowbite-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { HiArrowRight, HiFilter, HiSearch, HiX } from "react-icons/hi";
 import PostCard from "../components/PostCard";
@@ -16,6 +23,7 @@ export default function SearchPage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,7 +47,7 @@ export default function SearchPage() {
       try {
         const res = await fetch(`/api/post/getposts?${searchQuery}`);
         if (!res.ok) {
-          throw new Error('Failed to fetch posts');
+          throw new Error("Failed to fetch posts");
         }
         const data = await res.json();
         setPosts(data.posts);
@@ -52,6 +60,23 @@ export default function SearchPage() {
     };
     fetchPosts();
   }, [location.search]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/category/all");
+        const data = await response.json();
+
+        if (response.ok) {
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     setSidebarData({ ...sidebarData, [e.target.id]: e.target.value });
@@ -68,7 +93,7 @@ export default function SearchPage() {
 
   const handleClearFilters = () => {
     setSidebarData(defaultFilters);
-    navigate('/search');
+    navigate("/search");
   };
 
   const handleShowMore = async () => {
@@ -95,9 +120,9 @@ export default function SearchPage() {
       opacity: 1,
       transition: {
         delayChildren: 0.2,
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
@@ -106,19 +131,19 @@ export default function SearchPage() {
       y: 0,
       opacity: 1,
       transition: {
-        duration: 0.5
-      }
-    }
+        duration: 0.5,
+      },
+    },
   };
 
   const pageVariants = {
     initial: { opacity: 0 },
     in: { opacity: 1 },
-    out: { opacity: 0 }
+    out: { opacity: 0 },
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial="initial"
       animate="in"
       exit="out"
@@ -132,24 +157,18 @@ export default function SearchPage() {
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <Card 
+          <Card
             className="h-fit sticky top-4 
               bg-white dark:bg-gray-800 
               border border-gray-200 dark:border-gray-700 
               transition-colors duration-300"
           >
-            <form 
-              className="flex flex-col space-y-6" 
-              onSubmit={handleSubmit}
-            >
-              <motion.div 
-                variants={itemVariants}
-                className="space-y-2"
-              >
+            <form className="flex flex-col space-y-6" onSubmit={handleSubmit}>
+              <motion.div variants={itemVariants} className="space-y-2">
                 <div className="flex items-center gap-2 mb-2">
                   <HiSearch className="text-gray-500 dark:text-gray-400" />
-                  <label 
-                    htmlFor="searchTerm" 
+                  <label
+                    htmlFor="searchTerm"
                     className="font-semibold text-gray-700 dark:text-gray-200"
                   >
                     Search Term
@@ -166,22 +185,19 @@ export default function SearchPage() {
                 />
               </motion.div>
 
-              <motion.div 
-                variants={itemVariants}
-                className="space-y-2"
-              >
+              <motion.div variants={itemVariants} className="space-y-2">
                 <div className="flex items-center gap-2 mb-2">
                   <HiFilter className="text-gray-500 dark:text-gray-400" />
-                  <label 
-                    htmlFor="sort" 
+                  <label
+                    htmlFor="sort"
                     className="font-semibold text-gray-700 dark:text-gray-200"
                   >
                     Sort Order
                   </label>
                 </div>
-                <Select 
-                  id="sort" 
-                  value={sidebarData.sort} 
+                <Select
+                  id="sort"
+                  value={sidebarData.sort}
                   onChange={handleChange}
                 >
                   <option value="desc">Latest Posts</option>
@@ -189,14 +205,11 @@ export default function SearchPage() {
                 </Select>
               </motion.div>
 
-              <motion.div 
-                variants={itemVariants}
-                className="space-y-2"
-              >
+              <motion.div variants={itemVariants} className="space-y-2">
                 <div className="flex items-center gap-2 mb-2">
                   <HiFilter className="text-gray-500 dark:text-gray-400" />
-                  <label 
-                    htmlFor="category" 
+                  <label
+                    htmlFor="category"
                     className="font-semibold text-gray-700 dark:text-gray-200"
                   >
                     Category
@@ -208,26 +221,28 @@ export default function SearchPage() {
                   onChange={handleChange}
                 >
                   <option value="uncategorized">All Categories</option>
-                  <option value="reactjs">React.js</option>
-                  <option value="nextjs">Next.js</option>
-                  <option value="javascript">JavaScript</option>
+                  {categories.map((category) => (
+                    <option key={category._id} value={category.slug}>
+                      {category.name}
+                    </option>
+                  ))}
                 </Select>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 variants={itemVariants}
                 className="flex flex-col gap-3"
               >
-                <Button 
-                  type="submit" 
-                  gradientDuoTone="purpleToPink" 
+                <Button
+                  type="submit"
+                  gradientDuoTone="purpleToPink"
                   className="w-full"
                 >
                   Apply Filters
                   <HiArrowRight className="ml-2" />
                 </Button>
-                
-                <Button 
+
+                <Button
                   type="button"
                   color="gray"
                   onClick={handleClearFilters}
@@ -247,7 +262,7 @@ export default function SearchPage() {
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -270,49 +285,48 @@ export default function SearchPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <Alert 
-                color="failure" 
-                className="max-w-2xl mx-auto"
-              >
-                <span className="font-medium">No posts found!</span> Try adjusting your search filters.
+              <Alert color="failure" className="max-w-2xl mx-auto">
+                <span className="font-medium">No posts found!</span> Try
+                adjusting your search filters.
               </Alert>
             </motion.div>
           )}
 
           {/* Posts Grid */}
-          <motion.div 
+          <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
             className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6"
           >
             <AnimatePresence>
-              {!loading && posts.map((post) => (
-                <motion.div
-                  key={post._id}
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <PostCard post={post} />
-                </motion.div>
-              ))}
+              {!loading &&
+                posts.map((post) => (
+                  <motion.div
+                    key={post._id}
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <PostCard post={post} />
+                  </motion.div>
+                ))}
             </AnimatePresence>
           </motion.div>
 
           {/* Show More Button */}
           {showMore && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.5 }}
               className="text-center mt-8"
             >
-              <Button 
-                onClick={handleShowMore} 
+              <Button
+                onClick={handleShowMore}
                 gradientDuoTone="greenToBlue"
                 className="mx-auto"
               >

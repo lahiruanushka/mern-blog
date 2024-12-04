@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import Comment from "./Comment";
 import LoginPrompt from "./LoginPrompt";
+import { FaCommentAlt } from "react-icons/fa";
 
 export default function CommentSection({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
@@ -163,7 +164,9 @@ export default function CommentSection({ postId }) {
               {200 - comment.length} characters remaining
             </p>
             <Button outline gradientDuoTone="purpleToBlue" type="submit">
-              Submit
+              <span className="flex items-center gap-2">
+                <FaCommentAlt className="text-white" /> Add Comment
+              </span>
             </Button>
           </div>
           {commentError && (
