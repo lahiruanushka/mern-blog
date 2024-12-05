@@ -25,7 +25,6 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { app } from "../firebase";
-import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import {
   updateStart,
@@ -234,114 +233,115 @@ const DashProfile = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 w-full">
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
       <Card className="w-full">
-        <div className="flex flex-col items-center pb-6">
-          <div className="relative mb-4">
+        <div className="flex flex-col items-center space-y-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Profile Settings
+          </h2>
+
+          {/* Profile Image Upload */}
+          <div className="relative">
             <input
               type="file"
               accept="image/*"
               onChange={handleImageChange}
               ref={filePickerRef}
-              hidden
+              className="hidden"
             />
             <div
-              className="w-32 h-32 relative cursor-pointer group"
-              onClick={() => filePickerRef.current.click()}
+              className="relative cursor-pointer group"
+              onClick={() => filePickerRef.current?.click()}
             >
-              {imageFileUploadProgress && imageFileUploading && (
-                <div className="absolute inset-0 z-10">
-                  <CircularProgressbar
-                    value={imageFileUploadProgress || 0}
-                    text={`${imageFileUploadProgress}%`}
-                    strokeWidth={5}
-                    styles={{
-                      root: { width: "100%", height: "100%" },
-                      path: {
-                        stroke: `rgba(62, 152, 199, ${
-                          imageFileUploadProgress / 100
-                        })`,
-                      },
-                    }}
-                  />
+              <div className="w-36 h-36 rounded-full overflow-hidden relative">
+                {imageFileUploadProgress && imageFileUploading && (
+                  <div className="absolute inset-0 z-10 bg-gray-900/50 flex items-center justify-center">
+                    <div className="text-white text-lg font-semibold">
+                      {imageFileUploadProgress}%
+                    </div>
+                  </div>
+                )}
+                <img
+                  src={
+                    imageFileUrl || currentUser.profilePicture || defaultAvatar
+                  }
+                  alt="Profile"
+                  className="w-full h-full object-cover transition-all duration-300 group-hover:opacity-75"
+                />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gray-900/30">
+                  <HiUpload className="w-8 h-8 text-white" />
                 </div>
-              )}
-              <img
-                src={
-                  imageFileUrl || currentUser.profilePicture || defaultAvatar
-                }
-                alt="User profile"
-                className={`w-32 h-32 rounded-full object-cover border-4 border-gray-300 group-hover:opacity-70 transition-opacity ${
-                  imageFileUploadProgress && imageFileUploadProgress < 100
-                    ? "opacity-60"
-                    : ""
-                }`}
-              />
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <HiUpload className="text-white text-2xl" />
               </div>
             </div>
           </div>
 
+          {/* Upload Error Alert */}
           {imageFileUploadError && (
             <Alert
               color="failure"
-              className="mt-2 w-full"
               onDismiss={() => setImageFileUploadError(null)}
+              className="w-full max-w-md"
             >
               {imageFileUploadError}
             </Alert>
           )}
 
-          <form
-            onSubmit={handleSubmit}
-            className="w-full max-w-md space-y-4 mt-4"
-          >
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="w-full space-y-6">
             <div>
-              <Label htmlFor="username">Username</Label>
-              <TextInput
-                id="username"
-                type="text"
-                placeholder="Username"
-                defaultValue={currentUser.username}
-                onChange={handleChange}
-                addon={<HiPencil />}
-              />
-            </div>
+              <div className="mb-6">
+                <Label htmlFor="username" value="Username" />
+                <div className="relative mt-2">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                    <HiPencil className="w-4 h-4 text-gray-500" />
+                  </div>
+                  <TextInput
+                    id="username"
+                    type="text"
+                    placeholder="Username"
+                    defaultValue={currentUser.username}
+                    onChange={handleChange}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
 
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <TextInput
-                id="email"
-                type="email"
-                placeholder="Email"
-                defaultValue={currentUser.email}
-                disabled
-              />
-            </div>
+              <div className="mb-6">
+                <Label htmlFor="email" value="Email" />
+                <TextInput
+                  id="email"
+                  type="email"
+                  placeholder="Email"
+                  defaultValue={currentUser.email}
+                  disabled
+                  className="bg-gray-50 dark:bg-gray-700"
+                />
+              </div>
 
-            <Button
-              gradientDuoTone="purpleToBlue"
-              type="submit"
-              disabled={loading || imageFileUploading || !hasChanges}
-              className="w-full flex items-center justify-center space-x-2"
-            >
-              {loading ? (
-                <>
-                  <HiRefresh className="h-5 w-5 animate-spin mr-2" />
-                  <span>Updating...</span>
-                </>
-              ) : (
-                <>
-                  <HiUserCircle className="h-5 w-5 mr-2" />
-                  <span>Update Profile</span>
-                </>
-              )}
-            </Button>
+              <Button
+                type="submit"
+                gradientDuoTone="purpleToBlue"
+                disabled={loading || imageFileUploading || !hasChanges}
+                className="w-full"
+              >
+                {loading ? (
+                  <>
+                    <HiRefresh className="w-4 h-4 mr-2 animate-spin" />
+                    <span>Updating...</span>
+                  </>
+                ) : (
+                  <>
+                    <HiUserCircle className="w-4 h-4 mr-2" />
+                    <span>Update Profile</span>
+                  </>
+                )}
+              </Button>
+            </div>
           </form>
 
+          {/* Status Alerts */}
           {(updateUserSuccess || updateUserError || error) && (
-            <div className="mt-4 w-full space-y-2">
+            <div className="w-full space-y-3">
               {updateUserSuccess && (
                 <Alert
                   color="success"
@@ -350,32 +350,37 @@ const DashProfile = () => {
                   {updateUserSuccess}
                 </Alert>
               )}
-              {updateUserError && (
+              {(updateUserError || error) && (
                 <Alert
                   color="failure"
                   onDismiss={() => setUpdateUserError(null)}
                 >
-                  {updateUserError}
+                  {updateUserError || error}
                 </Alert>
               )}
             </div>
           )}
 
+          {/* Password Update Section */}
           {currentUser.authProvider === "local" && <PasswordUpdateSection />}
 
-          <div className="flex justify-between w-full mt-6 space-x-4">
+          {/* Action Buttons */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mt-6">
             <Tooltip content="Delete Account">
               <Button
                 color="failure"
                 onClick={() => setShowModal(true)}
-                className="flex-1"
+                className="w-full"
               >
-                <HiTrash className="mr-2" /> Delete Account
+                <HiTrash className="w-4 h-4 mr-2" />
+                <span>Delete Account</span>
               </Button>
             </Tooltip>
+
             <Tooltip content="Sign Out">
-              <Button color="light" onClick={handleSignout} className="flex-1">
-                <HiLogout className="mr-2" /> Sign Out
+              <Button color="light" onClick={handleSignout} className="w-full">
+                <HiLogout className="w-4 h-4 mr-2" />
+                <span>Sign Out</span>
               </Button>
             </Tooltip>
           </div>
