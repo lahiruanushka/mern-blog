@@ -158,26 +158,26 @@ const DashPosts = () => {
               ))}
             </Table.Body>
           </Table>
+
+          {/* Show more button */}
+          {showMore && (
+            <button
+              onClick={handleShowMore}
+              disabled={loadingMore}
+              className="w-full text-teal-500 self-center text-sm py-7 flex items-center justify-center"
+            >
+              {loadingMore ? (
+                <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                "Show more"
+              )}
+            </button>
+          )}
         </div>
       ) : (
         <div className="text-center py-10">
           <p className="text-gray-500 dark:text-gray-400">No posts found</p>
         </div>
-      )}
-
-      {/* Show more button */}
-      {showMore && (
-        <button
-          onClick={handleShowMore}
-          disabled={loadingMore}
-          className="w-full text-teal-500 self-center text-sm py-7 flex items-center justify-center"
-        >
-          {loadingMore ? (
-            <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
-          ) : (
-            "Show more"
-          )}
-        </button>
       )}
 
       <Modal
