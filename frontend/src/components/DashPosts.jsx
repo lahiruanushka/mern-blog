@@ -3,6 +3,7 @@ import { Button, Modal, Table } from "flowbite-react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { HiOutlineExclamationCircle, HiPencil, HiTrash } from "react-icons/hi";
+import Loading from "./Loading";
 
 const DashPosts = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -70,14 +71,6 @@ const DashPosts = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="w-8 h-8 border-4 border-t-blue-600 border-b-blue-600 rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {currentUser?.isAdmin && (
@@ -90,7 +83,9 @@ const DashPosts = () => {
         </div>
       )}
 
-      {currentUser?.isAdmin && userPosts.length > 0 ? (
+      {loading ? (
+        <Loading />
+      ) : currentUser?.isAdmin && userPosts.length > 0 ? (
         <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
           <Table hoverable>
             <Table.Head>
@@ -170,20 +165,19 @@ const DashPosts = () => {
         </div>
       )}
 
+      {/* Show more button */}
       {showMore && (
-        <div className="mt-6 text-center">
-          <Button
-            onClick={handleShowMore}
-            disabled={loadingMore}
-            className="w-full sm:w-auto"
-          >
-            {loadingMore ? (
-              <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin" />
-            ) : (
-              "Show more"
-            )}
-          </Button>
-        </div>
+        <button
+          onClick={handleShowMore}
+          disabled={loadingMore}
+          className="w-full text-teal-500 self-center text-sm py-7 flex items-center justify-center"
+        >
+          {loadingMore ? (
+            <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            "Show more"
+          )}
+        </button>
       )}
 
       <Modal
