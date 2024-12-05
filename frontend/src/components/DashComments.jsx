@@ -1,7 +1,7 @@
 import { Modal, Table, Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { HiOutlineExclamationCircle, HiDotsVertical } from "react-icons/hi";
 import Loading from "./Loading";
 import { useToast } from "../context/ToastContext";
 import UserDetailsModal from "./UserDetailsModal";
@@ -19,6 +19,7 @@ export default function DashComments() {
 
   const { showToast } = useToast();
 
+  // Existing API handling functions remain the same...
   const handleApiResponse = async (response) => {
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
@@ -74,6 +75,7 @@ export default function DashComments() {
     return enrichedComments;
   };
 
+  // Existing useEffect and handlers remain the same...
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -81,21 +83,16 @@ export default function DashComments() {
         const res = await fetch(`/api/comment/getcomments`);
         const data = await handleApiResponse(res);
 
-        console.log("Fetch comments response:", data);
-
         if (data.success === false) {
-          console.error("API reported failure:", data);
           showToast("Failed to load comments", "error");
         } else {
           const enrichedComments = await fetchPostAndUserDetails(data.comments);
           setComments(enrichedComments);
-
           if (data.comments.length < 9) {
             setShowMore(false);
           }
         }
       } catch (error) {
-        console.error("Error fetching comments:", error);
         showToast("Failed to load comments", "error");
       } finally {
         setLoading(false);
@@ -126,7 +123,6 @@ export default function DashComments() {
         showToast("Failed to load more comments", "error");
       }
     } catch (error) {
-      console.error("Error loading more comments:", error);
       showToast("Failed to load more comments", "error");
     } finally {
       setLoadingMore(false);
@@ -153,7 +149,6 @@ export default function DashComments() {
         showToast(data.message || "Failed to delete comment", "error");
       }
     } catch (error) {
-      console.error("Error deleting comment:", error);
       showToast("Failed to delete comment", "error");
     }
   };
@@ -163,55 +158,119 @@ export default function DashComments() {
     setIsUserModalOpen(true);
   };
 
+  // Mobile comment card component
+  const CommentCard = ({ comment }) => (
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-4">
+      <div className="flex justify-between items-start mb-3">
+        <div className="space-y-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {new Date(comment.updatedAt).toLocaleDateString()}
+          </p>
+          <span
+            onClick={() => handleViewUserDetails(comment.userId)}
+            className="text-blue-500 hover:underline cursor-pointer text-sm"
+          >
+            {comment.username}
+          </span>
+        </div>
+        <button
+          onClick={() => {
+            setShowModal(true);
+            setCommentIdToDelete(comment._id);
+          }}
+          className="text-red-500 hover:text-red-700"
+        >
+          <HiDotsVertical className="h-5 w-5" />
+        </button>
+      </div>
+
+      <p className="text-gray-800 dark:text-gray-200 mb-3">{comment.content}</p>
+
+      <div className="space-y-2">
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <span className="font-medium">Post:</span>
+          <span className="ml-2">{comment.postTitle}</span>
+        </div>
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <span className="font-medium">Category:</span>
+          <span className="ml-2">{comment.postCategory}</span>
+        </div>
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <span className="font-medium">Likes:</span>
+          <span className="ml-2">{comment.numberOfLikes}</span>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {loading ? (
         <Loading />
       ) : currentUser.isAdmin && comments.length > 0 ? (
-        <>
-          <Table hoverable className="shadow-md">
-            <Table.Head>
-              <Table.HeadCell>Date updated</Table.HeadCell>
-              <Table.HeadCell>Comment content</Table.HeadCell>
-              <Table.HeadCell>Number of likes</Table.HeadCell>
-              <Table.HeadCell>Post Title</Table.HeadCell>
-              <Table.HeadCell>Post Category</Table.HeadCell>
-              <Table.HeadCell>Username</Table.HeadCell>
-              <Table.HeadCell>Delete</Table.HeadCell>
-            </Table.Head>
-            {comments.map((comment) => (
-              <Table.Body className="divide-y" key={comment._id}>
-                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <Table.Cell>
-                    {new Date(comment.updatedAt).toLocaleDateString()}
-                  </Table.Cell>
-                  <Table.Cell>{comment.content}</Table.Cell>
-                  <Table.Cell>{comment.numberOfLikes}</Table.Cell>
-                  <Table.Cell>{comment.postTitle}</Table.Cell>
-                  <Table.Cell>{comment.postCategory}</Table.Cell>
-                  <Table.Cell>
-                    <span
-                      onClick={() => handleViewUserDetails(comment.userId)}
-                      className="text-blue-500 hover:underline cursor-pointer"
-                    >
-                      {comment.username}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span
-                      onClick={() => {
-                        setShowModal(true);
-                        setCommentIdToDelete(comment._id);
-                      }}
-                      className="font-medium text-red-500 hover:underline cursor-pointer"
-                    >
-                      Delete
-                    </span>
-                  </Table.Cell>
-                </Table.Row>
+        <div>
+          {/* Desktop view */}
+          <div className="hidden md:block">
+            <Table hoverable className="shadow-md">
+              <Table.Head>
+                <Table.HeadCell>Date updated</Table.HeadCell>
+                <Table.HeadCell>Comment content</Table.HeadCell>
+                <Table.HeadCell>Likes</Table.HeadCell>
+                <Table.HeadCell>Post Title</Table.HeadCell>
+                <Table.HeadCell>Category</Table.HeadCell>
+                <Table.HeadCell>Username</Table.HeadCell>
+                <Table.HeadCell>Delete</Table.HeadCell>
+              </Table.Head>
+              <Table.Body className="divide-y">
+                {comments.map((comment) => (
+                  <Table.Row
+                    key={comment._id}
+                    className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                  >
+                    <Table.Cell>
+                      {new Date(comment.updatedAt).toLocaleDateString()}
+                    </Table.Cell>
+                    <Table.Cell className="max-w-xs truncate">
+                      {comment.content}
+                    </Table.Cell>
+                    <Table.Cell>{comment.numberOfLikes}</Table.Cell>
+                    <Table.Cell className="max-w-xs truncate">
+                      {comment.postTitle}
+                    </Table.Cell>
+                    <Table.Cell>{comment.postCategory}</Table.Cell>
+                    <Table.Cell>
+                      <span
+                        onClick={() => handleViewUserDetails(comment.userId)}
+                        className="text-blue-500 hover:underline cursor-pointer"
+                      >
+                        {comment.username}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <span
+                        onClick={() => {
+                          setShowModal(true);
+                          setCommentIdToDelete(comment._id);
+                        }}
+                        className="font-medium text-red-500 hover:underline cursor-pointer"
+                      >
+                        Delete
+                      </span>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
               </Table.Body>
+            </Table>
+          </div>
+
+          {/* Mobile view */}
+          <div className="md:hidden space-y-4">
+            {comments.map((comment) => (
+              <CommentCard key={comment._id} comment={comment} />
             ))}
-          </Table>
+          </div>
+
+          {/* Show more button */}
           {showMore && (
             <button
               onClick={handleShowMore}
@@ -225,10 +284,12 @@ export default function DashComments() {
               )}
             </button>
           )}
-        </>
+        </div>
       ) : (
-        <p>You have no comments yet!</p>
+        <p className="text-center py-4">You have no comments yet!</p>
       )}
+
+      {/* Delete Confirmation Modal */}
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}
@@ -244,10 +305,10 @@ export default function DashComments() {
             </h3>
             <div className="flex justify-center gap-4">
               <Button color="failure" onClick={handleDeleteComment}>
-                Yes, I'm sure
+                Yes, delete
               </Button>
               <Button color="gray" onClick={() => setShowModal(false)}>
-                No, cancel
+                Cancel
               </Button>
             </div>
           </div>

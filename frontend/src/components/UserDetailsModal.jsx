@@ -39,7 +39,7 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
     };
 
     fetchUserDetails();
-  }, [isOpen, userId]);
+  }, [isOpen, userId, showToast]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString("en-US", {
@@ -55,9 +55,11 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
   if (!isOpen) return null;
 
   return (
-    <Modal show={isOpen} onClose={onClose} size="2xl">
-      <Modal.Header>User Profile Details</Modal.Header>
-      <Modal.Body>
+    <Modal show={isOpen} onClose={onClose} size="2xl" className="p-2 sm:p-4">
+      <Modal.Header className="text-lg sm:text-xl">
+        User Profile Details
+      </Modal.Header>
+      <Modal.Body className="p-3 sm:p-6">
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <Spinner size="xl" color="info" />
@@ -65,7 +67,7 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
         ) : userData ? (
           <div className="space-y-6">
             {/* Profile Header */}
-            <div className="flex items-center space-x-4 mb-6">
+            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
               <Avatar
                 img={userData.profilePicture}
                 rounded
@@ -73,10 +75,13 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                 status={
                   userData.accountStatus === "active" ? "online" : "offline"
                 }
+                className="self-center"
               />
-              <div>
-                <h2 className="text-2xl font-bold">{userData.username}</h2>
-                <p className="text-gray-500 flex items-center">
+              <div className="text-center sm:text-left">
+                <h2 className="text-xl sm:text-2xl font-bold">
+                  {userData.username}
+                </h2>
+                <p className="text-gray-500 flex items-center justify-center sm:justify-start">
                   <HiMail className="mr-2" />
                   {userData.email}
                 </p>
@@ -84,7 +89,7 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
             </div>
 
             {/* User Information Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Account Status Card */}
               <Card>
                 <div className="flex items-center justify-between">
@@ -119,27 +124,34 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
             </div>
 
             {/* Security and Account Information */}
-            <Card>
+            <Card className="w-full overflow-x-auto">
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                {/* Account Created */}
+                <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
                   <div className="flex items-center space-x-2">
                     <HiClock className="text-gray-500" />
                     <span className="font-semibold">Account Created</span>
                   </div>
-                  <span>{formatDate(userData.createdAt)}</span>
+                  <span className="text-sm sm:text-base">
+                    {formatDate(userData.createdAt)}
+                  </span>
                 </div>
 
-                <div className="flex items-center justify-between">
+                {/* Authentication Provider */}
+                <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
                   <div className="flex items-center space-x-2">
                     <HiIdentification className="text-gray-500" />
                     <span className="font-semibold">
                       Authentication Provider
                     </span>
                   </div>
-                  <span>{userData.authProvider || "Local Authentication"}</span>
+                  <span className="text-sm sm:text-base">
+                    {userData.authProvider || "Local Authentication"}
+                  </span>
                 </div>
 
-                <div className="flex items-center justify-between">
+                {/* Two-Factor Authentication */}
+                <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
                   <div className="flex items-center space-x-2">
                     <HiInformationCircle className="text-gray-500" />
                     <span className="font-semibold">

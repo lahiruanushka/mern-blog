@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal, Table, TextInput, Label } from "flowbite-react";
 import { useSelector } from "react-redux";
-import { HiOutlineExclamationCircle } from "react-icons/hi";
+import {
+  HiOutlineExclamationCircle,
+  HiPlus,
+  HiPencil,
+  HiTrash,
+} from "react-icons/hi";
 import Loading from "./Loading";
 import { useToast } from "../context/ToastContext";
 
@@ -12,16 +17,15 @@ const DashCategories = () => {
   const [showAddEditModal, setShowAddEditModal] = useState(false);
   const [categoryIdToDelete, setCategoryIdToDelete] = useState("");
   const [loading, setLoading] = useState(true);
-
   const { showToast } = useToast();
 
-  // State for add/edit form
   const [currentCategory, setCurrentCategory] = useState({
     name: "",
     description: "",
     _id: null,
   });
 
+  // Fetch categories effect remains the same...
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -43,6 +47,7 @@ const DashCategories = () => {
     }
   }, [currentUser]);
 
+  // Handlers remain the same...
   const handleDeleteCategory = async () => {
     setShowDeleteModal(false);
     try {
@@ -51,7 +56,6 @@ const DashCategories = () => {
       });
       const data = await res.json();
       if (!res.ok) {
-        console.log(data.message);
         showToast("Failed to remove category. Please try again.", "error");
       } else {
         setCategories((prev) =>
@@ -60,7 +64,6 @@ const DashCategories = () => {
         showToast("Category deleted successfully", "success");
       }
     } catch (error) {
-      console.log(error.message);
       showToast("Failed to remove category. Please try again.", "error");
     }
   };
@@ -88,25 +91,18 @@ const DashCategories = () => {
 
       if (res.ok) {
         if (currentCategory._id) {
-          // Update existing category
           setCategories((prev) =>
             prev.map((cat) => (cat._id === currentCategory._id ? data : cat))
           );
           showToast("Category updated successfully", "success");
         } else {
-          // Add new category
           setCategories((prev) => [...prev, data]);
           showToast("Category added successfully", "success");
         }
-
-        // Reset form and close modal
         setCurrentCategory({ name: "", description: "", _id: null });
         setShowAddEditModal(false);
-      } else {
-        console.log(data.message);
       }
     } catch (error) {
-      console.log(error.message);
       showToast("Failed to update category. Please try again.", "error");
     }
   };
@@ -126,73 +122,120 @@ const DashCategories = () => {
   };
 
   return (
-    <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {currentUser?.isAdmin && (
-        <div className="mb-4">
-          <Button onClick={openAddModal}>Add New Category</Button>
+        <div className="py-4">
+          <Button onClick={openAddModal} className="flex items-center gap-2">
+            <HiPlus className="w-5 h-5" />
+            <span className="hidden sm:inline">Add New Category</span>
+            <span className="sm:hidden">Add</span>
+          </Button>
         </div>
       )}
 
       {loading ? (
         <Loading />
       ) : currentUser?.isAdmin && categories.length > 0 ? (
-        <>
-          <Table hoverable className="shadow-md">
-            <Table.Head>
-              <Table.HeadCell>Date Created</Table.HeadCell>
-              <Table.HeadCell>Category Name</Table.HeadCell>
-              <Table.HeadCell>Description</Table.HeadCell>
-              <Table.HeadCell>Delete</Table.HeadCell>
-              <Table.HeadCell>
-                <span>Edit</span>
-              </Table.HeadCell>
-            </Table.Head>
-            <Table.Body className="divide-y">
-              {categories.map((category) => (
-                <Table.Row
-                  key={category._id}
-                  className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                >
-                  <Table.Cell>
-                    {new Date(category.createdAt).toLocaleDateString()}
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {category.name}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    {category.description || "No description"}
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span
-                      onClick={() => {
-                        setShowDeleteModal(true);
-                        setCategoryIdToDelete(category._id);
-                      }}
-                      className="font-medium text-red-500 hover:underline cursor-pointer"
-                    >
-                      Delete
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span
-                      className="text-teal-500 hover:underline cursor-pointer"
-                      onClick={() => openEditModal(category)}
-                    >
-                      Edit
-                    </span>
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
-        </>
+        <div className="mt-4 flex flex-col">
+          <div className="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle">
+              <div className="shadow-sm ring-1 ring-black ring-opacity-5">
+                <div className="hidden sm:block">
+                  <Table hoverable>
+                    <Table.Head>
+                      <Table.HeadCell>Date Created</Table.HeadCell>
+                      <Table.HeadCell>Category Name</Table.HeadCell>
+                      <Table.HeadCell>Description</Table.HeadCell>
+                      <Table.HeadCell>Actions</Table.HeadCell>
+                    </Table.Head>
+                    <Table.Body className="divide-y">
+                      {categories.map((category) => (
+                        <Table.Row
+                          key={category._id}
+                          className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                        >
+                          <Table.Cell>
+                            {new Date(category.createdAt).toLocaleDateString()}
+                          </Table.Cell>
+                          <Table.Cell>
+                            <span className="font-medium">{category.name}</span>
+                          </Table.Cell>
+                          <Table.Cell>
+                            {category.description || "No description"}
+                          </Table.Cell>
+                          <Table.Cell>
+                            <div className="flex space-x-3">
+                              <Button
+                                size="sm"
+                                color="gray"
+                                onClick={() => openEditModal(category)}
+                              >
+                                <HiPencil className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                color="failure"
+                                onClick={() => {
+                                  setShowDeleteModal(true);
+                                  setCategoryIdToDelete(category._id);
+                                }}
+                              >
+                                <HiTrash className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </Table.Cell>
+                        </Table.Row>
+                      ))}
+                    </Table.Body>
+                  </Table>
+                </div>
+
+                {/* Mobile view */}
+                <div className="sm:hidden">
+                  <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {categories.map((category) => (
+                      <li key={category._id} className="p-4 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">{category.name}</span>
+                          <div className="flex space-x-2">
+                            <Button
+                              size="xs"
+                              color="gray"
+                              onClick={() => openEditModal(category)}
+                            >
+                              <HiPencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="xs"
+                              color="failure"
+                              onClick={() => {
+                                setShowDeleteModal(true);
+                                setCategoryIdToDelete(category._id);
+                              }}
+                            >
+                              <HiTrash className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {category.description || "No description"}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {new Date(category.createdAt).toLocaleDateString()}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       ) : (
-        <p>No categories found!</p>
+        <p className="text-center py-4">No categories found!</p>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Modals remain largely the same but with improved responsive styling */}
       <Modal
         show={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
@@ -208,17 +251,16 @@ const DashCategories = () => {
             </h3>
             <div className="flex justify-center gap-4">
               <Button color="failure" onClick={handleDeleteCategory}>
-                Yes, I'm sure
+                Yes, delete
               </Button>
               <Button color="gray" onClick={() => setShowDeleteModal(false)}>
-                No, cancel
+                Cancel
               </Button>
             </div>
           </div>
         </Modal.Body>
       </Modal>
 
-      {/* Add/Edit Category Modal */}
       <Modal
         show={showAddEditModal}
         onClose={() => setShowAddEditModal(false)}
@@ -259,9 +301,9 @@ const DashCategories = () => {
                 placeholder="Enter category description"
               />
             </div>
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-end gap-4">
               <Button type="submit" color="success">
-                {currentCategory._id ? "Update Category" : "Add Category"}
+                {currentCategory._id ? "Update" : "Add"}
               </Button>
               <Button color="gray" onClick={() => setShowAddEditModal(false)}>
                 Cancel
