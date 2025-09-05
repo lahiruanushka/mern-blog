@@ -11,6 +11,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { HiEye, HiEyeOff, HiInformationCircle } from "react-icons/hi";
 import OAuth from "../components/OAuth";
 import zxcvbn from "zxcvbn";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaBolt, FaEnvelope, FaLock, FaUser, FaArrowRight, FaCheckCircle } from "react-icons/fa";
+import { Sparkles, Zap, Shield, Users, TrendingUp, Star, Crown } from "lucide-react";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +27,6 @@ const SignUpPage = () => {
 
   const navigate = useNavigate();
 
-  // Password strength feedback messages
   const feedbackMessages = {
     0: "Password is very weak. Use a stronger combination of characters.",
     1: "Password is weak. Add more complexity.",
@@ -33,23 +35,19 @@ const SignUpPage = () => {
     4: "Excellent password strength!",
   };
 
-  // Calculate password strength
   const passwordStrength = useMemo(() => {
     return formData.password ? zxcvbn(formData.password) : null;
   }, [formData.password]);
 
-  // Determine progress color based on strength
   const getProgressColor = () => {
     if (!passwordStrength) return "gray";
     switch (passwordStrength.score) {
       case 0:
-        return "red";
       case 1:
         return "red";
       case 2:
         return "yellow";
       case 3:
-        return "green";
       case 4:
         return "green";
       default:
@@ -57,7 +55,6 @@ const SignUpPage = () => {
     }
   };
 
-  // Check if signup should be enabled
   const isSignupEnabled = () => {
     return (
       formData.username &&
@@ -68,9 +65,7 @@ const SignUpPage = () => {
     );
   };
 
-  // Existing reCAPTCHA and other methods remain the same...
   useEffect(() => {
-    // Load reCAPTCHA script only in production
     if (import.meta.env.VITE_NODE_ENV === "production") {
       const script = document.createElement("script");
       script.src = `https://www.google.com/recaptcha/api.js?render=${
@@ -80,7 +75,6 @@ const SignUpPage = () => {
       document.body.appendChild(script);
 
       return () => {
-        // Clean up script on component unmount
         document.body.removeChild(script);
       };
     }
@@ -90,7 +84,6 @@ const SignUpPage = () => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
-  // Existing executeRecaptcha method...
   const executeRecaptcha = () => {
     return new Promise((resolve, reject) => {
       if (window.grecaptcha && window.grecaptcha.execute) {
@@ -113,7 +106,6 @@ const SignUpPage = () => {
       return setErrors("Please fill out all fields");
     }
 
-    // Additional password strength check before submission
     if (passwordStrength.score < 2) {
       return setErrors("Please choose a stronger password");
     }
@@ -122,7 +114,6 @@ const SignUpPage = () => {
       setLoading(true);
       setErrors(null);
 
-      // Existing submission logic...
       let recaptchaToken = null;
       if (import.meta.env.VITE_NODE_ENV === "production") {
         try {
@@ -148,7 +139,6 @@ const SignUpPage = () => {
       if (!data.success) {
         return setErrors(data.message);
       } else {
-        // Redirect to email verification instructions page
         navigate("/verify-email", {
           state: { email: formData.email },
         });
@@ -161,164 +151,412 @@ const SignUpPage = () => {
     }
   };
 
+  const benefits = [
+    { icon: Users, text: "Join 50K+ creators" },
+    { icon: Star, text: "Premium content access" },
+    { icon: Crown, text: "Exclusive community features" },
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 max-w-4xl w-full mx-auto md:flex md:space-x-8">
-        {/* Left section */}
-        <div className="flex-1 mb-8 md:mb-0">
-          <Link
-            to="/"
-            className="text-4xl font-extrabold text-gray-900 dark:text-white inline-block transition-all duration-300 ease-in-out hover:scale-105 hover:brightness-110 active:scale-95"
-          >
-            <div className="px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-md font-semibold transition-all duration-300 ease-in-out transform hover:shadow-md">
-              ByteThoughts
-            </div>
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 via-purple-500/20 to-pink-500/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-br from-pink-400/20 via-purple-500/20 to-indigo-500/20 rounded-full blur-3xl" />
+        
+        {/* Floating Elements */}
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-30"
+            style={{
+              left: `${20 + i * 10}%`,
+              top: `${10 + (i % 4) * 20}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0.3, 0.8, 0.3],
+              scale: [0.5, 1.5, 0.5],
+            }}
+            transition={{
+              duration: 6,
+              repeat: Infinity,
+              delay: i * 1,
+            }}
+          />
+        ))}
+      </div>
 
-          <p className="mt-5 text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-            Welcome to ByteThoughts, your space to discover ideas, stories, and
-            insights shared by a passionate community of writers. Sign up to
-            view, read, and share your thoughts by commenting on posts today!
-          </p>
-        </div>
-
-        {/* Right section */}
-        <div className="flex-1">
-          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
-            Sign Up
-          </h1>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <Label
-                htmlFor="username"
-                className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Your username
-              </Label>
-              <TextInput
-                type="text"
-                placeholder="Username"
-                id="username"
-                required
-                className="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:border-indigo-500 focus:ring-indigo-500"
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <Label
-                htmlFor="email"
-                className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Your email
-              </Label>
-              <TextInput
-                type="email"
-                placeholder="Email"
-                id="email"
-                required
-                className="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:border-indigo-500 focus:ring-indigo-500"
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <Label
-                htmlFor="password"
-                className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Your password
-              </Label>
-              <div className="relative">
-                <TextInput
-                  type={showPassword ? "text" : "password"}
-                  placeholder="********"
-                  id="password"
-                  required
-                  className="w-full rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:border-indigo-500 focus:ring-indigo-500"
-                  onChange={handleChange}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <HiEyeOff className="w-5 h-5" />
-                  ) : (
-                    <HiEye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-
-              {/* Password Strength Indicator */}
-              {formData.password && (
-                <div className="mt-2">
-                  <Progress
-                    progress={(passwordStrength.score + 1) * 25}
-                    color={getProgressColor()}
-                    size="sm"
-                  />
-                  <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {passwordStrength &&
-                      feedbackMessages[passwordStrength.score]}
-                  </div>
+      <div className="relative min-h-screen flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-6xl"
+        >
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20 overflow-hidden">
+            <div className="grid lg:grid-cols-2 min-h-[700px]">
+              {/* Left Section - Branding */}
+              <div className="relative p-8 lg:p-12 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 flex flex-col justify-between">
+                {/* Animated Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  {[...Array(25)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-1 h-1 bg-white rounded-full"
+                      style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                      }}
+                      animate={{
+                        opacity: [0, 1, 0],
+                        scale: [0, 1.5, 0],
+                      }}
+                      transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        delay: Math.random() * 4,
+                      }}
+                    />
+                  ))}
                 </div>
-              )}
-            </div>
 
-            <Button
-              gradientDuoTone="purpleToPink"
-              type="submit"
-              className="w-full py-3"
-              disabled={loading || !isSignupEnabled()}
-            >
-              {loading ? (
-                <>
-                  <Spinner size="sm" className="mr-2" />{" "}
-                  <span>Please wait...</span>
-                </>
-              ) : (
-                "Sign Up"
-              )}
-            </Button>
+                <div className="relative z-10">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
+                  >
+                    <Link
+                      to="/"
+                      className="group inline-flex items-center space-x-4 mb-8"
+                    >
+                      <div className="relative">
+                        <motion.div
+                          className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30"
+                          whileHover={{ scale: 1.05, rotate: -5 }}
+                        >
+                          <motion.div
+                            animate={{ rotate: [0, 360] }}
+                            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                          >
+                            <FaBolt className="text-white text-2xl" />
+                          </motion.div>
+                        </motion.div>
+                      </div>
+                      <div>
+                        <h1 className="text-4xl font-black text-white mb-1">
+                          ByteThoughts
+                        </h1>
+                        <p className="text-purple-100 font-semibold tracking-wide">
+                          One byte, one thought
+                        </p>
+                      </div>
+                    </Link>
+                  </motion.div>
 
-            {/* Error Message */}
-            {errors && (
-              <Alert
-                color="failure"
-                icon={HiInformationCircle}
-                className="mt-4 mb-2"
-              >
-                <span>{errors}</span>
-              </Alert>
-            )}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="mb-8"
+                  >
+                    <h2 className="text-3xl font-bold text-white mb-4">
+                      Join the Revolution
+                    </h2>
+                    <p className="text-purple-100 text-lg leading-relaxed mb-6">
+                      Become part of ByteThoughts community where ideas flourish, 
+                      creativity meets technology, and every thought has the power 
+                      to inspire change.
+                    </p>
 
-            <div className="flex flex-col space-y-2 text-sm text-center">
-              <span className="text-gray-500 dark:text-gray-400">
-                Already have an account?
-                <Link
-                  to="/sign-in"
-                  className="ml-1 text-indigo-500 hover:underline"
+                    {/* Benefits List */}
+                    <div className="space-y-3">
+                      {benefits.map((benefit, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.6 + index * 0.1 }}
+                          className="flex items-center gap-3 text-white"
+                        >
+                          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                            <benefit.icon className="w-4 h-4" />
+                          </div>
+                          <span className="font-semibold">{benefit.text}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* Bottom Decoration */}
+                <motion.div
+                  className="relative z-10 flex items-center justify-center space-x-2 text-white/60"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1 }}
                 >
-                  Sign In
-                </Link>
-              </span>
-            </div>
-
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                  <Shield className="w-4 h-4" />
+                  <span className="text-sm font-medium">Secure Registration Process</span>
+                </motion.div>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400">
-                  Or continue with
-                </span>
+
+              {/* Right Section - Sign Up Form */}
+              <div className="p-8 lg:p-12 flex flex-col justify-center">
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-4">
+                      <motion.div
+                        animate={{ rotate: [0, 360] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                      >
+                        <Sparkles className="w-6 h-6 text-purple-600" />
+                      </motion.div>
+                      <h2 className="text-3xl font-black text-gray-900 dark:text-white">
+                        Create Account
+                      </h2>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Start your journey with ByteThoughts today
+                    </p>
+                  </div>
+
+                  <form className="space-y-6" onSubmit={handleSubmit}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      <Label
+                        htmlFor="username"
+                        className="block mb-3 text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2"
+                      >
+                        <FaUser className="w-4 h-4 text-purple-600" />
+                        Username
+                      </Label>
+                      <TextInput
+                        type="text"
+                        placeholder="Choose a unique username"
+                        id="username"
+                        required
+                        onChange={handleChange}
+                        style={{
+                          borderRadius: '12px',
+                          border: '2px solid transparent',
+                          background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, #4F46E5, #7C3AED, #DB2777) border-box',
+                        }}
+                      />
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                    >
+                      <Label
+                        htmlFor="email"
+                        className="block mb-3 text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2"
+                      >
+                        <FaEnvelope className="w-4 h-4 text-purple-600" />
+                        Email Address
+                      </Label>
+                      <TextInput
+                        type="email"
+                        placeholder="Enter your email address"
+                        id="email"
+                        required
+                        onChange={handleChange}
+                        style={{
+                          borderRadius: '12px',
+                          border: '2px solid transparent',
+                          background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, #4F46E5, #7C3AED, #DB2777) border-box',
+                        }}
+                      />
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <Label
+                        htmlFor="password"
+                        className="block mb-3 text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2"
+                      >
+                        <FaLock className="w-4 h-4 text-purple-600" />
+                        Password
+                      </Label>
+                      <div className="relative">
+                        <TextInput
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Create a strong password"
+                          id="password"
+                          required
+                          onChange={handleChange}
+                          className="pr-12"
+                          style={{
+                            borderRadius: '12px',
+                            border: '2px solid transparent',
+                            background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, #4F46E5, #7C3AED, #DB2777) border-box',
+                          }}
+                        />
+                        <motion.button
+                          type="button"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-purple-600 transition-colors"
+                          onClick={() => setShowPassword(!showPassword)}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          {showPassword ? (
+                            <HiEyeOff className="w-5 h-5" />
+                          ) : (
+                            <HiEye className="w-5 h-5" />
+                          )}
+                        </motion.button>
+                      </div>
+
+                      {/* Enhanced Password Strength Indicator */}
+                      <AnimatePresence>
+                        {formData.password && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600"
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                Password Strength
+                              </span>
+                              {passwordStrength?.score >= 2 && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  className="text-green-600"
+                                >
+                                  <FaCheckCircle className="w-4 h-4" />
+                                </motion.div>
+                              )}
+                            </div>
+                            <Progress
+                              progress={(passwordStrength?.score + 1) * 20}
+                              color={getProgressColor()}
+                              size="sm"
+                              className="mb-2"
+                            />
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              {passwordStrength &&
+                                feedbackMessages[passwordStrength.score]}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7 }}
+                    >
+                      <motion.button
+                        type="submit"
+                        disabled={loading || !isSignupEnabled()}
+                        className={`w-full relative overflow-hidden font-bold py-4 rounded-xl shadow-xl transition-all duration-300 group ${
+                          isSignupEnabled()
+                            ? "bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white hover:shadow-2xl"
+                            : "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
+                        }`}
+                        whileHover={isSignupEnabled() ? { scale: 1.02 } : {}}
+                        whileTap={isSignupEnabled() ? { scale: 0.98 } : {}}
+                      >
+                        {isSignupEnabled() && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        )}
+                        <span className="relative flex items-center justify-center gap-2 text-lg">
+                          {loading ? (
+                            <>
+                              <Spinner size="sm" className="mr-2" />
+                              Creating Account...
+                            </>
+                          ) : (
+                            <>
+                              Create Account
+                              <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </>
+                          )}
+                        </span>
+                      </motion.button>
+                    </motion.div>
+
+                    <AnimatePresence>
+                      {errors && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                        >
+                          <Alert
+                            color="failure"
+                            icon={HiInformationCircle}
+                            className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl"
+                          >
+                            {errors}
+                          </Alert>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    <motion.div
+                      className="text-center"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.8 }}
+                    >
+                      <p className="text-gray-600 dark:text-gray-400">
+                        Already have an account?{" "}
+                        <Link 
+                          to="/sign-in" 
+                          className="text-purple-600 hover:text-purple-700 font-bold hover:underline transition-all"
+                        >
+                          Sign in here
+                        </Link>
+                      </p>
+                    </motion.div>
+
+                    <motion.div
+                      className="relative my-8"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.9 }}
+                    >
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600" />
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-4 text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400 font-medium">
+                          Or continue with
+                        </span>
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1 }}
+                    >
+                      <OAuth />
+                    </motion.div>
+                  </form>
+                </motion.div>
               </div>
             </div>
-
-            <OAuth />
-          </form>
-        </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

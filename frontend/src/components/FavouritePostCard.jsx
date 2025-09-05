@@ -1,9 +1,24 @@
 import { HiArrowRight, HiClock, HiEye } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Tag, Calendar, User, Heart, MessageCircle, Sparkles } from "lucide-react";
+import { Tag, Calendar, User, Heart, MessageCircle, Sparkles, Star, StarOff } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { addToFavorites, removeFromFavorites } from "../features/favorites/favoritesSlice";
+import { useToast } from "../context/ToastContext";
+import { useState } from "react";
 
-export default function PostCard({ post, index = 0 }) {
+export default function FavouritePostCard({ post, index = 0, onRemove }) {
+  const [isRemoving, setIsRemoving] = useState(false);
+  const dispatch = useDispatch();
+  const { showToast } = useToast();
+  const { currentUser } = useSelector((state) => state.user);
+  const { items: favorites, loading: favLoading } = useSelector((state) => state.favorites);
+
+  // Check if post is in favorites
+  const isFavorite = favorites?.some(
+    (fav) => fav === post?._id || fav.postId === post?._id || fav._id === post?._id
+  );
+
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -14,6 +29,15 @@ export default function PostCard({ post, index = 0 }) {
         stiffness: 300,
         damping: 24,
         delay: index * 0.1,
+      },
+    },
+    exit: {
+      opacity: 0,
+      x: -100,
+      scale: 0.8,
+      transition: {
+        duration: 0.3,
+        ease: "easeInOut",
       },
     },
   };
@@ -47,6 +71,33 @@ export default function PostCard({ post, index = 0 }) {
     });
   };
 
+  // Handle favorite toggle
+  const handleFavoriteToggle = async () => {
+    if (!currentUser) {
+      showToast("Please login to manage favorites", "error");
+      return;
+    }
+
+    setIsRemoving(true);
+    
+    try {
+      if (isFavorite) {
+        await dispatch(removeFromFavorites(post._id)).unwrap();
+        showToast("Removed from favorites", "success");
+        // Call the onRemove callback to update the parent component
+        if (onRemove) {
+          setTimeout(() => onRemove(post._id), 300);
+        }
+      } else {
+        await dispatch(addToFavorites(post._id)).unwrap();
+        showToast("Added to favorites", "success");
+      }
+    } catch (error) {
+      showToast(error.message || "Failed to update favorites", "error");
+      setIsRemoving(false);
+    }
+  };
+
   return (
     <motion.article
       className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/20 dark:border-gray-700/20"
@@ -54,6 +105,8 @@ export default function PostCard({ post, index = 0 }) {
       whileHover={{ scale: 1.02 }}
       initial="hidden"
       animate="visible"
+      exit="exit"
+      layout
     >
       {/* Decorative background elements */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -70,17 +123,13 @@ export default function PostCard({ post, index = 0 }) {
         {/* Enhanced gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
-        {/* Floating sparkles effect on hover */}
-        <motion.div 
-          className="absolute top-4 right-4 opacity-0 group-hover:opacity-100"
-          initial={{ scale: 0, rotate: 0 }}
-          whileHover={{ scale: 1, rotate: 180 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="p-2 bg-white/20 backdrop-blur-sm rounded-full">
-            <Sparkles className="w-4 h-4 text-white" />
+        {/* Favorite indicator badge */}
+        <div className="absolute top-4 right-4">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 backdrop-blur-sm rounded-xl text-white text-xs font-semibold shadow-lg">
+            <Star className="w-3 h-3 fill-current" />
+            Favorited
           </div>
-        </motion.div>
+        </div>
         
         {/* Enhanced Category Badge */}
         {post.category && (
@@ -172,9 +221,10 @@ export default function PostCard({ post, index = 0 }) {
           </Link>
         </div>
 
-        {/* Enhanced Stats Bar */}
-        <div className="flex items-center justify-between pt-3 text-xs text-gray-500 dark:text-gray-400">
-          <div className="flex items-center gap-4">
+        {/* Enhanced Stats and Actions Bar */}
+        <div className="flex items-center justify-between pt-3">
+          {/* Stats */}
+          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
             <motion.span 
               className="flex items-center gap-1 px-2 py-1 bg-red-50 dark:bg-red-900/20 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors cursor-pointer"
               whileHover={{ scale: 1.05 }}
@@ -200,14 +250,29 @@ export default function PostCard({ post, index = 0 }) {
             </motion.span>
           </div>
           
-          {/* Quality indicator */}
-          <motion.div 
-            className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-full"
+          {/* Favorite Action Button */}
+          <motion.button
+            onClick={handleFavoriteToggle}
+            disabled={favLoading || isRemoving}
             whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold text-xs transition-all duration-300 shadow-lg hover:shadow-xl ${
+              isFavorite 
+                ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-pink-500 hover:to-red-500' 
+                : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-orange-500 hover:to-yellow-500'
+            } ${(favLoading || isRemoving) ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <Sparkles className="w-3 h-3 text-yellow-500" />
-            <span className="font-medium text-yellow-600 dark:text-yellow-400">Featured</span>
-          </motion.div>
+            {isRemoving ? (
+              <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+            ) : isFavorite ? (
+              <StarOff className="w-3 h-3" />
+            ) : (
+              <Star className="w-3 h-3" />
+            )}
+            <span>
+              {isRemoving ? 'Removing...' : isFavorite ? 'Remove' : 'Add'}
+            </span>
+          </motion.button>
         </div>
       </div>
 

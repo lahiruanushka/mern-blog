@@ -1,12 +1,25 @@
 import { Avatar, Button, Dropdown, Navbar, TextInput } from "flowbite-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaMoon, FaSearch, FaSun } from "react-icons/fa";
+import { FaMoon, FaSearch, FaSun, FaBolt } from "react-icons/fa";
+import {
+  Home,
+  Info,
+  BookmarkCheck,
+  ArrowRight,
+  Star,
+  Sparkles,
+  Zap,
+  UserCircle2,
+  LayoutDashboard,
+  LogOut,
+} from "lucide-react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { toggleTheme } from "../features/theme/themeSlice";
 import { signoutSuccess } from "../features/user/userSlice";
 import defaultAvatar from "/src/assets/default-avatar.png";
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Header = () => {
   const { pathname } = useLocation();
@@ -18,6 +31,7 @@ const Header = () => {
   const { theme } = useSelector((state) => state.theme);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -27,6 +41,15 @@ const Header = () => {
       setSearchTerm(searchFromUrl);
     }
   }, [location.search]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleSignout = async () => {
     try {
@@ -53,111 +76,330 @@ const Header = () => {
     navigate(`/search?${searchQuery}`);
   };
 
+  const navItems = [
+    { path: "/", label: "Home", icon: Home },
+    { path: "/about", label: "About", icon: Info },
+    { path: "/favorites", label: "Favorites", icon: Star },
+  ];
+
+  // Add a dynamic style based on theme
+  const getSearchInputStyle = (isDark) => ({
+    borderRadius: "16px",
+    border: "1px solid transparent",
+    background: isDark
+      ? "linear-gradient(rgb(17 24 39), rgb(17 24 39)) padding-box, linear-gradient(45deg, #6366f1, #a855f7, #ec4899) border-box"
+      : "linear-gradient(white, white) padding-box, linear-gradient(45deg, #4F46E5, #7C3AED, #DB2777) border-box",
+  });
+
   return (
-    <Navbar className="border-b-2">
-      <Link
-        to="/"
-        className="inline-block transition-all duration-300 ease-in-out hover:scale-105 hover:brightness-110 active:scale-95"
-      >
-        <div className="px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-md font-semibold transition-all duration-300 ease-in-out transform hover:shadow-md">
-          ByteThoughts
-        </div>
-      </Link>
+    <motion.div
+      className={`sticky top-0 z-50 transition-all duration-500 ${
+        isScrolled
+          ? "bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl border-b border-gray-200/50 dark:border-gray-700/50"
+          : "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm"
+      }`}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+    >
+      {/* Gradient Border */}
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
 
-      <form onSubmit={handleSubmit}>
-        <TextInput
-          type="text"
-          placeholder="Search..."
-          className="hidden lg:inline-block rounded-md p-2"
-          rightIcon={FaSearch}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </form>
-      <Button className="w-12 h-10 lg:hidden" color="gray" pill>
-        <FaSearch />
-      </Button>
-
-      <div className="flex gap-2 md:order-2">
-        <Button
-          className="w-12 h-10 sm:inline"
-          color="gray"
-          pill
-          onClick={() => dispatch(toggleTheme())}
+      <Navbar className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          className="flex items-center space-x-4"
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
-          {theme === "light" ? <FaMoon /> : <FaSun />}
-        </Button>
-
-        {currentUser ? (
-          <Dropdown
-            arrowIcon={false}
-            inline
-            label={
-              <Avatar
-                alt="user"
-                img={currentUser.profilePicture || defaultAvatar}
-                rounded
-                className="w-full"
-              />
-            }
+          <Link
+            to="/"
+            className="group flex items-center space-x-3 transition-all duration-300 ease-in-out hover:scale-105 active:scale-95"
           >
-            <Dropdown.Header>
-              <span className="block text-sm">@{currentUser.username}</span>
-              <span className="block text-sm font-medium truncate">
-                {currentUser.email}
-              </span>
-            </Dropdown.Header>
-            <Link to={"/dashboard?tab=profile"}>
-              <Dropdown.Item>Profile</Dropdown.Item>
-            </Link>
-            <Dropdown.Divider />
-            {currentUser.isAdmin && (
-              <>
-                <Link to="/dashboard?tab=dash">
-                  <Dropdown.Item>Dashboard</Dropdown.Item>
+            <div className="relative">
+              {/* Animated background glow */}
+              <motion.div
+                className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 rounded-2xl blur opacity-0 group-hover:opacity-30 transition-all duration-500"
+                animate={{
+                  rotate: [0, 360],
+                }}
+                transition={{
+                  duration: 20,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
+              <div className="relative w-12 h-12 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                <motion.div
+                  animate={{
+                    rotate: [0, 360],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                >
+                  <FaBolt className="text-white text-xl drop-shadow-lg" />
+                </motion.div>
+
+                {/* Sparkle effects */}
+                <motion.div
+                  className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-60"
+                  animate={{
+                    scale: [0, 1, 0],
+                    opacity: [0, 1, 0],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: 0.5,
+                  }}
+                />
+              </div>
+            </div>
+            <div className="hidden sm:block">
+              <motion.h1
+                className="text-2xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
+                whileHover={{ scale: 1.05 }}
+              >
+                ByteThoughts
+              </motion.h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium tracking-wider">
+                One byte, one thought
+              </p>
+            </div>
+          </Link>
+        </motion.div>
+
+        {/* Enhanced Search Bar */}
+        <div className="flex-1 max-w-lg mx-4 hidden md:block">
+          <form onSubmit={handleSubmit} className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-300" />
+            <TextInput
+              type="text"
+              placeholder="Discover thoughts and ideas..."
+              rightIcon={() => (
+                <motion.div
+                  whileHover={{ scale: 1.1, rotate: 15 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="cursor-pointer"
+                >
+                  <FaSearch className="w-4 h-4 text-gray-400 hover:text-purple-500 transition-colors" />
+                </motion.div>
+              )}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={getSearchInputStyle(theme === "dark")}
+              className="w-full relative z-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            />
+          </form>
+        </div>
+
+        <div className="flex items-center space-x-3">
+          {/* Enhanced Theme Toggle */}
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              className="w-11 h-11 flex items-center justify-center bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 hover:from-indigo-100 hover:to-purple-100 dark:hover:from-indigo-900/30 dark:hover:to-purple-900/30 border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+              color="gray"
+              pill
+              size="sm"
+              onClick={() => dispatch(toggleTheme())}
+            >
+              <AnimatePresence mode="wait">
+                {theme === "light" ? (
+                  <motion.div
+                    key="moon"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <FaMoon className="w-4 h-4 text-gray-600" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="sun"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <FaSun className="w-4 h-4 text-yellow-400" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Button>
+          </motion.div>
+
+          {/* User Avatar or Sign In Button */}
+          {currentUser ? (
+            <Dropdown
+              arrowIcon={false}
+              inline
+              label={
+                <motion.div
+                  className="relative cursor-pointer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Avatar
+                    alt="user"
+                    img={currentUser.profilePicture || defaultAvatar}
+                    rounded
+                    size="sm"
+                    className="ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-purple-500 transition-all duration-300 shadow-lg"
+                  />
+                  <motion.div
+                    className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-r from-green-400 to-emerald-500 border-2 border-white dark:border-gray-900 rounded-full shadow-lg"
+                    animate={{
+                      scale: [1, 1.2, 1],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                    }}
+                  />
+                </motion.div>
+              }
+            >
+              <Dropdown.Header className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20">
+                <span className="block text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  @{currentUser.username}
+                </span>
+                <span className="block text-sm text-gray-500 dark:text-gray-400 truncate">
+                  {currentUser.email}
+                </span>
+              </Dropdown.Header>
+              <Link to={"/dashboard?tab=profile"}>
+                <Dropdown.Item className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-200">
+                  <span className="flex items-center gap-2">
+                    <UserCircle2 className="w-4 h-4" />
+                    Profile
+                  </span>
+                </Dropdown.Item>
+              </Link>
+              <Dropdown.Divider />
+              {currentUser.isAdmin && (
+                <>
+                  <Link to="/dashboard?tab=dash">
+                    <Dropdown.Item className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-900/20 dark:hover:to-purple-900/20 transition-all duration-200">
+                      <span className="flex items-center gap-2">
+                        <LayoutDashboard className="w-4 h-4" />
+                        Dashboard
+                      </span>
+                    </Dropdown.Item>
+                  </Link>
+                  <Dropdown.Divider />
+                </>
+              )}
+              <Dropdown.Item
+                onClick={handleSignout}
+                className="text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20 transition-all duration-200"
+              >
+                <span className="flex items-center gap-2">
+                  <LogOut className="w-4 h-4" />
+                  Sign out
+                </span>
+              </Dropdown.Item>
+            </Dropdown>
+          ) : (
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link to="/sign-in">
+                <Button className="group relative overflow-hidden px-6 py-2 font-bold text-white transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <span className="relative flex items-center gap-2 text-sm">
+                    <Zap className="w-4 h-4" />
+                    Sign In
+                    <ArrowRight className="w-3.5 h-3.5 transform transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Button>
+              </Link>
+            </motion.div>
+          )}
+
+          <Navbar.Toggle className="ml-2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200" />
+        </div>
+
+        <Navbar.Collapse>
+          <div className="flex flex-col space-y-4 mt-6 md:hidden">
+            {/* Mobile Search */}
+            <form onSubmit={handleSubmit} className="mb-4">
+              <div className="relative">
+                <TextInput
+                  type="text"
+                  placeholder="Search thoughts..."
+                  rightIcon={FaSearch}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                  style={getSearchInputStyle(theme === "dark")}
+                />
+              </div>
+            </form>
+
+            {/* Enhanced Mobile Navigation */}
+            <div className="space-y-2">
+              {navItems.map((item) => {
+                const isActive = pathname === item.path;
+                return (
+                  <Navbar.Link
+                    key={item.path}
+                    as={Link}
+                    to={item.path}
+                    className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
+                      isActive
+                        ? "text-white bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 font-bold shadow-lg transform scale-[1.02]"
+                        : "text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20"
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    {item.label}
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeNavItem"
+                        className="ml-auto w-2 h-2 bg-white rounded-full"
+                      />
+                    )}
+                  </Navbar.Link>
+                );
+              })}
+            </div>
+          </div>
+        </Navbar.Collapse>
+      </Navbar>
+
+      {/* Desktop Navigation - Hidden by default, only show when needed */}
+      <div className="hidden lg:block border-t border-gray-100 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex justify-center space-x-8 py-3">
+            {navItems.map((item) => {
+              const isActive = pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                    isActive
+                      ? "text-purple-600 dark:text-purple-400 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20"
+                      : "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                  }`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  {item.label}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeDesktopNavItem"
+                      className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+                    />
+                  )}
                 </Link>
-                <Dropdown.Divider />
-              </>
-            )}
-            <Dropdown.Item onClick={handleSignout}>Sign out</Dropdown.Item>
-          </Dropdown>
-        ) : (
-          <>
-            <Link to="/sign-in">
-              <Button gradientDuoTone="purpleToBlue" outline>
-                Sign In
-              </Button>
-            </Link>
-          </>
-        )}
-
-        <Navbar.Toggle />
+              );
+            })}
+          </nav>
+        </div>
       </div>
-
-      <Navbar.Collapse>
-        <Navbar.Link
-          as={Link}
-          to="/"
-          className={pathname === "/" ? "text-blue-500" : ""}
-        >
-          Home
-        </Navbar.Link>
-        <Navbar.Link
-          as={Link}
-          to="/about"
-          className={pathname === "/about" ? "text-blue-500" : ""}
-        >
-          About
-        </Navbar.Link>
-        <Navbar.Link
-          as={Link}
-          to="/favorites"
-          className={pathname === "/favorites" ? "text-blue-500" : ""}
-        >
-          Favorites
-        </Navbar.Link>
-      </Navbar.Collapse>
-    </Navbar>
+    </motion.div>
   );
 };
 

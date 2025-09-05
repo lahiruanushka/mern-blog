@@ -1,11 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Button, Spinner, Badge, Card } from "flowbite-react";
-import { Link, useParams } from "react-router-dom";
-import { HiClock, HiCalendar, HiTag } from "react-icons/hi";
+import { useParams, Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { useToast } from "../context/ToastContext";
+import { addToFavorites, removeFromFavorites, fetchFavorites } from "../features/favorites/favoritesSlice";
 import CommentSection from "../components/CommentSection";
 import PostCard from "../components/PostCard";
-import FavoriteButton from "../components/FavoriteButton";
+
+import { 
+  Heart, 
+  Clock, 
+  Calendar, 
+  Tag, 
+  Share2, 
+  ArrowLeft, 
+  User, 
+  MessageCircle,
+  Bookmark,
+  Eye,
+  Star,
+  Sparkles,
+  BookOpen
+} from "lucide-react";
+import LoginPrompt from "../components/LoginPrompt";
 
 const PostPage = () => {
   const { postSlug } = useParams();
@@ -13,7 +30,29 @@ const PostPage = () => {
   const [error, setError] = useState(false);
   const [post, setPost] = useState(null);
   const [recentPosts, setRecentPosts] = useState(null);
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+  const [readingProgress, setReadingProgress] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  
+  const dispatch = useDispatch();
+  const { showToast } = useToast();
+  
+  // Redux state
+  const {
+    items: favorites,
+    error: favError,
+    loading: favLoading,
+    message,
+  } = useSelector((state) => state.favorites);
+  const { currentUser } = useSelector((state) => state.user);
+  
+  // Check if post is in favorites
+  const isFavorite = favorites?.some(
+    (fav) => fav === post?._id || fav.postId === post?._id || fav._id === post?._id
+  );
 
+  // Fetch post data
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -27,6 +66,13 @@ const PostPage = () => {
         }
         if (res.ok) {
           setPost(data.posts[0]);
+          const fetchedPost = data.posts[0];
+          setLikeCount(fetchedPost?.numberOfLikes || fetchedPost?.likes?.length || 0);
+          if (currentUser) {
+            setLiked(!!fetchedPost?.likes?.includes(currentUser?._id));
+          } else {
+            setLiked(false);
+          }
           setLoading(false);
           setError(false);
         }
@@ -36,8 +82,9 @@ const PostPage = () => {
       }
     };
     fetchPost();
-  }, [postSlug]);
+  }, [postSlug, currentUser]);
 
+  // Fetch recent posts
   useEffect(() => {
     const fetchRecentPosts = async () => {
       try {
@@ -50,9 +97,109 @@ const PostPage = () => {
         console.log(error.message);
       }
     };
-
     fetchRecentPosts();
   }, []);
+
+  // Reading progress tracker
+  useEffect(() => {
+    const handleScroll = () => {
+      const article = document.querySelector('.article-content');
+      if (!article) return;
+      
+      const articleTop = article.offsetTop;
+      const articleHeight = article.offsetHeight;
+      const windowHeight = window.innerHeight;
+      const scrollTop = window.pageYOffset;
+      
+      const progress = Math.min(
+        Math.max((scrollTop - articleTop + windowHeight * 0.3) / articleHeight, 0),
+        1
+      );
+      setReadingProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Handle favorite toggle
+  const handleFavoriteToggle = async () => {
+    if (!currentUser) {
+      setIsLoginPromptOpen(true);
+      return;
+    }
+    try {
+      if (isFavorite) {
+        await dispatch(removeFromFavorites(post._id)).unwrap();
+        showToast("Removed from favorites", "success");
+      } else {
+        await dispatch(addToFavorites(post._id)).unwrap();
+        showToast("Added to favorites", "success");
+      }
+    } catch (error) {
+      showToast(error.message || "Failed to update favorites", "error");
+    } finally {
+      dispatch(fetchFavorites());
+    }
+  };
+
+  // Handle like toggle (optimistic)
+  const handleLikeToggle = async () => {
+    if (!currentUser) {
+      setIsLoginPromptOpen(true);
+      return;
+    }
+
+    const optimisticLiked = !liked;
+    const optimisticCount = likeCount + (optimisticLiked ? 1 : -1);
+    setLiked(optimisticLiked);
+    setLikeCount(Math.max(0, optimisticCount));
+
+    try {
+      const res = await fetch(`/api/post/like/${post._id}` , {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.message || 'Failed to toggle like');
+      }
+      setLiked(!!data?.liked);
+      setLikeCount(data?.numberOfLikes ?? likeCount);
+    } catch (error) {
+      // revert on error
+      setLiked(!optimisticLiked);
+      setLikeCount(Math.max(0, likeCount));
+      showToast(error.message || 'Failed to like the post', 'error');
+    }
+  };
+
+  // Handle share
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: post.title,
+          text: `Check out this article: ${post.title}`,
+          url: window.location.href
+        });
+      } catch (err) {
+        console.log('Error sharing:', err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        showToast("Link copied to clipboard!", "success");
+      } catch (err) {
+        showToast("Failed to copy link", "error");
+      }
+    }
+  };
+
+  const handleCloseLoginPrompt = () => {
+    setIsLoginPromptOpen(false);
+  };
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -66,105 +213,358 @@ const PostPage = () => {
     duration: 0.5,
   };
 
-  if (loading)
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="xl" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center space-y-6 p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20"
+        >
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-indigo-200 dark:border-indigo-800 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-purple-600 dark:border-t-purple-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+          </div>
+          <div className="text-center">
+            <p className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Loading Article</p>
+            <p className="text-gray-600 dark:text-gray-400">Preparing your reading experience...</p>
+          </div>
+        </motion.div>
       </div>
     );
+  }
+
+  if (error || !post) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20 max-w-md"
+        >
+          <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <BookOpen className="w-10 h-10 text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            Article Not Found
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+            Sorry, we couldn't find the article you're looking for. It might have been moved or deleted.
+          </p>
+          <Link 
+            to="/blog" 
+            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-2xl hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back to Blog
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <motion.main
+    <motion.div
       initial="initial"
       animate="in"
       exit="out"
       variants={pageVariants}
       transition={pageTransition}
-      className="p-3 flex flex-col max-w-6xl mx-auto min-h-screen"
+      className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900"
     >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-8"
-      >
-        <h1 className="text-4xl mt-10 font-bold text-gray-900 dark:text-gray-100 mb-4">
-          {post && post.title}
-        </h1>
-
-        <div className="flex justify-center items-center space-x-4 mb-6">
-          <Link to={`/search?category=${post && post.category}`}>
-            <Badge color="info" icon={HiTag} className="cursor-pointer">
-              {post && post.category}
-            </Badge>
-          </Link>
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="mb-8 flex justify-center"
-      >
-        <img
-          src={post && post.image}
-          alt={post && post.title}
-          className="w-auto max-h-[350px] object-contain rounded-xl shadow-lg"
+      {/* Enhanced Reading Progress Bar */}
+      <div className="fixed top-0 left-0 w-full h-1.5 bg-gray-200/50 dark:bg-gray-700/50 backdrop-blur-sm z-50 border-b border-white/20 dark:border-gray-700/20">
+        <motion.div
+          className="h-full bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 shadow-lg"
+          style={{ scaleX: readingProgress }}
+          initial={{ scaleX: 0 }}
+          transition={{ duration: 0.1 }}
+          transformOrigin="left"
         />
-      </motion.div>
+      </div>
 
-      <Card className="max-w-2xl mx-auto w-full mb-8">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <HiCalendar className="text-gray-500" />
-            <span className="text-sm text-gray-600">
-              {post && new Date(post.createdAt).toLocaleDateString()}
-            </span>
+      <article className="max-w-4xl mx-auto px-4 py-8">
+        {/* Enhanced Article Header */}
+        <motion.header 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-12"
+        >
+          {/* Enhanced Category Badge */}
+          <motion.div 
+            className="flex items-center gap-2 mb-8"
+            whileHover={{ scale: 1.02 }}
+          >
+            <Link 
+              to={`/search?category=${post.category}`}
+              className="group inline-flex items-center gap-3 px-6 py-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl border border-indigo-100 dark:border-indigo-900/50 hover:border-indigo-300 dark:hover:border-indigo-700 rounded-2xl text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              <div className="p-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
+                <Tag className="w-4 h-4 text-white transition-transform group-hover:rotate-12" />
+              </div>
+              <span className="relative">
+                <span className="relative z-10">{post.category}</span>
+                <span className="absolute inset-x-0 -bottom-1 h-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+              </span>
+            </Link>
+          </motion.div>
+          
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-8 bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-900 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent">
+            {post.title}
+          </h1>
+
+          {/* Enhanced Author and Meta Info Card */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="relative p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20 overflow-hidden"
+          >
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-pink-500/10 to-orange-500/10 rounded-full blur-2xl" />
+            
+            <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div className="flex items-center gap-6">
+                <div className="relative">
+                  <img
+                    src={post.author?.avatar || `https://ui-avatars.com/api/?name=${post.author?.name || 'Author'}&background=random`}
+                    alt={post.author?.name || 'Author'}
+                    className="w-20 h-20 rounded-2xl object-cover ring-4 ring-white/50 dark:ring-gray-700/50 shadow-lg"
+                  />
+                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-3 border-white dark:border-gray-800 shadow-lg flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                </div>
+                <div>
+                  <p className="font-bold text-xl text-gray-900 dark:text-white mb-2">
+                    {post.author?.name || 'Anonymous Author'}
+                  </p>
+                  <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+                    <span className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 rounded-full">
+                      <Calendar className="w-4 h-4 text-indigo-500" />
+                      {new Date(post.createdAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}
+                    </span>
+                    <span className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 rounded-full">
+                      <Clock className="w-4 h-4 text-purple-500" />
+                      {Math.ceil(post.content.length / 1000)} min read
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 rounded-full border border-red-100 dark:border-red-800/30"
+                >
+                  <Heart className={`w-4 h-4 ${liked ? 'text-red-500 fill-current' : 'text-red-400'}`} />
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">{likeCount}</span>
+                </motion.div>
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-full border border-blue-100 dark:border-blue-800/30"
+                >
+                  <MessageCircle className="w-4 h-4 text-blue-500" />
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">{post.comments || 0}</span>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.header>
+
+        {/* Enhanced Featured Image */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="mb-16 overflow-hidden rounded-3xl shadow-2xl relative group"
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <img
+            src={post.image}
+            alt={post.title}
+            className="w-full h-[400px] md:h-[500px] lg:h-[600px] object-cover group-hover:scale-105 transition-transform duration-700"
+          />
+          <div className="absolute bottom-4 left-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div className="flex items-center gap-2 px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full">
+              <Sparkles className="w-4 h-4 text-white" />
+              <span className="text-white text-sm font-medium">Click to expand</span>
+            </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <HiClock className="text-gray-500" />
-            <span className="text-sm text-gray-600 italic">
-              {post && (post.content.length / 1000).toFixed(0)} mins read
-            </span>
+        </motion.div>
+
+        {/* Enhanced Article Content */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="article-content mb-16"
+        >
+          <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-indigo-600 dark:prose-a:text-indigo-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:bg-indigo-50 dark:prose-code:bg-indigo-900/30 prose-code:text-indigo-700 dark:prose-code:text-indigo-300 prose-code:px-2 prose-code:py-1 prose-code:rounded-lg prose-code:font-semibold prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-gradient-to-r prose-blockquote:from-indigo-50 prose-blockquote:to-purple-50 dark:prose-blockquote:from-indigo-900/20 dark:prose-blockquote:to-purple-900/20 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-2xl prose-blockquote:shadow-lg prose-blockquote:border-l-indigo-500">
+            <div 
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
           </div>
-          <FavoriteButton post={post} />
-        </div>
-      </Card>
+        </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
-        className="max-w-2xl mx-auto w-full prose dark:prose-invert"
-        dangerouslySetInnerHTML={{ __html: post && post.content }}
-      />
+        {/* Enhanced Engagement Bar */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="relative p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20 mb-16 overflow-hidden"
+        >
+          {/* Decorative background */}
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+          <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-3xl" />
+          
+          <div className="relative flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleLikeToggle}
+              aria-pressed={liked}
+              title={liked ? 'Unlike' : 'Like this article'}
+              className={`w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl border-2 ${
+                liked
+                  ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white border-transparent shadow-red-500/25'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 border-gray-200 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700'
+              }`}
+            >
+              <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''} transition-transform hover:scale-110`} />
+              <span className="min-w-[4rem] font-bold">{liked ? 'Liked' : 'Like'}</span>
+              <span className="px-2 py-1 bg-white/20 rounded-full text-sm font-bold">{likeCount}</span>
+            </motion.button>
 
-      <CommentSection postId={post._id} />
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleFavoriteToggle}
+              disabled={favLoading}
+              title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              className={`w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl ${
+                isFavorite
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-indigo-500/25'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 border-2 border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-700'
+              }`}
+            >
+              <Star className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''} transition-transform hover:scale-110`} />
+              <span className="min-w-[8rem] text-sm sm:text-base font-bold">
+                {isFavorite ? 'Favorited' : 'Add to Favorites'}
+              </span>
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleShare}
+              className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 shadow-lg hover:shadow-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-700 font-semibold"
+            >
+              <Share2 className="w-5 h-5 transition-transform hover:scale-110" />
+              <span className="min-w-[4rem] font-bold">Share</span>
+            </motion.button>
+          </div>
+        </motion.div>
+      </article>
 
-      <motion.div
+      {/* Enhanced Comments Section */}
+      <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
-        className="mt-12 text-center"
+        transition={{ delay: 0.6, duration: 0.6 }}
+        className="max-w-4xl mx-auto px-4 mb-16"
       >
-        <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-          Recent Articles
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {recentPosts &&
-            recentPosts.map((recentPost) => (
+        <div className="p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20">
+          <CommentSection postId={post._id} />
+        </div>
+      </motion.div>
+
+      {/* Enhanced Recent Posts Section */}
+      {recentPosts && recentPosts.length > 0 && (
+        <motion.section 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.6 }}
+          className="max-w-6xl mx-auto px-4 py-16 border-t border-white/20 dark:border-gray-700/20"
+        >
+          <motion.div className="text-center mb-12" variants={itemVariants}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-full mb-6"
+            >
+              <BookOpen className="w-4 h-4 text-indigo-600 dark:text-indigo-400 mr-2" />
+              <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                More Articles
+              </span>
+            </motion.div>
+            
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-900 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent">
+              Continue Your Journey
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+              Discover more insightful articles that will expand your knowledge and inspire your next breakthrough
+            </p>
+          </motion.div>
+          
+          <motion.div
+            className="grid md:grid-cols-3 gap-8"
+            variants={containerVariants}
+          >
+            {recentPosts.map((recentPost, index) => (
               <motion.div
                 key={recentPost._id}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 + index * 0.1, duration: 0.6 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                className="group"
               >
                 <PostCard post={recentPost} />
               </motion.div>
             ))}
-        </div>
-      </motion.div>
-    </motion.main>
+          </motion.div>
+        </motion.section>
+      )}
+
+      {/* Login Prompt Modal */}
+      {isLoginPromptOpen && (
+        <LoginPrompt
+          isOpen={isLoginPromptOpen}
+          onClose={handleCloseLoginPrompt}
+        />
+      )}
+    </motion.div>
   );
 };
 

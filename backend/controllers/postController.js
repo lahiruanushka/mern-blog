@@ -114,3 +114,34 @@ export const getpost = async (req, res, next) => {
     next(error);
   }
 };
+
+export const toggleLikePost = async (req, res, next) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.user.id;
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return next(errorHandler(404, 'Post not found'));
+    }
+
+    const likeIndex = post.likes.indexOf(userId);
+    if (likeIndex === -1) {
+      post.likes.push(userId);
+      post.numberOfLikes += 1;
+    } else {
+      post.likes.splice(likeIndex, 1);
+      post.numberOfLikes = Math.max(0, post.numberOfLikes - 1);
+    }
+
+    await post.save();
+    res.status(200).json({
+      postId: post._id,
+      numberOfLikes: post.numberOfLikes,
+      likes: post.likes,
+      liked: likeIndex === -1,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
