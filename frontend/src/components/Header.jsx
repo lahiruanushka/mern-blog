@@ -236,6 +236,7 @@ const Header = () => {
             <Dropdown
               arrowIcon={false}
               inline
+              className="mr-4"
               label={
                 <motion.div
                   className="relative cursor-pointer"
@@ -270,7 +271,7 @@ const Header = () => {
                   {currentUser.email}
                 </span>
               </Dropdown.Header>
-              <Link to={"/dashboard?tab=profile"}>
+              <Link to={`/user/${currentUser?._id || ""}`}>
                 <Dropdown.Item className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-200">
                   <span className="flex items-center gap-2">
                     <UserCircle2 className="w-4 h-4" />
@@ -281,7 +282,7 @@ const Header = () => {
               <Dropdown.Divider />
               {currentUser.isAdmin && (
                 <>
-                  <Link to="/dashboard?tab=dash">
+                  <Link to="/dashboard/dash">
                     <Dropdown.Item className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-900/20 dark:hover:to-purple-900/20 transition-all duration-200">
                       <span className="flex items-center gap-2">
                         <LayoutDashboard className="w-4 h-4" />
@@ -304,7 +305,7 @@ const Header = () => {
             </Dropdown>
           ) : (
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Link to="/sign-in">
+              <Link to="/signin">
                 <Button className="group relative overflow-hidden px-6 py-2 font-bold text-white transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-2xl">
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500" />
                   <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

@@ -58,12 +58,12 @@ const LoginPrompt = ({ isOpen = true, onClose = () => {} }) => {
   // Navigation handlers
   const handleSignIn = () => {
     onClose();
-    navigate("/sign-in");
+    navigate("/signin");
   };
 
   const handleRegister = () => {
     onClose();
-    navigate("/sign-up");
+    navigate("/signup");
   };
 
   return (

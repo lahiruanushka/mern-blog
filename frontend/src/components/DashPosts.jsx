@@ -75,7 +75,7 @@ const DashPosts = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {currentUser?.isAdmin && (
         <div className="mb-6">
-          <Link to="/dashboard?tab=create-post">
+          <Link to="/dashboard/create-post">
             <Button gradientDuoTone="purpleToPink" className="w-full sm:w-auto">
               Create a post
             </Button>
@@ -138,7 +138,7 @@ const DashPosts = () => {
                   <Table.Cell>
                     <div className="flex justify-end gap-2">
                       <Link
-                        to={`/dashboard?tab=update-post&id=${post._id}`}
+                        to={`/dashboard/update-post/${post._id}`}
                         className="p-2 text-teal-600 hover:bg-teal-50 rounded-full"
                       >
                         <HiPencil className="w-5 h-5" />

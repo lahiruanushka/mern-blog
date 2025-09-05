@@ -118,7 +118,7 @@ const ResetPasswordPage = () => {
       const data = await res.json();
       if (res.ok) {
         setSuccess("Password reset successful. Redirecting to login...");
-        setTimeout(() => navigate("/sign-in"), 3000);
+        setTimeout(() => navigate("/signin"), 3000);
       } else {
         setError(data.message || "Failed to reset password.");
       }

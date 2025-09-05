@@ -132,7 +132,7 @@ const FavoritesPage = () => {
             personal collection of inspiring content.
           </p>
 
-          <Link to="/sign-in">
+          <Link to="/signin">
             <Button
               gradientDuoTone="purpleToBlue"
               size="lg"

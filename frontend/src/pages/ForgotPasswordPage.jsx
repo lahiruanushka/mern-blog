@@ -307,7 +307,7 @@ const ForgotPasswordPage = () => {
                   className="text-center mt-8"
                 >
                   <Link
-                    to="/sign-in"
+                    to="/signin"
                     className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold transition-colors duration-200 group"
                   >
                     <ArrowLeft 
