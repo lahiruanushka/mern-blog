@@ -196,7 +196,7 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
                   </div>
                 )}
                 <NavItem
-                  to="/dashboard/dash"
+                  to="/dashboard"
                   icon={HiChartPie}
                   label="Dashboard"
                   badge="New"
@@ -252,12 +252,6 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
                       to="/dashboard/users"
                       icon={HiOutlineUserGroup}
                       label="Users"
-                    />
-                    <NavItem
-                      to="/dashboard/comments"
-                      icon={HiAnnotation}
-                      label="Comments"
-                      badge="3"
                     />
                   </div>
                 </motion.div>

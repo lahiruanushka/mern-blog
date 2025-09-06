@@ -82,7 +82,7 @@ const AdminHeader = ({ onMenuClick, sidebarOpen }) => {
 
             <div className="flex items-center gap-4">
               <Link
-                to="/dashboard/dash"
+                to="/dashboard"
                 className="group flex items-center gap-3"
               >
                 <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg">

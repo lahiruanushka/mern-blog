@@ -15,17 +15,16 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import UserProfilePage from "./pages/UserProfilePage";
-import DashProfile from "./components/DashProfile";
 import DashboardComp from "./components/DashboardComp";
 import DashPosts from "./components/DashPosts";
-import DashCreatePost from "./components/DashCreatePost";
-import DashUpdatePost from "./components/DashUpdatePost";
+import CreatePost from "./components/CreatePost";
+import UpdatePost from "./components/UpdatePost";
 import DashUsers from "./components/DashUsers";
-import DashComments from "./components/DashComments";
 import DashCategories from "./components/DashCategories";
 import useRecaptchaBadgeRemoval from "./hooks/useRecaptchaBadgeRemoval";
 import UserLayout from "./layouts/UserLayout";
 import AdminLayout from "./layouts/AdminLayout";
+import SettingsPage from "./pages/SettingsPage";
 
 const RecaptchaBadgeRemovalWrapper = () => {
   useRecaptchaBadgeRemoval();
@@ -45,6 +44,9 @@ const App = () => {
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/user/:userId" element={<UserProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/create-post" element={<CreatePost />} />
+          <Route path="/update-post/:postId" element={<UpdatePost />} />
 
           {/* Auth routes - only accessible when NOT logged in */}
           <Route element={<PublicOnlyRoute />}>
@@ -66,17 +68,11 @@ const App = () => {
         {/* Dashboard routes with AdminLayout */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<AdminLayout />}>
-            {/* Non-admin routes */}
-            <Route path="profile" element={<DashProfile />} />
-
             {/* Admin-only routes */}
             <Route element={<AdminPrivateRoute />}>
-              <Route path="dash" element={<DashboardComp />} />
+              <Route index element={<DashboardComp />} />
               <Route path="posts" element={<DashPosts />} />
-              <Route path="create-post" element={<DashCreatePost />} />
-              <Route path="update-post/:postId" element={<DashUpdatePost />} />
               <Route path="users" element={<DashUsers />} />
-              <Route path="comments" element={<DashComments />} />
               <Route path="categories" element={<DashCategories />} />
               <Route path="settings" element={<DashboardComp />} />
             </Route>

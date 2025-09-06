@@ -12,6 +12,7 @@ import {
   UserCircle2,
   LayoutDashboard,
   LogOut,
+  Cog,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
@@ -279,10 +280,18 @@ const Header = () => {
                   </span>
                 </Dropdown.Item>
               </Link>
+              <Link to={"/settings"}>
+                <Dropdown.Item className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-200">
+                  <span className="flex items-center gap-2">
+                    <Cog className="w-4 h-4" />
+                    Settings
+                  </span>
+                </Dropdown.Item>
+              </Link>
               <Dropdown.Divider />
               {currentUser.isAdmin && (
                 <>
-                  <Link to="/dashboard/dash">
+                  <Link to="/dashboard">
                     <Dropdown.Item className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-900/20 dark:hover:to-purple-900/20 transition-all duration-200">
                       <span className="flex items-center gap-2">
                         <LayoutDashboard className="w-4 h-4" />

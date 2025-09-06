@@ -73,15 +73,6 @@ const DashPosts = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {currentUser?.isAdmin && (
-        <div className="mb-6">
-          <Link to="/dashboard/create-post">
-            <Button gradientDuoTone="purpleToPink" className="w-full sm:w-auto">
-              Create a post
-            </Button>
-          </Link>
-        </div>
-      )}
 
       {loading ? (
         <Loading />
