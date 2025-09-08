@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   LogOut,
   Cog,
+  Bell,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
@@ -21,7 +22,7 @@ import { signoutSuccess } from "../features/user/userSlice";
 import defaultAvatar from "/src/assets/default-avatar.png";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { HiSparkles } from "react-icons/hi";
+import { HiMoon, HiSparkles, HiSun } from "react-icons/hi";
 
 const Header = () => {
   const { pathname } = useLocation();
@@ -210,40 +211,35 @@ const Header = () => {
         </div>
 
         <div className="flex items-center space-x-3">
-          {/* Enhanced Theme Toggle */}
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              className="w-11 h-11 flex items-center justify-center bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 hover:from-indigo-100 hover:to-purple-100 dark:hover:from-indigo-900/30 dark:hover:to-purple-900/30 border-0 shadow-lg hover:shadow-xl transition-all duration-300"
-              color="gray"
-              pill
-              size="sm"
-              onClick={() => dispatch(toggleTheme())}
+          {/* Theme Toggle */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => dispatch(toggleTheme())}
+            className="relative p-2 rounded-xl bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-200/50 dark:border-yellow-800/50 hover:from-yellow-500/20 hover:to-orange-500/20 transition-all duration-300"
+            aria-label="Toggle theme"
+          >
+            <motion.div
+              animate={{ rotate: theme === "dark" ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
             >
-              <AnimatePresence mode="wait">
-                {theme === "light" ? (
-                  <motion.div
-                    key="moon"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <FaMoon className="w-4 h-4 text-gray-600" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="sun"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <FaSun className="w-4 h-4 text-yellow-400" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </Button>
-          </motion.div>
+              {theme === "dark" ? (
+                <HiSun className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+              ) : (
+                <HiMoon className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+              )}
+            </motion.div>
+          </motion.button>
+
+          {/* Notifications */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative p-2 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-200/50 dark:border-purple-800/50 hover:from-purple-500/20 hover:to-pink-500/20 transition-all duration-300"
+          >
+            <Bell className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full animate-pulse"></div>
+          </motion.button>
 
           {/* User Avatar or Sign In Button */}
           {currentUser ? (
