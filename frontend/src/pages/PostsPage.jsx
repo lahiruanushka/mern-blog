@@ -313,37 +313,62 @@ const PostsPage = () => {
                 </div>
               </div>
 
-              {/* Category Filter */}
-              <div className="relative">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="h-14 px-6 pr-12 bg-slate-50/80 dark:bg-slate-700/80 border border-slate-200 dark:border-slate-600 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300 text-slate-700 dark:text-slate-200 appearance-none cursor-pointer min-w-[160px]"
-                >
-                  {categories.map(category => (
-                    <option key={category} value={category}>
-                      {category === 'all' ? 'All Categories' : category}
-                    </option>
-                  ))}
-                </select>
-                <Tag className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-              </div>
+          {/* Category Filter */}
+<div className="relative">
+  <select
+    value={selectedCategory}
+    onChange={(e) => setSelectedCategory(e.target.value)}
+    className="
+      h-14 
+      w-full
+      pl-4 pr-10           
+      bg-slate-50/80 dark:bg-slate-700/80 
+      border border-slate-200 dark:border-slate-600 
+      rounded-2xl 
+      focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 
+      transition-all duration-300 
+      text-slate-700 dark:text-slate-200 
+      appearance-none 
+      cursor-pointer
+    "
+  >
+    {categories.map(category => (
+      <option key={category} value={category}>
+        {category === 'all' ? 'All Categories' : category}
+      </option>
+    ))}
+  </select>
+  <Tag className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+</div>
 
-              {/* Sort Options */}
-              <div className="relative">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="h-14 px-6 pr-12 bg-slate-50/80 dark:bg-slate-700/80 border border-slate-200 dark:border-slate-600 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300 text-slate-700 dark:text-slate-200 appearance-none cursor-pointer min-w-[160px]"
-                >
-                  {sortOptions.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <SortDesc className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-              </div>
+{/* Sort Options */}
+<div className="relative">
+  <select
+    value={sortBy}
+    onChange={(e) => setSortBy(e.target.value)}
+    className="
+      h-14 
+      w-full
+      pl-4 pr-10          
+      bg-slate-50/80 dark:bg-slate-700/80 
+      border border-slate-200 dark:border-slate-600 
+      rounded-2xl 
+      focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 
+      transition-all duration-300 
+      text-slate-700 dark:text-slate-200 
+      appearance-none 
+      cursor-pointer
+    "
+  >
+    {sortOptions.map(option => (
+      <option key={option.value} value={option.value}>
+        {option.label}
+      </option>
+    ))}
+  </select>
+  <SortDesc className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+</div>
+
 
               {/* View Mode Toggle */}
               <div className="flex bg-slate-100 dark:bg-slate-700 rounded-2xl p-2">

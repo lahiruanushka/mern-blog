@@ -188,7 +188,7 @@ export default function Home() {
                   }}
                   whileTap={{ scale: 0.95 }}
                   className="group relative px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold rounded-2xl overflow-hidden shadow-2xl"
-                  onClick={() => navigate("/posts")}
+                  onClick={() => navigate("/search")}
                 >
                   <span className="relative z-10 flex items-center justify-center">
                     <HiSearch className="w-5 h-5 mr-2 group-hover:animate-pulse" />
