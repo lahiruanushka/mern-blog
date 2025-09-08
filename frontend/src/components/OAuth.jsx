@@ -83,17 +83,17 @@ const OAuth = () => {
 
       if (res.ok) {
         dispatch(signInSuccess(data));
-        setAlertMessage("Sign-In successful! Redirecting...");
+        setAlertMessage("signin successful! Redirecting...");
         setAlertType("success");
         navigate("/");
       } else {
-        console.error("Google Sign-In failed", data.message);
-        setAlertMessage(data.message || "Google Sign-In failed.");
+        console.error("Google signin failed", data.message);
+        setAlertMessage(data.message || "Google signin failed.");
         setAlertType("failure");
       }
     } catch (error) {
       console.error("Could not sign in with Google", error);
-      setAlertMessage("An error occurred during Google Sign-In.");
+      setAlertMessage("An error occurred during Google signin.");
       setAlertType("failure");
     }
   };

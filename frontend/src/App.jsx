@@ -1,34 +1,32 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
+import SearchPage from "./pages/SearchPage";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
-import Dashboard from "./pages/DashboardPage";
-import Header from "./components/Header";
-import Footer from "./components/FooterComponent";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminPrivateRoute from "./components/AdminPrivateRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
 import NotFoundPage from "./pages/NotFoundPage";
 import PostPage from "./pages/PostPage";
-import ScrollToTop from "./components/ScrollToTop";
-import SearchPage from "./pages/SearchPage";
-import ToastComponent from "./components/ToastComponent";
 import FavoritesPage from "./pages/FavoritesPage";
-import AutoScrollToTop from "./components/AutoScrollToTop";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
-import DashProfile from "./components/DashProfile";
+import UserProfilePage from "./pages/UserProfilePage";
 import DashboardComp from "./components/DashboardComp";
 import DashPosts from "./components/DashPosts";
-import DashCreatePost from "./components/DashCreatePost";
-import DashUpdatePost from "./components/DashUpdatePost";
+import CreatePost from "./components/CreatePost";
+import UpdatePost from "./components/UpdatePost";
 import DashUsers from "./components/DashUsers";
-import DashComments from "./components/DashComments";
 import DashCategories from "./components/DashCategories";
 import useRecaptchaBadgeRemoval from "./hooks/useRecaptchaBadgeRemoval";
+import UserLayout from "./layouts/UserLayout";
+import AdminLayout from "./layouts/AdminLayout";
+import SettingsPage from "./pages/SettingsPage";
+import DashSettings from "./components/DashSettings";
+import PostsPage from "./pages/PostsPage";
 
 const RecaptchaBadgeRemovalWrapper = () => {
   useRecaptchaBadgeRemoval();
@@ -39,57 +37,53 @@ const App = () => {
   return (
     <Router>
       <RecaptchaBadgeRemovalWrapper />
-      <Header />
-      <ToastComponent />
-
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/post/:postSlug" element={<PostPage />} />
-        <Route path="/favorites" element={<FavoritesPage />} />
-        <Route path="/search" element={<SearchPage />} />
+        {/* Public and user routes with UserLayout */}
+        <Route element={<UserLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/post/:postSlug" element={<PostPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/posts" element={<PostsPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/user/:userId" element={<UserProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/create-post" element={<CreatePost />} />
+          <Route path="/update-post/:postId" element={<UpdatePost />} />
 
-        {/* Auth routes - only accessible when NOT logged in */}
-        <Route element={<PublicOnlyRoute />}>
-          <Route path="/sign-in" element={<SignInPage />} />
-          <Route path="/sign-up" element={<SignUpPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route
-            path="/reset-password/:token"
-            element={<ResetPasswordPage />}
-          />
-          <Route path="/verify-email" element={<VerifyEmailPage />} />
-          <Route
-            path="/verify-email/:token"
-            element={<EmailVerificationPage />}
-          />
+          {/* Auth routes - only accessible when NOT logged in */}
+          <Route element={<PublicOnlyRoute />}>
+            <Route path="/signin" element={<SignInPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route
+              path="/reset-password/:token"
+              element={<ResetPasswordPage />}
+            />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route
+              path="/verify-email/:token"
+              element={<EmailVerificationPage />}
+            />
+          </Route>
         </Route>
 
-        {/* Protected Routes - only accessible when logged in */}
+        {/* Dashboard routes with AdminLayout */}
         <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<Dashboard />}>
-            {/* Non-admin routes */}
-            <Route path="profile" element={<DashProfile />} />
-
+          <Route path="/dashboard" element={<AdminLayout />}>
             {/* Admin-only routes */}
             <Route element={<AdminPrivateRoute />}>
-              <Route path="dash" element={<DashboardComp />} />
+              <Route index element={<DashboardComp />} />
               <Route path="posts" element={<DashPosts />} />
-              <Route path="create-post" element={<DashCreatePost />} />
-              <Route path="update-post/:postId" element={<DashUpdatePost />} />
               <Route path="users" element={<DashUsers />} />
-              <Route path="comments" element={<DashComments />} />
               <Route path="categories" element={<DashCategories />} />
+              <Route path="settings" element={<DashSettings />} />
             </Route>
           </Route>
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-
-      <ScrollToTop />
-      <AutoScrollToTop />
-      <Footer />
     </Router>
   );
 };

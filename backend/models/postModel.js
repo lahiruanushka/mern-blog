@@ -29,6 +29,15 @@ const postSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    // Post likes
+    likes: {
+      type: [String],
+      default: [],
+    },
+    numberOfLikes: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

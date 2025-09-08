@@ -14,8 +14,8 @@ const useRecaptchaBadgeRemoval = () => {
 
         // Hide badge on all pages EXCEPT specified auth pages
         if (
-          location.pathname !== "/sign-in" &&
-          location.pathname !== "/sign-up" &&
+          location.pathname !== "/signin" &&
+          location.pathname !== "/signup" &&
           location.pathname !== "/forgot-password" &&
           !isResetPasswordPage
         ) {

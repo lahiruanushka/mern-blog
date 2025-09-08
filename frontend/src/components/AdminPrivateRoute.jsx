@@ -9,10 +9,10 @@ const AdminPrivateRoute = () => {
     <Outlet />
   ) : currentUser ? (
     // If user is logged in but not admin, redirect to dashboard
-    <Navigate to="/dashboard?tab=profile" />
+    <Navigate to="/dashboard/profile" />
   ) : (
     // If user is not logged in, redirect to sign in
-    <Navigate to="/sign-in" />
+    <Navigate to="/signin" />
   );
 };
 

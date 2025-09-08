@@ -5,9 +5,16 @@ import {
   HiArrowNarrowUp,
   HiDocumentText,
   HiOutlineUserGroup,
+  HiSparkles,
+  HiTrendingUp,
+  HiEye,
+  HiHeart,
+  HiChat,
+  HiLightningBolt,
+  HiGlobe,
+  HiCalendar,
+  HiClock,
 } from "react-icons/hi";
-import { Button, Table } from "flowbite-react";
-import { Link } from "react-router-dom";
 
 export default function DashboardComp() {
   const [users, setUsers] = useState([]);
@@ -64,183 +71,237 @@ export default function DashboardComp() {
       }
     };
 
-    if (currentUser.isAdmin) {
+    if (currentUser?.isAdmin) {
       fetchUsers();
       fetchPosts();
       fetchComments();
     }
   }, [currentUser]);
 
+  const stats = [
+    {
+      title: "Total Users",
+      value: totalUsers,
+      growth: lastMonthUsers,
+      icon: HiOutlineUserGroup,
+      gradient: "from-indigo-500 via-purple-600 to-pink-500",
+      bgGradient: "from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/50 dark:via-purple-950/50 dark:to-pink-950/50",
+      glowColor: "0 25px 50px rgba(99, 102, 241, 0.4)",
+    },
+    {
+      title: "Total Posts",
+      value: totalPosts,
+      growth: lastMonthPosts,
+      icon: HiDocumentText,
+      gradient: "from-emerald-500 via-teal-600 to-cyan-500",
+      bgGradient: "from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-950/50 dark:via-teal-950/50 dark:to-cyan-950/50",
+      glowColor: "0 25px 50px rgba(16, 185, 129, 0.4)",
+    },
+    {
+      title: "Total Comments",
+      value: totalComments,
+      growth: lastMonthComments,
+      icon: HiAnnotation,
+      gradient: "from-orange-500 via-amber-500 to-yellow-500",
+      bgGradient: "from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-950/50 dark:via-amber-950/50 dark:to-yellow-950/50",
+      glowColor: "0 25px 50px rgba(245, 158, 11, 0.4)",
+    },
+    {
+      title: "Engagement Rate",
+      value: "94.2%",
+      growth: "+5.2%",
+      icon: HiTrendingUp,
+      gradient: "from-rose-500 via-pink-600 to-purple-500",
+      bgGradient: "from-rose-50 via-pink-50 to-purple-50 dark:from-rose-950/50 dark:via-pink-950/50 dark:to-purple-950/50",
+      glowColor: "0 25px 50px rgba(236, 72, 153, 0.4)",
+    },
+  ];
+
   return (
-    <div className="p-3 md:px-6 lg:px-12 max-w-7xl mx-auto">
-      {/* Overview Cards - Enhanced Responsiveness */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        {/* Total Users Card */}
-        <div className="flex flex-col p-4 bg-white dark:bg-slate-800 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex justify-between items-center mb-3">
-            <div>
-              <h3 className="text-gray-500 text-sm uppercase tracking-wider">
-                Total Users
-              </h3>
-              <p className="text-3xl font-bold text-gray-800 dark:text-white">
-                {totalUsers}
-              </p>
-            </div>
-            <HiOutlineUserGroup className="bg-teal-500 text-white rounded-full text-4xl p-2 shadow-md" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 pt-20 p-4 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Welcome Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+              <h1 className="text-4xl lg:text-5xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                Dashboard Overview
+            </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                Welcome back, {currentUser?.username}! Here's what's happening with ByteThoughts.
+            </p>
           </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-green-500 flex items-center">
-              <HiArrowNarrowUp className="mr-1" />
-              {lastMonthUsers}
-            </span>
-            <span className="text-gray-400">Last month</span>
+            <div className="flex items-center gap-3 p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/20">
+              <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl">
+                <HiLightningBolt className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                  System Status
+                </div>
+                <div className="text-xs text-green-600 dark:text-green-400 flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                  All systems operational
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Total Comments Card */}
-        <div className="flex flex-col p-4 bg-white dark:bg-slate-800 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex justify-between items-center mb-3">
-            <div>
-              <h3 className="text-gray-500 text-sm uppercase tracking-wider">
-                Total Comments
-              </h3>
-              <p className="text-3xl font-bold text-gray-800 dark:text-white">
-                {totalComments}
-              </p>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <div
+            key={index}
+              className="group relative transform transition-all duration-300 hover:scale-105"
+              style={{
+                filter: 'hover:drop-shadow(' + stat.glowColor + ')'
+              }}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+              <div className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-700/20 h-full">
+              <div className="flex items-start justify-between mb-4">
+                <div className={`p-3 rounded-2xl bg-gradient-to-r ${stat.gradient} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <stat.icon className="w-6 h-6 text-white" />
+                </div>
+                  <div className={`px-3 py-1 bg-gradient-to-r ${stat.gradient} bg-opacity-10 rounded-full`}>
+                    <span className={`text-xs font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
+                      +{stat.growth}
+                    </span>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                  {stat.title}
+                  </h3>
+                  <div className="text-3xl font-black text-gray-900 dark:text-white">
+                    {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="flex items-center text-emerald-600 dark:text-emerald-400">
+                      <HiArrowNarrowUp className="w-4 h-4 mr-1" />
+                      <span className="font-semibold">This month</span>
+              </div>
             </div>
-            <HiAnnotation className="bg-indigo-500 text-white rounded-full text-4xl p-2 shadow-md" />
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-green-500 flex items-center">
-              <HiArrowNarrowUp className="mr-1" />
-              {lastMonthComments}
-            </span>
-            <span className="text-gray-400">Last month</span>
+                </div>
+            ))}
           </div>
-        </div>
 
-        {/* Total Posts Card */}
-        <div className="flex flex-col p-4 bg-white dark:bg-slate-800 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex justify-between items-center mb-3">
-            <div>
-              <h3 className="text-gray-500 text-sm uppercase tracking-wider">
-                Total Posts
-              </h3>
-              <p className="text-3xl font-bold text-gray-800 dark:text-white">
-                {totalPosts}
-              </p>
+
+
+        {/* Recent Posts */}
+        <div className="lg:col-span-5 gap-8">
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 dark:border-gray-700/20 overflow-hidden">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-700/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl">
+                  <HiDocumentText className="w-5 h-5 text-white" />
+                </div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Recent Posts
+                  </h2>
+              </div>
+                <button className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                View All
+                </button>
             </div>
-            <HiDocumentText className="bg-lime-500 text-white rounded-full text-4xl p-2 shadow-md" />
           </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-green-500 flex items-center">
-              <HiArrowNarrowUp className="mr-1" />
-              {lastMonthPosts}
-            </span>
-            <span className="text-gray-400">Last month</span>
+          
+          <div className="p-6 space-y-4">
+              {posts.length > 0 ? posts.map((post, index) => (
+                <div
+                key={post._id}
+                  className="flex items-start gap-4 p-4 rounded-2xl bg-gray-50/50 dark:bg-gray-700/30 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-300 hover:transform hover:-translate-x-2"
+              >
+                <img
+                  src={post.image}
+                    alt={post.title}
+                    className="w-16 h-12 rounded-lg object-cover shadow-md"
+                />
+                <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 mb-1">
+                    {post.title}
+                    </h3>
+                    <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
+                      <span className="px-2 py-1 bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 text-emerald-700 dark:text-emerald-300 rounded-full font-medium">
+                      {post.category}
+                    </span>
+                      <div className="flex items-center gap-1">
+                        <HiEye className="w-3 h-3" />
+                        <span>{post.views || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )) : (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  No recent posts
+                </div>
+              )}
+            </div>
+                  </div>
+                </div>
+
+
+
+        {/* Quick Actions */}
+        <div className="mt-8">
+          <div className="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 rounded-3xl p-8 shadow-2xl">
+            <div className="text-center mb-6">
+              <h2 className="text-3xl font-bold text-white mb-2">
+                Quick Actions
+              </h2>
+              <p className="text-indigo-100">
+                Manage your content and community with ease
+              </p>
+          </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                {
+                  title: "Create Post",
+                  icon: HiDocumentText,
+                  description: "Write a new article"
+                },
+                {
+                  title: "Manage Users",
+                  icon: HiOutlineUserGroup,
+                  description: "View and manage users"
+                },
+                {
+                  title: "Categories",
+                  icon: HiSparkles,
+                  description: "Organize your content"
+                },
+                {
+                  title: "Analytics",
+                  icon: HiTrendingUp,
+                  description: "View detailed stats"
+                },
+              ].map((action, index) => (
+                <div
+                  key={index}
+                  className="bg-white/20 backdrop-blur-xl rounded-2xl p-6 text-center hover:bg-white/30 transition-all duration-300 cursor-pointer transform hover:scale-105 hover:-translate-y-1"
+                >
+                  <div className="inline-flex p-3 bg-white/20 rounded-xl mb-4">
+                    <action.icon className="w-6 h-6 text-white" />
+                </div>
+                  <h3 className="text-white font-semibold mb-2">
+                    {action.title}
+                </h3>
+                  <p className="text-indigo-100 text-sm">
+                    {action.description}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Tables Section - Responsive Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Recent Users Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <div className="flex justify-between items-center p-4 border-b">
-            <h2 className="text-lg font-semibold">Recent Users</h2>
-            <Button size="sm" outline gradientDuoTone="purpleToPink">
-              <Link to={"/dashboard?tab=users"}>See all</Link>
-            </Button>
-          </div>
-          <div className="overflow-x-auto">
-            <Table hoverable className="w-full">
-              <Table.Head>
-                <Table.HeadCell>User image</Table.HeadCell>
-                <Table.HeadCell>Username</Table.HeadCell>
-              </Table.Head>
-              {users &&
-                users.map((user) => (
-                  <Table.Body key={user._id} className="divide-y">
-                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                      <Table.Cell>
-                        <img
-                          src={user.profilePicture}
-                          alt="user"
-                          className="w-10 h-10 rounded-full bg-gray-500"
-                        />
-                      </Table.Cell>
-                      <Table.Cell>{user.username}</Table.Cell>
-                    </Table.Row>
-                  </Table.Body>
-                ))}
-            </Table>
-          </div>
-        </div>
-
-        {/* Recent Comments Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <div className="flex justify-between items-center p-4 border-b">
-            <h2 className="text-lg font-semibold">Recent Comments</h2>
-            <Button size="sm" outline gradientDuoTone="purpleToPink">
-              <Link to={"/dashboard?tab=comments"}>See all</Link>
-            </Button>
-          </div>
-          <div className="overflow-x-auto">
-            <Table hoverable className="w-full">
-              <Table.Head>
-                <Table.HeadCell>Comment content</Table.HeadCell>
-                <Table.HeadCell>Likes</Table.HeadCell>
-              </Table.Head>
-              {comments &&
-                comments.map((comment) => (
-                  <Table.Body key={comment._id} className="divide-y">
-                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                      <Table.Cell className="w-96">
-                        <p className="line-clamp-2">{comment.content}</p>
-                      </Table.Cell>
-                      <Table.Cell>{comment.numberOfLikes}</Table.Cell>
-                    </Table.Row>
-                  </Table.Body>
-                ))}
-            </Table>
-          </div>
-        </div>
-
-        {/* Recent Posts Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden md:col-span-2 lg:col-span-1">
-          <div className="flex justify-between items-center p-4 border-b">
-            <h2 className="text-lg font-semibold">Recent Posts</h2>
-            <Button size="sm" outline gradientDuoTone="purpleToPink">
-              <Link to={"/dashboard?tab=posts"}>See all</Link>
-            </Button>
-          </div>
-          <div className="overflow-x-auto">
-            <Table hoverable className="w-full">
-              <Table.Head>
-                <Table.HeadCell>Post image</Table.HeadCell>
-                <Table.HeadCell>Post Title</Table.HeadCell>
-                <Table.HeadCell>Category</Table.HeadCell>
-              </Table.Head>
-              {posts &&
-                posts.map((post) => (
-                  <Table.Body key={post._id} className="divide-y">
-                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                      <Table.Cell>
-                        <img
-                          src={post.image}
-                          alt="post"
-                          className="w-14 h-10 rounded-md bg-gray-500"
-                        />
-                      </Table.Cell>
-                      <Table.Cell className="w-96">{post.title}</Table.Cell>
-                      <Table.Cell className="w-5">{post.category}</Table.Cell>
-                    </Table.Row>
-                  </Table.Body>
-                ))}
-            </Table>
-          </div>
-        </div>
-      </div>
-    </div>
+              </div>
   );
 }

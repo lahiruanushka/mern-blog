@@ -44,7 +44,7 @@ Easily find and explore blog posts using our comprehensive search functionality.
 
 ### 👥 General Users
 - 📖 Browse and read engaging blog posts
-- 🔐 Secure sign-up and sign-in process
+- 🔐 Secure signup and signin process
 - 💬 Comment on posts after authentication
 
 ### 👑 Admin Capabilities
