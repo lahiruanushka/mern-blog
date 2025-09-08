@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signoutSuccess } from "../features/user/userSlice";
 import { toggleTheme } from "../features/theme/themeSlice";
@@ -25,31 +25,34 @@ import {
   HiSun,
   HiMoon,
   HiGlobe,
+  HiArrowSmLeft,
 } from "react-icons/hi";
 import { Bell, LogOut, ShieldIcon, UserCircle2 } from "lucide-react";
 import { Menu } from "lucide-react";
 import { Avatar, Dropdown } from "flowbite-react";
+import { FaBolt } from "react-icons/fa";
 
 const AdminHeader = ({ onMenuClick, sidebarOpen }) => {
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const handleSignout = async () => {
-      try {
-        const res = await fetch("/api/user/signout", {
-          method: "POST",
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          console.log(data.message);
-        } else {
-          dispatch(signoutSuccess());
-        }
-      } catch (error) {
-        console.log(error.message);
+  const handleSignout = async () => {
+    try {
+      const res = await fetch("/api/user/signout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signoutSuccess());
       }
-    };
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   return (
     <motion.header
@@ -80,24 +83,70 @@ const AdminHeader = ({ onMenuClick, sidebarOpen }) => {
               </motion.div>
             </motion.button>
 
-            <div className="flex items-center gap-4">
+            <motion.div
+              className="flex items-center space-x-4"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            >
               <Link
                 to="/dashboard"
-                className="group flex items-center gap-3"
+                className="group flex items-center space-x-3 transition-all duration-300 ease-in-out hover:scale-105 active:scale-95"
               >
-                <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg">
-                  <ShieldIcon className="w-6 h-6 text-white" />
+                <div className="relative">
+                  {/* Animated background glow */}
+                  <motion.div
+                    className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 rounded-2xl blur opacity-0 group-hover:opacity-30 transition-all duration-500"
+                    animate={{
+                      rotate: [0, 360],
+                    }}
+                    transition={{
+                      duration: 20,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  />
+                  <div className="relative w-12 h-12 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                    <motion.div
+                      animate={{
+                        rotate: [0, 360],
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                    >
+                      <FaBolt className="text-white text-xl drop-shadow-lg" />
+                    </motion.div>
+
+                    {/* Sparkle effects */}
+                    <motion.div
+                      className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-60"
+                      animate={{
+                        scale: [0, 1, 0],
+                        opacity: [0, 1, 0],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        delay: 0.5,
+                      }}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <div className="hidden sm:block">
+                  <motion.h1
+                    className="text-2xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
+                    whileHover={{ scale: 1.05 }}
+                  >
                     ByteThoughts
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                  </motion.h1>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium tracking-wider">
                     Admin Dashboard
-                  </div>
+                  </p>
                 </div>
               </Link>
-            </div>
+            </motion.div>
           </div>
 
           {/* Right Section */}
@@ -171,6 +220,16 @@ const AdminHeader = ({ onMenuClick, sidebarOpen }) => {
                     {currentUser.email}
                   </span>
                 </Dropdown.Header>
+
+                <Dropdown.Item
+                  onClick={() => navigate(`/user/${currentUser?._id || ""}`)}
+                  className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-200"
+                >
+                  <span className="flex items-center gap-2">
+                    <UserCircle2 className="w-4 h-4" />
+                    Profile
+                  </span>
+                </Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item
                   onClick={handleSignout}

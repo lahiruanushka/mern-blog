@@ -80,7 +80,7 @@ const Header = () => {
 
   const navItems = [
     { path: "/", label: "Home", icon: Home },
-    {path: "/posts", label: "Posts", icon: HiSparkles  },
+    { path: "/posts", label: "Posts", icon: HiSparkles },
     { path: "/favorites", label: "Favorites", icon: Star },
     { path: "/about", label: "About", icon: Info },
   ];
@@ -174,27 +174,38 @@ const Header = () => {
           </Link>
         </motion.div>
 
-        {/* Enhanced Search Bar */}
+        {/* Search Bar */}
         <div className="flex-1 max-w-lg mx-4 hidden md:block">
           <form onSubmit={handleSubmit} className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-300" />
-            <TextInput
-              type="text"
-              placeholder="Discover thoughts and ideas..."
-              rightIcon={() => (
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: 15 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="cursor-pointer"
-                >
-                  <FaSearch className="w-4 h-4 text-gray-400 hover:text-purple-500 transition-colors" />
-                </motion.div>
-              )}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={getSearchInputStyle(theme === "dark")}
-              className="w-full relative z-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-            />
+            <div className="p-[1px] rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500">
+              <TextInput
+                type="text"
+                placeholder="Discover thoughts and ideas..."
+                rightIcon={() => (
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: 15 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="cursor-pointer"
+                  >
+                    <FaSearch className="w-4 h-4 text-gray-400 hover:text-purple-500 transition-colors" />
+                  </motion.div>
+                )}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={getSearchInputStyle(theme === "dark")}
+                className="
+    w-full relative z-10 
+    bg-transparent
+    border-0
+    outline-none          
+    focus:ring-0          
+    rounded-2xl
+    text-gray-900 dark:text-gray-100
+    placeholder-gray-500 dark:placeholder-gray-400
+  "
+              />
+            </div>
           </form>
         </div>
 
@@ -274,33 +285,40 @@ const Header = () => {
                   {currentUser.email}
                 </span>
               </Dropdown.Header>
-              <Link to={`/user/${currentUser?._id || ""}`}>
-                <Dropdown.Item className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-200">
-                  <span className="flex items-center gap-2">
-                    <UserCircle2 className="w-4 h-4" />
-                    Profile
-                  </span>
-                </Dropdown.Item>
-              </Link>
-              <Link to={"/settings"}>
-                <Dropdown.Item className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-200">
-                  <span className="flex items-center gap-2">
-                    <Cog className="w-4 h-4" />
-                    Settings
-                  </span>
-                </Dropdown.Item>
-              </Link>
+
+              <Dropdown.Item
+                className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-200"
+                onClick={() => navigate(`/user/${currentUser?._id || ""}`)}
+              >
+                <span className="flex items-center gap-2">
+                  <UserCircle2 className="w-4 h-4" />
+                  Profile
+                </span>
+              </Dropdown.Item>
+
+              <Dropdown.Item
+                className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-200"
+                onClick={() => navigate("/settings")}
+              >
+                <span className="flex items-center gap-2">
+                  <Cog className="w-4 h-4" />
+                  Settings
+                </span>
+              </Dropdown.Item>
+
               <Dropdown.Divider />
               {currentUser.isAdmin && (
                 <>
-                  <Link to="/dashboard">
-                    <Dropdown.Item className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-900/20 dark:hover:to-purple-900/20 transition-all duration-200">
-                      <span className="flex items-center gap-2">
-                        <LayoutDashboard className="w-4 h-4" />
-                        Dashboard
-                      </span>
-                    </Dropdown.Item>
-                  </Link>
+                  <Dropdown.Item
+                    className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-900/20 dark:hover:to-purple-900/20 transition-all duration-200"
+                    onClick={() => navigate("/dashboard")}
+                  >
+                    <span className="flex items-center gap-2">
+                      <LayoutDashboard className="w-4 h-4" />
+                      Dashboard
+                    </span>
+                  </Dropdown.Item>
+
                   <Dropdown.Divider />
                 </>
               )}

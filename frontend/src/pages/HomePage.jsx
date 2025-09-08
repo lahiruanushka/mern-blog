@@ -14,11 +14,13 @@ import {
   HiLightningBolt,
 } from "react-icons/hi";
 import PostCard from "../components/PostCard";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const navigate = useNavigate();
 
   // Mock data for demonstration - replace with your actual API call
   useEffect(() => {
@@ -186,6 +188,7 @@ export default function Home() {
                   }}
                   whileTap={{ scale: 0.95 }}
                   className="group relative px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold rounded-2xl overflow-hidden shadow-2xl"
+                  onClick={() => navigate("/posts")}
                 >
                   <span className="relative z-10 flex items-center justify-center">
                     <HiSearch className="w-5 h-5 mr-2 group-hover:animate-pulse" />
@@ -198,6 +201,7 @@ export default function Home() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-4 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white font-semibold rounded-2xl border border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 shadow-xl backdrop-blur-sm"
+                  onClick={() => navigate("/about")}
                 >
                   Learn More
                 </motion.button>
