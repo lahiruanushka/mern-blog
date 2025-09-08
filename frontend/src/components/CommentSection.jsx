@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  MessageCircle, 
-  Send, 
-  User, 
+import {
+  MessageCircle,
+  Send,
+  User,
   AlertTriangle,
   Trash2,
   Edit,
@@ -15,7 +15,7 @@ import {
   Users,
   Sparkles,
   CheckCircle,
-  X
+  X,
 } from "lucide-react";
 import Comment from "./Comment";
 import LoginPrompt from "./LoginPrompt";
@@ -29,7 +29,7 @@ export default function CommentSection({ postId }) {
   const [commentToDelete, setCommentToDelete] = useState(null);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sortBy, setSortBy] = useState('newest');
+  const [sortBy, setSortBy] = useState("newest");
 
   const navigate = useNavigate();
 
@@ -38,7 +38,7 @@ export default function CommentSection({ postId }) {
     if (comment.length > 200 || !comment.trim()) {
       return;
     }
-    
+
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/comment/create", {
@@ -142,9 +142,9 @@ export default function CommentSection({ postId }) {
 
   const sortedComments = [...comments].sort((a, b) => {
     switch (sortBy) {
-      case 'oldest':
+      case "oldest":
         return new Date(a.createdAt) - new Date(b.createdAt);
-      case 'popular':
+      case "popular":
         return (b.numberOfLikes || 0) - (a.numberOfLikes || 0);
       default: // newest
         return new Date(b.createdAt) - new Date(a.createdAt);
@@ -157,9 +157,9 @@ export default function CommentSection({ postId }) {
       opacity: 1,
       transition: {
         delayChildren: 0.1,
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
@@ -170,13 +170,13 @@ export default function CommentSection({ postId }) {
       transition: {
         type: "spring",
         stiffness: 100,
-        damping: 12
-      }
-    }
+        damping: 12,
+      },
+    },
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
@@ -186,7 +186,7 @@ export default function CommentSection({ postId }) {
         {/* Background decorative elements */}
         <div className="absolute -top-12 -left-12 w-24 h-24 bg-gradient-to-br from-blue-400/10 to-purple-500/10 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-gradient-to-br from-purple-400/10 to-pink-500/10 rounded-full blur-3xl"></div>
-        
+
         {/* Header */}
         <div className="mb-12 text-center">
           <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl shadow-lg mb-6">
@@ -198,14 +198,15 @@ export default function CommentSection({ postId }) {
             Comments
           </h2>
           <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Share your thoughts and engage with other readers. Your voice matters!
+            Share your thoughts and engage with other readers. Your voice
+            matters!
           </p>
         </div>
 
         {/* User Status */}
         <div className="mb-8">
           {currentUser ? (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="flex items-center gap-4 p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border border-green-200 dark:border-green-800/30"
@@ -231,7 +232,7 @@ export default function CommentSection({ postId }) {
               </div>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="text-center p-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-200 dark:border-blue-800/30"
@@ -240,8 +241,8 @@ export default function CommentSection({ postId }) {
               <p className="text-slate-600 dark:text-slate-400 mb-4">
                 Join the conversation! Sign in to share your thoughts.
               </p>
-              <Link 
-                to="/sign-in"
+              <Link
+                to="/signin"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
               >
                 <User className="w-4 h-4" />
@@ -277,20 +278,32 @@ export default function CommentSection({ postId }) {
                         {200 - comment.length} characters left
                       </div>
                     </div>
-                    
+
                     <div className="flex justify-between items-center mt-6">
                       <div className="text-sm text-slate-500 dark:text-slate-400">
                         <div className="flex items-center gap-4">
-                          <span className={`flex items-center gap-1 ${comment.length > 200 ? 'text-red-500' : 'text-green-500'}`}>
+                          <span
+                            className={`flex items-center gap-1 ${
+                              comment.length > 200
+                                ? "text-red-500"
+                                : "text-green-500"
+                            }`}
+                          >
                             <CheckCircle className="w-4 h-4" />
-                            {comment.length <= 200 ? 'Valid length' : 'Too long'}
+                            {comment.length <= 200
+                              ? "Valid length"
+                              : "Too long"}
                           </span>
                         </div>
                       </div>
-                      
+
                       <motion.button
                         type="submit"
-                        disabled={!comment.trim() || comment.length > 200 || isSubmitting}
+                        disabled={
+                          !comment.trim() ||
+                          comment.length > 200 ||
+                          isSubmitting
+                        }
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
@@ -308,7 +321,7 @@ export default function CommentSection({ postId }) {
                         )}
                       </motion.button>
                     </div>
-                    
+
                     <AnimatePresence>
                       {commentError && (
                         <motion.div
@@ -342,7 +355,7 @@ export default function CommentSection({ postId }) {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                    {comments.length} Comment{comments.length !== 1 ? 's' : ''}
+                    {comments.length} Comment{comments.length !== 1 ? "s" : ""}
                   </h3>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
                     Join the conversation below
@@ -350,10 +363,12 @@ export default function CommentSection({ postId }) {
                 </div>
               </div>
             </div>
-            
+
             {comments.length > 0 && (
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Sort by:</span>
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Sort by:
+                </span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
@@ -384,11 +399,12 @@ export default function CommentSection({ postId }) {
                   No comments yet
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto mb-6">
-                  Be the first to share your thoughts about this article. Your comment could start an interesting discussion!
+                  Be the first to share your thoughts about this article. Your
+                  comment could start an interesting discussion!
                 </p>
                 {!currentUser && (
-                  <Link 
-                    to="/sign-in"
+                  <Link
+                    to="/signin"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
                   >
                     <User className="w-4 h-4" />
@@ -447,7 +463,8 @@ export default function CommentSection({ postId }) {
                   Delete Comment?
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
-                  This action cannot be undone. The comment will be permanently removed from the discussion.
+                  This action cannot be undone. The comment will be permanently
+                  removed from the discussion.
                 </p>
                 <div className="flex gap-4">
                   <motion.button

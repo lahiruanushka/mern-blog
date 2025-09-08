@@ -617,8 +617,8 @@ const AboutPage = () => {
                 
                 <Timeline className="relative z-10">
                   <Timeline.Item>
-                    <Timeline.Point className="bg-gradient-to-br from-blue-500 to-indigo-500">
-                      <FaRocket className="text-white" />
+                    <Timeline.Point className="bg-gradient-to-br from-blue-500 to-indigo-500 p-2 rounded-full">
+                      <FaRocket className="text-white w-6 h-6" />
                     </Timeline.Point>
                     <Timeline.Content>
                       <Timeline.Title className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -633,8 +633,8 @@ const AboutPage = () => {
                     </Timeline.Content>
                   </Timeline.Item>
                   <Timeline.Item>
-                    <Timeline.Point className="bg-gradient-to-br from-green-500 to-emerald-500">
-                      <FaUsers className="text-white" />
+                    <Timeline.Point className="bg-gradient-to-br from-green-500 to-emerald-500 p-2 rounded-full">
+                      <FaUsers className="text-white w-6 h-6" />
                     </Timeline.Point>
                     <Timeline.Content>
                       <Timeline.Title className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -649,8 +649,8 @@ const AboutPage = () => {
                     </Timeline.Content>
                   </Timeline.Item>
                   <Timeline.Item>
-                    <Timeline.Point className="bg-gradient-to-br from-purple-500 to-pink-500">
-                      <FaLightbulb className="text-white" />
+                    <Timeline.Point className="bg-gradient-to-br from-purple-500 to-pink-500 p-2 rounded-full">
+                      <FaLightbulb className="text-white w-6 h-6" />
                     </Timeline.Point>
                     <Timeline.Content>
                       <Timeline.Title className="text-2xl font-bold text-gray-900 dark:text-white mb-2">

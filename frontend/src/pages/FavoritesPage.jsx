@@ -119,7 +119,7 @@ const FavoritesPage = () => {
         >
           <div className="relative mb-8">
             <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center mx-auto shadow-2xl">
-              <FaHeart className="text-white text-3xl" />
+              <FaStar className="text-white text-3xl" />
             </div>
             <div className="absolute -inset-2 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-2xl blur-xl opacity-40"></div>
           </div>
@@ -136,7 +136,7 @@ const FavoritesPage = () => {
             <Button
               gradientDuoTone="purpleToBlue"
               size="lg"
-              className="font-semibold px-8 py-1"
+              className="font-semibold px-8 py-2 max-w-md mx-auto"
             >
               Sign In to Continue
             </Button>
