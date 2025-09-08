@@ -93,10 +93,10 @@ const Footer = () => {
   ];
 
   const supportLinks = [
-    { label: "Help Center", href: "#" },
-    { label: "Contact Us", href: "#" },
-    { label: "Community Guidelines", href: "#" },
-    { label: "Report Content", href: "#" },
+    { label: "Help Center", href: "/support" },
+    { label: "Contact Us", href: "/support" },
+    { label: "Community Guidelines", href: "/support" },
+    { label: "Report Content", href: "/support" },
   ];
 
   const stats = [

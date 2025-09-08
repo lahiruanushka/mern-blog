@@ -97,7 +97,7 @@ const ForgotPasswordPage = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 via-purple-500/20 to-pink-500/20 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-400/20 via-purple-500/20 to-indigo-500/20 rounded-full blur-3xl" />
-        
+
         {/* Floating particles */}
         {[...Array(12)].map((_, i) => (
           <motion.div
@@ -164,7 +164,11 @@ const ForgotPasswordPage = () => {
                 >
                   <motion.div
                     animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 8,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                   >
                     <FaBolt className="text-white text-3xl" />
                   </motion.div>
@@ -178,7 +182,7 @@ const ForgotPasswordPage = () => {
                 >
                   Forgot Password?
                 </motion.h1>
-                
+
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -206,21 +210,19 @@ const ForgotPasswordPage = () => {
                     <div className="relative">
                       <TextInput
                         type="email"
+                        id="email"
                         placeholder="Enter your email address"
+                        required
+                        autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="w-full pl-12"
-                        style={{
-                          borderRadius: '16px',
-                          border: '2px solid transparent',
-                          background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, #4F46E5, #7C3AED, #DB2777) border-box',
-                        }}
+                        className="w-full rounded-xl border-2 border-transparent
+            [background:linear-gradient(white,white)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+            dark:[background:linear-gradient(#1e293b,#1e293b)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+            text-gray-900 dark:text-gray-100
+            placeholder-gray-500 dark:placeholder-gray-400
+            focus:ring-2 focus:ring-purple-500 focus:outline-none"
                         disabled={loading}
-                      />
-                      <Mail
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
-                        size={20}
                       />
                     </div>
                   </div>
@@ -228,7 +230,7 @@ const ForgotPasswordPage = () => {
                   <motion.button
                     type="submit"
                     disabled={loading || !email.trim()}
-                    className={`w-full relative overflow-hidden font-bold py-4 rounded-2xl shadow-xl transition-all duration-300 group ${
+                    className={`w-full relative overflow-hidden font-bold py-3 rounded-2xl shadow-xl transition-all duration-300 group ${
                       !loading && email.trim()
                         ? "bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white hover:shadow-2xl"
                         : "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
@@ -310,9 +312,9 @@ const ForgotPasswordPage = () => {
                     to="/signin"
                     className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold transition-colors duration-200 group"
                   >
-                    <ArrowLeft 
-                      size={16} 
-                      className="group-hover:-translate-x-1 transition-transform" 
+                    <ArrowLeft
+                      size={16}
+                      className="group-hover:-translate-x-1 transition-transform"
                     />
                     Back to Sign In
                   </Link>
@@ -334,7 +336,8 @@ const ForgotPasswordPage = () => {
                         Secure Process
                       </h4>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        For your security, reset links expire after 1 hour and can only be used once.
+                        For your security, reset links expire after 1 hour and
+                        can only be used once.
                       </p>
                     </div>
                   </div>

@@ -17,8 +17,8 @@ import VerifyEmailPage from "./pages/VerifyEmailPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import DashboardComp from "./components/DashboardComp";
 import DashPosts from "./components/DashPosts";
-import CreatePost from "./components/CreatePost";
-import UpdatePost from "./components/UpdatePost";
+import CreatePost from "./pages/CreatePost";
+import UpdatePost from "./pages/UpdatePost";
 import DashUsers from "./components/DashUsers";
 import DashCategories from "./components/DashCategories";
 import useRecaptchaBadgeRemoval from "./hooks/useRecaptchaBadgeRemoval";
@@ -27,6 +27,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import SettingsPage from "./pages/SettingsPage";
 import DashSettings from "./components/DashSettings";
 import PostsPage from "./pages/PostsPage";
+import SupportPage from "./pages/SupportPage";
 
 const RecaptchaBadgeRemovalWrapper = () => {
   useRecaptchaBadgeRemoval();
@@ -46,6 +47,7 @@ const App = () => {
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/posts" element={<PostsPage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/support" element={<SupportPage />} />
           <Route path="/user/:userId" element={<UserProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/create-post" element={<CreatePost />} />

@@ -12,7 +12,16 @@ import {
 import OAuth from "../components/OAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBolt, FaEnvelope, FaLock, FaArrowRight } from "react-icons/fa";
-import { Sparkles, Zap, Shield, Users, TrendingUp, Star } from "lucide-react";
+import {
+  Sparkles,
+  Zap,
+  Shield,
+  Users,
+  TrendingUp,
+  Star,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 const SignInPage = () => {
   const [formData, setFormData] = useState({
@@ -160,7 +169,7 @@ const SignInPage = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 via-purple-500/20 to-pink-500/20 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-400/20 via-purple-500/20 to-indigo-500/20 rounded-full blur-3xl" />
-        
+
         {/* Floating Elements */}
         {[...Array(6)].map((_, i) => (
           <motion.div
@@ -235,7 +244,11 @@ const SignInPage = () => {
                         >
                           <motion.div
                             animate={{ rotate: [0, 360] }}
-                            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                            transition={{
+                              duration: 8,
+                              repeat: Infinity,
+                              ease: "linear",
+                            }}
                           >
                             <FaBolt className="text-white text-2xl" />
                           </motion.div>
@@ -262,9 +275,9 @@ const SignInPage = () => {
                       Welcome Back!
                     </h2>
                     <p className="text-purple-100 text-lg leading-relaxed">
-                      Continue your journey with ByteThoughts. Explore insights, 
-                      connect with creators, and dive into the digital conversation 
-                      that's shaping tomorrow.
+                      Continue your journey with ByteThoughts. Explore insights,
+                      connect with creators, and dive into the digital
+                      conversation that's shaping tomorrow.
                     </p>
                   </motion.div>
 
@@ -280,7 +293,10 @@ const SignInPage = () => {
                         key={index}
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ delay: 0.8 + index * 0.1, type: "spring" }}
+                        transition={{
+                          delay: 0.8 + index * 0.1,
+                          type: "spring",
+                        }}
                         className="text-center"
                       >
                         <div className="bg-white/20 backdrop-blur-md rounded-xl p-4 border border-white/30">
@@ -307,7 +323,9 @@ const SignInPage = () => {
                   transition={{ delay: 1 }}
                 >
                   <Shield className="w-4 h-4" />
-                  <span className="text-sm font-medium">Secure & Encrypted</span>
+                  <span className="text-sm font-medium">
+                    Secure & Encrypted
+                  </span>
                 </motion.div>
               </div>
 
@@ -348,20 +366,22 @@ const SignInPage = () => {
                         <FaEnvelope className="w-4 h-4 text-purple-600" />
                         Email Address
                       </Label>
-                      <TextInput
-                        type="email"
-                        id="email"
-                        placeholder="Enter your email"
-                        required
-                        onChange={handleChange}
-                        className="w-full"
-                        autoComplete="email"
-                        style={{
-                          borderRadius: '12px',
-                          border: '2px solid transparent',
-                          background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, #4F46E5, #7C3AED, #DB2777) border-box',
-                        }}
-                      />
+                      <div className="relative w-full">
+                        <TextInput
+                          type="email"
+                          id="email"
+                          placeholder="Enter email address"
+                          required
+                          autoComplete="email"
+                          onChange={handleChange}
+                          className="w-full rounded-xl border-2 border-transparent
+            [background:linear-gradient(white,white)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+            dark:[background:linear-gradient(#1e293b,#1e293b)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+            text-gray-900 dark:text-gray-100
+            placeholder-gray-500 dark:placeholder-gray-400
+            focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                        />
+                      </div>
                     </motion.div>
 
                     <motion.div
@@ -376,32 +396,34 @@ const SignInPage = () => {
                         <FaLock className="w-4 h-4 text-purple-600" />
                         Password
                       </Label>
-                      <div className="relative">
+                      <div className="relative w-full">
                         <TextInput
                           type={showPassword ? "text" : "password"}
                           id="password"
-                          placeholder="Enter your password"
-                          required
+                          placeholder="Enter your new password"
+                          value={formData.password}
                           onChange={handleChange}
-                          className="w-full pr-12"
-                          autoComplete="current-password"
-                          style={{
-                            borderRadius: '12px',
-                            border: '2px solid transparent',
-                            background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, #4F46E5, #7C3AED, #DB2777) border-box',
-                          }}
+                          required
+                          className="w-full rounded-xl border-2 border-transparent
+      [background:linear-gradient(white,white)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+      dark:[background:linear-gradient(#1e293b,#1e293b)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+      text-gray-900 dark:text-gray-100
+      placeholder-gray-500 dark:placeholder-gray-400
+      pr-12
+      focus:ring-2 focus:ring-purple-500 focus:outline-none"
                         />
+
                         <motion.button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-purple-600 transition-colors"
+                          className="absolute inset-y-0 right-3 flex items-center justify-center text-gray-400 dark:text-gray-300 hover:text-purple-600 transition-colors"
                           whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
+                          whileTap={{ scale: 0.95 }}
                         >
                           {showPassword ? (
-                            <HiEyeOff className="w-5 h-5" />
+                            <EyeOff size={20} />
                           ) : (
-                            <HiEye className="w-5 h-5" />
+                            <Eye size={20} />
                           )}
                         </motion.button>
                       </div>
@@ -415,7 +437,7 @@ const SignInPage = () => {
                       <motion.button
                         type="submit"
                         disabled={loading}
-                        className="w-full relative overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white font-bold py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 group"
+                        className="w-full relative overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white font-bold py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 group"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
@@ -469,8 +491,8 @@ const SignInPage = () => {
                       </Link>
                       <p className="text-gray-600 dark:text-gray-400">
                         Don't have an account?{" "}
-                        <Link 
-                          to="/signup" 
+                        <Link
+                          to="/signup"
                           className="text-purple-600 hover:text-purple-700 font-bold hover:underline transition-all"
                         >
                           Sign up here
