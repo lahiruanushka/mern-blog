@@ -234,7 +234,7 @@ const FavoritesPage = () => {
             className="relative mb-8"
           >
             <div className="w-28 h-28 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl">
-              <FaBookmark className="text-gray-400 dark:text-gray-500 text-4xl" />
+              <FaStar className="text-gray-400 dark:text-gray-500 text-4xl" />
             </div>
             <div className="absolute -inset-3 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-3xl blur-xl opacity-30"></div>
           </motion.div>
@@ -251,25 +251,24 @@ const FavoritesPage = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/">
-              <Button
-                gradientDuoTone="purpleToBlue"
-                size="lg"
-                className="font-semibold px-8"
+            <Link to="/" className="w-full sm:w-auto">
+              <motion.button
+                whileHover={{ scale: 1.03, boxShadow: '0 10px 25px -5px rgba(139, 92, 246, 0.3)' }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full px-8 py-3.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
               >
-                Discover Articles
-                <FaSearch className="ml-2" />
-              </Button>
+                <FaSearch className="w-4 h-4" />
+                <span>Discover Articles</span>
+              </motion.button>
             </Link>
-            <Link to="/search">
-              <Button
-                outline
-                gradientDuoTone="purpleToBlue"
-                size="lg"
-                className="font-semibold px-8"
+            <Link to="/search" className="w-full sm:w-auto">
+              <motion.button
+                whileHover={{ scale: 1.03, boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.2)' }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full px-8 py-3.5 bg-white dark:bg-gray-800 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 font-semibold rounded-xl transition-all duration-300"
               >
                 Search Topics
-              </Button>
+              </motion.button>
             </Link>
           </div>
         </motion.div>
@@ -290,7 +289,7 @@ const FavoritesPage = () => {
         <motion.div variants={itemVariants} className="text-center mb-12">
           <div className="relative inline-block mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl">
-              <FaHeart className="text-white text-2xl" />
+              <FaStar className="text-white text-2xl" />
             </div>
             <div className="absolute -inset-1 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-2xl blur opacity-40"></div>
           </div>

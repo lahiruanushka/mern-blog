@@ -12,6 +12,8 @@ import {
   FaStar,
   FaArrowRight,
   FaQuoteLeft,
+  FaSearch,
+  FaListUl,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Sparkles, Zap, Target, Eye, TrendingUp, Award, Crown, Shield } from "lucide-react";
@@ -712,45 +714,39 @@ const AboutPage = () => {
                   byte-sized learning. Start your journey with ByteThoughts today and 
                   become part of something extraordinary.
                 </p>
-                
-                <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex flex-wrap justify-center gap-4 mb-12"
+                >
+                  <motion.button
+                    whileHover={{ scale: 1.03, boxShadow: '0 10px 25px -5px rgba(124, 58, 237, 0.3)' }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate('/search')}
+                    className="px-8 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
                   >
-                    <Button
-                      size="xl"
-                      className="bg-white text-purple-600 hover:bg-gray-100 font-bold px-10 py-4 text-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300"
-                      onClick={() => navigate("/search")}
-                    >
-                      <FaRocket className="mr-3" />
-                      Start Exploring
-                      <FaArrowRight className="ml-3" />
-                    </Button>
-                  </motion.div>
+                    <FaSearch className="w-4 h-4" />
+                    <span>Explore Posts</span>
+                  </motion.button>
                   
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <motion.button
+                    whileHover={{ scale: 1.03, boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.2)' }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate('/posts')}
+                    className="px-8 py-3.5 bg-white/5 hover:bg-white/10 border-2 border-white/20 hover:border-white/30 text-white font-semibold rounded-xl transition-all duration-300 flex items-center gap-2"
                   >
-                    <Button
-                      size="xl"
-                      outline
-                      className="border-2 border-white text-white hover:bg-white hover:text-purple-600 font-bold px-10 py-4 text-xl rounded-2xl transition-all duration-300"
-                      onClick={() => navigate("/favorites")}
-                    >
-                      <FaHeart className="mr-3" />
-                      View Favorites
-                    </Button>
-                  </motion.div>
-                </div>
+                    <FaListUl className="w-4 h-4" />
+                    <span>View All Posts</span>
+                  </motion.button>
+                </motion.div>
                 
-                {/* Social proof */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="mt-12 flex items-center justify-center space-x-8 text-white/80"
+                  className="mt-12 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-white/80"
                 >
                   <div className="flex items-center">
                     <Shield className="w-5 h-5 mr-2" />

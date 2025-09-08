@@ -201,6 +201,7 @@ export default function PostCard({ post, index = 0 }) {
           </div>
           
           {/* Quality indicator */}
+          {post.isFeatured && (
           <motion.div 
             className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-full"
             whileHover={{ scale: 1.05 }}
@@ -208,6 +209,7 @@ export default function PostCard({ post, index = 0 }) {
             <Sparkles className="w-3 h-3 text-yellow-500" />
             <span className="font-medium text-yellow-600 dark:text-yellow-400">Featured</span>
           </motion.div>
+          )}
         </div>
       </div>
 

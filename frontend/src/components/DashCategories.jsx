@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Table, TextInput, Label } from "flowbite-react";
 import { useSelector } from "react-redux";
 import {
   HiOutlineExclamationCircle,
   HiPlus,
   HiPencil,
   HiTrash,
+  HiTag,
+  HiDocumentText,
+  HiCalendar,
+  HiCollection,
+  HiX,
+  HiCheck
 } from "react-icons/hi";
-import Loading from "./Loading";
-import { useToast } from "../context/ToastContext";
 
 const DashCategories = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -17,7 +20,6 @@ const DashCategories = () => {
   const [showAddEditModal, setShowAddEditModal] = useState(false);
   const [categoryIdToDelete, setCategoryIdToDelete] = useState("");
   const [loading, setLoading] = useState(true);
-  const { showToast } = useToast();
 
   const [currentCategory, setCurrentCategory] = useState({
     name: "",
@@ -25,7 +27,6 @@ const DashCategories = () => {
     _id: null,
   });
 
-  // Fetch categories effect remains the same...
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -47,7 +48,6 @@ const DashCategories = () => {
     }
   }, [currentUser]);
 
-  // Handlers remain the same...
   const handleDeleteCategory = async () => {
     setShowDeleteModal(false);
     try {
@@ -56,15 +56,14 @@ const DashCategories = () => {
       });
       const data = await res.json();
       if (!res.ok) {
-        showToast("Failed to remove category. Please try again.", "error");
+        console.error("Failed to remove category");
       } else {
         setCategories((prev) =>
           prev.filter((category) => category._id !== categoryIdToDelete)
         );
-        showToast("Category deleted successfully", "success");
       }
     } catch (error) {
-      showToast("Failed to remove category. Please try again.", "error");
+      console.error("Failed to remove category");
     }
   };
 
@@ -94,16 +93,14 @@ const DashCategories = () => {
           setCategories((prev) =>
             prev.map((cat) => (cat._id === currentCategory._id ? data : cat))
           );
-          showToast("Category updated successfully", "success");
         } else {
           setCategories((prev) => [...prev, data]);
-          showToast("Category added successfully", "success");
         }
         setCurrentCategory({ name: "", description: "", _id: null });
         setShowAddEditModal(false);
       }
     } catch (error) {
-      showToast("Failed to update category. Please try again.", "error");
+      console.error("Failed to update category");
     }
   };
 
@@ -121,197 +118,295 @@ const DashCategories = () => {
     setShowAddEditModal(true);
   };
 
-  return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {currentUser?.isAdmin && (
-        <div className="py-4">
-          <Button onClick={openAddModal} className="flex items-center gap-2">
-            <HiPlus className="w-5 h-5" />
-            <span className="hidden sm:inline">Add New Category</span>
-            <span className="sm:hidden">Add</span>
-          </Button>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 p-4 lg:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gradient-to-r from-indigo-500 to-purple-600"></div>
+          </div>
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {loading ? (
-        <Loading />
-      ) : currentUser?.isAdmin && categories.length > 0 ? (
-        <div className="mt-4 flex flex-col">
-          <div className="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle">
-              <div className="shadow-sm ring-1 ring-black ring-opacity-5">
-                <div className="hidden sm:block">
-                  <Table hoverable>
-                    <Table.Head>
-                      <Table.HeadCell>Date Created</Table.HeadCell>
-                      <Table.HeadCell>Category Name</Table.HeadCell>
-                      <Table.HeadCell>Description</Table.HeadCell>
-                      <Table.HeadCell>Actions</Table.HeadCell>
-                    </Table.Head>
-                    <Table.Body className="divide-y">
-                      {categories.map((category) => (
-                        <Table.Row
-                          key={category._id}
-                          className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                        >
-                          <Table.Cell>
-                            {new Date(category.createdAt).toLocaleDateString()}
-                          </Table.Cell>
-                          <Table.Cell>
-                            <span className="font-medium">{category.name}</span>
-                          </Table.Cell>
-                          <Table.Cell>
-                            {category.description || "No description"}
-                          </Table.Cell>
-                          <Table.Cell>
-                            <div className="flex space-x-3">
-                              <Button
-                                size="sm"
-                                color="gray"
-                                onClick={() => openEditModal(category)}
-                              >
-                                <HiPencil className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                color="failure"
-                                onClick={() => {
-                                  setShowDeleteModal(true);
-                                  setCategoryIdToDelete(category._id);
-                                }}
-                              >
-                                <HiTrash className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </Table.Cell>
-                        </Table.Row>
-                      ))}
-                    </Table.Body>
-                  </Table>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 p-4 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-4xl lg:text-5xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                Category Management
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                Organize your content with custom categories
+              </p>
+            </div>
+            
+            {currentUser?.isAdmin && (
+              <button 
+                onClick={openAddModal}
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <HiPlus className="w-5 h-5" />
+                Add Category
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-700/20">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl">
+                <HiCollection className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="text-2xl font-black text-gray-900 dark:text-white">
+                  {categories.length}
                 </div>
-
-                {/* Mobile view */}
-                <div className="sm:hidden">
-                  <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {categories.map((category) => (
-                      <li key={category._id} className="p-4 space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">{category.name}</span>
-                          <div className="flex space-x-2">
-                            <Button
-                              size="xs"
-                              color="gray"
-                              onClick={() => openEditModal(category)}
-                            >
-                              <HiPencil className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="xs"
-                              color="failure"
-                              onClick={() => {
-                                setShowDeleteModal(true);
-                                setCategoryIdToDelete(category._id);
-                              }}
-                            >
-                              <HiTrash className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {category.description || "No description"}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {new Date(category.createdAt).toLocaleDateString()}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Total Categories
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-700/20">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl">
+                <HiDocumentText className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="text-2xl font-black text-gray-900 dark:text-white">
+                  {categories.reduce((acc, cat) => acc + (cat.postCount || 0), 0)}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Posts Categorized
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-700/20">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl">
+                <HiTag className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="text-2xl font-black text-gray-900 dark:text-white">
+                  {categories.filter(cat => cat.description).length}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  With Descriptions
                 </div>
               </div>
             </div>
           </div>
         </div>
-      ) : (
-        <p className="text-center py-4">No categories found!</p>
-      )}
 
-      {/* Modals remain largely the same but with improved responsive styling */}
-      <Modal
-        show={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        popup
-        size="md"
-      >
-        <Modal.Header />
-        <Modal.Body>
-          <div className="text-center">
-            <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
-            <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
-              Are you sure you want to delete this category?
+        {/* Categories Grid */}
+        {currentUser?.isAdmin && categories.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {categories.map((category, index) => (
+              <div
+                key={category._id}
+                className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-700/20 hover:shadow-2xl transition-all duration-300 group"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                      <HiTag className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                        {category.name}
+                      </h3>
+                      <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                        <HiCalendar className="w-3 h-3" />
+                        <span>{new Date(category.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => openEditModal(category)}
+                      className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded-xl transition-all duration-300 hover:scale-110"
+                      title="Edit Category"
+                    >
+                      <HiPencil className="w-4 h-4" />
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setShowDeleteModal(true);
+                        setCategoryIdToDelete(category._id);
+                      }}
+                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-xl transition-all duration-300 hover:scale-110"
+                      title="Delete Category"
+                    >
+                      <HiTrash className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">
+                    {category.description || "No description provided"}
+                  </p>
+                </div>
+                
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+                  <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                    <HiDocumentText className="w-4 h-4" />
+                    <span>{category.postCount || 0} posts</span>
+                  </div>
+                  
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    category.postCount > 0
+                      ? 'bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 text-green-700 dark:text-green-300'
+                      : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 text-gray-600 dark:text-gray-400'
+                  }`}>
+                    {category.postCount > 0 ? 'Active' : 'Unused'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl p-12 shadow-xl border border-white/20 dark:border-gray-700/20 text-center">
+            <div className="p-4 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-2xl inline-block mb-4">
+              <HiCollection className="w-12 h-12 text-gray-500 dark:text-gray-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              No categories found
             </h3>
-            <div className="flex justify-center gap-4">
-              <Button color="failure" onClick={handleDeleteCategory}>
-                Yes, delete
-              </Button>
-              <Button color="gray" onClick={() => setShowDeleteModal(false)}>
-                Cancel
-              </Button>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Create your first category to organize your content
+            </p>
+            {currentUser?.isAdmin && (
+              <button 
+                onClick={openAddModal}
+                className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <HiPlus className="w-5 h-5 inline mr-2" />
+                Create First Category
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-2xl border border-white/20 dark:border-gray-700/20">
+              <div className="text-center">
+                <div className="p-4 bg-gradient-to-r from-red-100 to-orange-100 dark:from-red-900/30 dark:to-orange-900/30 rounded-2xl inline-block mb-6">
+                  <HiOutlineExclamationCircle className="w-12 h-12 text-red-600 dark:text-red-400" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                  Delete Category
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-8">
+                  Are you sure you want to delete this category? Posts using this category will become uncategorized.
+                </p>
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleDeleteCategory}
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  >
+                    Yes, Delete
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteModal(false)}
+                    className="flex-1 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </Modal.Body>
-      </Modal>
+        )}
 
-      <Modal
-        show={showAddEditModal}
-        onClose={() => setShowAddEditModal(false)}
-        popup
-        size="md"
-      >
-        <Modal.Header>
-          {currentCategory._id ? "Edit Category" : "Add New Category"}
-        </Modal.Header>
-        <Modal.Body>
-          <form onSubmit={handleAddEditCategory} className="space-y-4">
-            <div>
-              <Label htmlFor="name">Category Name</Label>
-              <TextInput
-                id="name"
-                value={currentCategory.name}
-                onChange={(e) =>
-                  setCurrentCategory((prev) => ({
-                    ...prev,
-                    name: e.target.value,
-                  }))
-                }
-                required
-                placeholder="Enter category name"
-              />
+        {/* Add/Edit Category Modal */}
+        {showAddEditModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-2xl border border-white/20 dark:border-gray-700/20">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {currentCategory._id ? "Edit Category" : "Add New Category"}
+                </h3>
+                <button
+                  onClick={() => setShowAddEditModal(false)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors duration-300"
+                >
+                  <HiX className="w-6 h-6 text-gray-500" />
+                </button>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Category Name
+                  </label>
+                  <input
+                    type="text"
+                    value={currentCategory.name}
+                    onChange={(e) =>
+                      setCurrentCategory((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
+                    required
+                    placeholder="Enter category name"
+                    className="w-full px-4 py-3 bg-gray-50/50 dark:bg-gray-700/50 border border-gray-200/50 dark:border-gray-600/50 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Description (Optional)
+                  </label>
+                  <textarea
+                    value={currentCategory.description}
+                    onChange={(e) =>
+                      setCurrentCategory((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter category description"
+                    rows="3"
+                    className="w-full px-4 py-3 bg-gray-50/50 dark:bg-gray-700/50 border border-gray-200/50 dark:border-gray-600/50 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 resize-none"
+                  />
+                </div>
+                
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleAddEditCategory}
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  >
+                    <HiCheck className="w-5 h-5" />
+                    {currentCategory._id ? "Update" : "Create"}
+                  </button>
+                  <button
+                    onClick={() => setShowAddEditModal(false)}
+                    className="flex-1 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="description">Description (Optional)</Label>
-              <TextInput
-                id="description"
-                value={currentCategory.description}
-                onChange={(e) =>
-                  setCurrentCategory((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-                placeholder="Enter category description"
-              />
-            </div>
-            <div className="flex justify-end gap-4">
-              <Button type="submit" color="success">
-                {currentCategory._id ? "Update" : "Add"}
-              </Button>
-              <Button color="gray" onClick={() => setShowAddEditModal(false)}>
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </Modal.Body>
-      </Modal>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

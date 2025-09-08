@@ -171,28 +171,7 @@ const AdminHeader = ({ onMenuClick, sidebarOpen }) => {
                     {currentUser.email}
                   </span>
                 </Dropdown.Header>
-                <Link to={`/user/${currentUser?._id || ""}`}>
-                  <Dropdown.Item className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-200">
-                    <span className="flex items-center gap-2">
-                      <UserCircle2 className="w-4 h-4" />
-                      Profile
-                    </span>
-                  </Dropdown.Item>
-                </Link>
                 <Dropdown.Divider />
-                {currentUser.isAdmin && (
-                  <>
-                    <Link to="/">
-                      <Dropdown.Item className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-900/20 dark:hover:to-purple-900/20 transition-all duration-200">
-                        <span className="flex items-center gap-2">
-                          <HiGlobe className="w-4 h-4" />
-                          Back to Blog
-                        </span>
-                      </Dropdown.Item>
-                    </Link>
-                    <Dropdown.Divider />
-                  </>
-                )}
                 <Dropdown.Item
                   onClick={handleSignout}
                   className="text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20 transition-all duration-200"

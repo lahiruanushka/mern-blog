@@ -19,6 +19,7 @@ import {
   HiCog,
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
+  HiGlobe,
 } from "react-icons/hi";
 
 const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
@@ -278,6 +279,22 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
               </>
             )}
           </nav>
+
+          {/* Back to Blog Button */}
+          <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
+            <Link
+              to="/"
+              className={`flex items-center gap-3 w-full px-4 py-3 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-2xl transition-all duration-300 group transform hover:scale-105 ${
+                isCollapsed ? 'justify-center' : ''
+              }`}
+              title={isCollapsed ? 'Back to Blog' : ''}
+            >
+              <div className="p-2 bg-indigo-100 dark:bg-indigo-950/50 rounded-xl group-hover:bg-indigo-200 dark:group-hover:bg-indigo-900/50 transition-colors duration-300">
+                <HiGlobe className="w-5 h-5" />
+              </div>
+              {!isCollapsed && <span className="font-semibold">Back to Blog</span>}
+            </Link>
+          </div>
 
           {/* Footer */}
           <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50">

@@ -21,6 +21,7 @@ import { signoutSuccess } from "../features/user/userSlice";
 import defaultAvatar from "/src/assets/default-avatar.png";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { HiSparkles } from "react-icons/hi";
 
 const Header = () => {
   const { pathname } = useLocation();
@@ -79,8 +80,9 @@ const Header = () => {
 
   const navItems = [
     { path: "/", label: "Home", icon: Home },
-    { path: "/about", label: "About", icon: Info },
+    {path: "/posts", label: "Posts", icon: HiSparkles  },
     { path: "/favorites", label: "Favorites", icon: Star },
+    { path: "/about", label: "About", icon: Info },
   ];
 
   // Add a dynamic style based on theme
