@@ -330,17 +330,18 @@ const Header = () => {
             </Dropdown>
           ) : (
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Link to="/signin">
-                <Button className="group relative overflow-hidden px-6 py-2 font-bold text-white transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <span className="relative flex items-center gap-2 text-sm">
-                    <Zap className="w-4 h-4" />
-                    Sign In
-                    <ArrowRight className="w-3.5 h-3.5 transform transition-transform group-hover:translate-x-1" />
-                  </span>
-                </Button>
-              </Link>
+              <Button
+                className="group relative overflow-hidden px-3 sm:px-6 py-0.5 sm:py-1 font-bold text-white border-none shadow-none focus:ring-0 transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-xl"
+                onClick={() => navigate("/signin")}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500" />
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <span className="relative flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                  <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="inline">Sign In</span>
+                  <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 transform transition-transform group-hover:translate-x-0.5 sm:group-hover:translate-x-1" />
+                </span>
+              </Button>
             </motion.div>
           )}
 

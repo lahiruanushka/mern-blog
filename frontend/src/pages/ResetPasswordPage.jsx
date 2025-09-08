@@ -1,7 +1,16 @@
 import { TextInput, Button, Alert, Progress } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Lock, Eye, EyeOff, Check, Loader, KeyRound, Shield, Zap } from "lucide-react";
+import {
+  Lock,
+  Eye,
+  EyeOff,
+  Check,
+  Loader,
+  KeyRound,
+  Shield,
+  Zap,
+} from "lucide-react";
 import zxcvbn from "zxcvbn";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBolt, FaLock, FaCheckCircle } from "react-icons/fa";
@@ -40,7 +49,7 @@ const ResetPasswordPage = () => {
       if (window.grecaptcha && window.grecaptcha.execute) {
         window.grecaptcha
           .execute(import.meta.env.VITE_RECAPTCHA_SITE_KEY, {
-            action: 'reset_password',
+            action: "reset_password",
           })
           .then((token) => resolve(token))
           .catch(reject);
@@ -108,13 +117,13 @@ const ResetPasswordPage = () => {
       const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          token, 
+        body: JSON.stringify({
+          token,
           newPassword: formData.password,
-          recaptchaToken 
+          recaptchaToken,
         }),
       });
-      
+
       const data = await res.json();
       if (res.ok) {
         setSuccess("Password reset successful. Redirecting to login...");
@@ -144,7 +153,7 @@ const ResetPasswordPage = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 via-purple-500/20 to-pink-500/20 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-400/20 via-purple-500/20 to-indigo-500/20 rounded-full blur-3xl" />
-        
+
         {/* Floating particles */}
         {[...Array(10)].map((_, i) => (
           <motion.div
@@ -210,13 +219,13 @@ const ResetPasswordPage = () => {
                   className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 mb-6"
                 >
                   <motion.div
-                    animate={{ 
+                    animate={{
                       rotate: [0, 360],
-                      scale: [1, 1.1, 1]
+                      scale: [1, 1.1, 1],
                     }}
-                    transition={{ 
+                    transition={{
                       rotate: { duration: 8, repeat: Infinity, ease: "linear" },
-                      scale: { duration: 2, repeat: Infinity }
+                      scale: { duration: 2, repeat: Infinity },
                     }}
                   >
                     <KeyRound className="text-white text-3xl" />
@@ -231,7 +240,7 @@ const ResetPasswordPage = () => {
                 >
                   Reset Password
                 </motion.h1>
-                
+
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -257,7 +266,7 @@ const ResetPasswordPage = () => {
                       <FaLock className="w-4 h-4 text-purple-600" />
                       New Password
                     </label>
-                    <div className="relative">
+                    <div className="relative w-full">
                       <TextInput
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter your new password"
@@ -266,29 +275,31 @@ const ResetPasswordPage = () => {
                           setFormData({ ...formData, password: e.target.value })
                         }
                         required
-                        className="w-full pl-12 pr-12"
-                        style={{
-                          borderRadius: '16px',
-                          border: '2px solid transparent',
-                          background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, #4F46E5, #7C3AED, #DB2777) border-box',
-                        }}
+                        className="w-full rounded-xl border-2 border-transparent
+      [background:linear-gradient(white,white)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+      dark:[background:linear-gradient(#1e293b,#1e293b)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+      text-gray-900 dark:text-gray-100
+      placeholder-gray-500 dark:placeholder-gray-400
+      pr-12
+      focus:ring-2 focus:ring-purple-500 focus:outline-none"
                       />
-                      <Lock
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
-                        size={20}
-                      />
+
                       <motion.button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                        className="absolute inset-y-0 right-3 flex items-center justify-center text-gray-400 dark:text-gray-300 hover:text-purple-600 transition-colors"
                         whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
+                        whileTap={{ scale: 0.95 }}
                       >
-                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        {showPassword ? (
+                          <EyeOff size={20} />
+                        ) : (
+                          <Eye size={20} />
+                        )}
                       </motion.button>
                     </div>
 
-                    {/* Enhanced Password Strength Indicator */}
+                    {/* Password Strength Indicator */}
                     <AnimatePresence>
                       {formData.password && (
                         <motion.div
@@ -345,21 +356,13 @@ const ResetPasswordPage = () => {
                           })
                         }
                         required
-                        className="w-full pl-12"
-                        style={{
-                          borderRadius: '16px',
-                          border: '2px solid transparent',
-                          background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, #4F46E5, #7C3AED, #DB2777) border-box',
-                        }}
+                        className="w-full pr-12 rounded-xl border-2 border-transparent
+                 dark:bg-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-purple-500"
                       />
-                      <Lock
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
-                        size={20}
-                      />
-                      
+
                       {/* Password Match Indicator */}
                       {formData.confirmPassword && (
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
                           {formData.password === formData.confirmPassword ? (
                             <motion.div
                               initial={{ scale: 0 }}
@@ -369,9 +372,9 @@ const ResetPasswordPage = () => {
                               <Check size={20} />
                             </motion.div>
                           ) : (
-                            <div className="w-5 h-5 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center">
-                              <div className="w-2 h-0.5 bg-red-500 transform rotate-45" />
-                              <div className="w-2 h-0.5 bg-red-500 transform -rotate-45 absolute" />
+                            <div className="w-5 h-5 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center relative">
+                              <div className="w-2 h-0.5 bg-red-500 rotate-45 absolute" />
+                              <div className="w-2 h-0.5 bg-red-500 -rotate-45 absolute" />
                             </div>
                           )}
                         </div>
@@ -382,12 +385,14 @@ const ResetPasswordPage = () => {
                   <motion.button
                     type="submit"
                     disabled={loading || !isFormValid()}
-                    className={`w-full relative overflow-hidden font-bold py-4 rounded-2xl shadow-xl transition-all duration-300 group ${
+                    className={`w-full relative overflow-hidden font-bold py-3 rounded-2xl shadow-xl transition-all duration-300 group ${
                       !loading && isFormValid()
                         ? "bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white hover:shadow-2xl"
                         : "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
                     }`}
-                    whileHover={!loading && isFormValid() ? { scale: 1.02 } : {}}
+                    whileHover={
+                      !loading && isFormValid() ? { scale: 1.02 } : {}
+                    }
                     whileTap={!loading && isFormValid() ? { scale: 0.98 } : {}}
                   >
                     {!loading && isFormValid() && (
@@ -469,8 +474,12 @@ const ResetPasswordPage = () => {
                         Security Tips
                       </h4>
                       <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                        <li>• Use a unique password you haven't used elsewhere</li>
-                        <li>• Include uppercase, lowercase, numbers, and symbols</li>
+                        <li>
+                          • Use a unique password you haven't used elsewhere
+                        </li>
+                        <li>
+                          • Include uppercase, lowercase, numbers, and symbols
+                        </li>
                         <li>• Make it at least 12 characters long</li>
                       </ul>
                     </div>

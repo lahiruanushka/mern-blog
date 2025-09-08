@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import {
   Upload,
   Image as ImageIcon,
@@ -17,7 +17,7 @@ import {
   AlertCircle,
   FileText,
   Camera,
-  Send
+  Send,
 } from "lucide-react";
 
 const CreatePost = () => {
@@ -25,21 +25,25 @@ const CreatePost = () => {
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({
-    title: '',
-    category: '',
-    content: '',
-    image: ''
+    title: "",
+    category: "",
+    content: "",
+    image: "",
   });
   const [publishError, setPublishError] = useState(null);
   const [categories, setCategories] = useState([
-    { _id: '1', slug: 'technology', name: 'Technology' },
-    { _id: '2', slug: 'programming', name: 'Programming' },
-    { _id: '3', slug: 'web-development', name: 'Web Development' },
-    { _id: '4', slug: 'mobile-apps', name: 'Mobile Apps' },
-    { _id: '5', slug: 'data-science', name: 'Data Science' },
-    { _id: '6', slug: 'artificial-intelligence', name: 'Artificial Intelligence' },
-    { _id: '7', slug: 'cloud-computing', name: 'Cloud Computing' },
-    { _id: '8', slug: 'cybersecurity', name: 'Cybersecurity' },
+    { _id: "1", slug: "technology", name: "Technology" },
+    { _id: "2", slug: "programming", name: "Programming" },
+    { _id: "3", slug: "web-development", name: "Web Development" },
+    { _id: "4", slug: "mobile-apps", name: "Mobile Apps" },
+    { _id: "5", slug: "data-science", name: "Data Science" },
+    {
+      _id: "6",
+      slug: "artificial-intelligence",
+      name: "Artificial Intelligence",
+    },
+    { _id: "7", slug: "cloud-computing", name: "Cloud Computing" },
+    { _id: "8", slug: "cybersecurity", name: "Cybersecurity" },
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -47,35 +51,50 @@ const CreatePost = () => {
   const [wordCount, setWordCount] = useState(0);
 
   // React Quill configuration
-  const quillModules = useMemo(() => ({
-    toolbar: {
-      container: [
-        [{ 'header': [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        [{ 'indent': '-1'}, { 'indent': '+1' }],
-        ['blockquote', 'code-block'],
-        ['link', 'image'],
-        [{ 'align': [] }],
-        [{ 'color': [] }, { 'background': [] }],
-        ['clean']
-      ],
-    },
-    clipboard: {
-      matchVisual: false,
-    }
-  }), []);
+  const quillModules = useMemo(
+    () => ({
+      toolbar: {
+        container: [
+          [{ header: [1, 2, 3, false] }],
+          ["bold", "italic", "underline", "strike"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          [{ indent: "-1" }, { indent: "+1" }],
+          ["blockquote", "code-block"],
+          ["link", "image"],
+          [{ align: [] }],
+          [{ color: [] }, { background: [] }],
+          ["clean"],
+        ],
+      },
+      clipboard: {
+        matchVisual: false,
+      },
+    }),
+    []
+  );
 
   const quillFormats = [
-    'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent', 'blockquote', 'code-block',
-    'link', 'image', 'align', 'color', 'background'
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    "indent",
+    "blockquote",
+    "code-block",
+    "link",
+    "image",
+    "align",
+    "color",
+    "background",
   ];
 
   // Count words in content
   useEffect(() => {
     if (formData.content) {
-      const textContent = formData.content.replace(/<[^>]*>/g, '').trim();
+      const textContent = formData.content.replace(/<[^>]*>/g, "").trim();
       const words = textContent ? textContent.split(/\s+/).length : 0;
       setWordCount(words);
     } else {
@@ -111,7 +130,11 @@ const CreatePost = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.content.trim() || !formData.category) {
+    if (
+      !formData.title.trim() ||
+      !formData.content.trim() ||
+      !formData.category
+    ) {
       setPublishError("Please fill in all required fields");
       return;
     }
@@ -121,14 +144,14 @@ const CreatePost = () => {
 
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       setShowSuccess(true);
       setTimeout(() => {
-        console.log('Post published successfully!', formData);
+        console.log("Post published successfully!", formData);
         setShowSuccess(false);
         // Reset form
-        setFormData({ title: '', category: '', content: '', image: '' });
+        setFormData({ title: "", category: "", content: "", image: "" });
       }, 2000);
     } catch (error) {
       setPublishError("Something went wrong. Please try again.");
@@ -143,15 +166,15 @@ const CreatePost = () => {
       setImageUploadError("Please select an image");
       return;
     }
-    
+
     setImageUploadError(null);
-    
+
     // Simulate upload progress
     for (let i = 0; i <= 100; i += 10) {
       setImageUploadProgress(i);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
-    
+
     // Create preview URL
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -176,7 +199,7 @@ const CreatePost = () => {
     e.preventDefault();
     setIsDragging(false);
     const files = e.dataTransfer.files;
-    if (files[0] && files[0].type.startsWith('image/')) {
+    if (files[0] && files[0].type.startsWith("image/")) {
       setFile(files[0]);
     }
   };
@@ -202,21 +225,19 @@ const CreatePost = () => {
             variants={containerVariants}
           >
             {/* Header */}
-            <motion.div
-              variants={itemVariants}
-              className="text-center mb-16"
-            >
+            <motion.div variants={itemVariants} className="text-center mb-16">
               <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl shadow-lg mb-8">
                 <Edit3 className="w-5 h-5" />
                 <span className="font-semibold">Create New Post</span>
                 <Sparkles className="w-4 h-4" />
               </div>
-              
+
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-8 bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
                 Share Your Story
               </h1>
               <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
-                Create engaging content that inspires and educates. One byte, one thought at a time.
+                Create engaging content that inspires and educates. One byte,
+                one thought at a time.
               </p>
             </motion.div>
 
@@ -279,10 +300,7 @@ const CreatePost = () => {
             </AnimatePresence>
 
             {/* Main Form */}
-            <motion.div
-              variants={itemVariants}
-              className="relative"
-            >
+            <motion.div variants={itemVariants} className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl blur-lg"></div>
               <div className="relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/50 dark:border-slate-700/50 overflow-hidden">
                 <div className="p-8 lg:p-12 space-y-8">
@@ -299,7 +317,9 @@ const CreatePost = () => {
                         placeholder="Enter an engaging title that captures attention..."
                         required
                         value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, title: e.target.value })
+                        }
                         className="w-full px-6 py-4 bg-slate-50/80 dark:bg-slate-700/80 border border-slate-200 dark:border-slate-600 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-lg"
                       />
                     </div>
@@ -313,7 +333,9 @@ const CreatePost = () => {
                       <select
                         required
                         value={formData.category}
-                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, category: e.target.value })
+                        }
                         className="w-full px-6 py-4 bg-slate-50/80 dark:bg-slate-700/80 border border-slate-200 dark:border-slate-600 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300 text-slate-900 dark:text-white text-lg"
                       >
                         <option value="">Choose a category</option>
@@ -332,12 +354,12 @@ const CreatePost = () => {
                       <Camera className="w-5 h-5 text-green-600" />
                       Featured Image
                     </label>
-                    
+
                     <div
                       className={`relative border-2 border-dashed rounded-3xl p-12 transition-all duration-300 ${
                         isDragging
-                          ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 scale-105'
-                          : 'border-slate-300 dark:border-slate-600 hover:border-blue-400 hover:bg-blue-50/30 dark:hover:bg-blue-900/10'
+                          ? "border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 scale-105"
+                          : "border-slate-300 dark:border-slate-600 hover:border-blue-400 hover:bg-blue-50/30 dark:hover:bg-blue-900/10"
                       }`}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
@@ -356,7 +378,9 @@ const CreatePost = () => {
                           />
                           <button
                             type="button"
-                            onClick={() => setFormData({ ...formData, image: '' })}
+                            onClick={() =>
+                              setFormData({ ...formData, image: "" })
+                            }
                             className="absolute top-4 right-4 p-3 bg-red-500 text-white rounded-2xl hover:bg-red-600 transition-colors shadow-lg hover:shadow-xl"
                           >
                             <X className="w-5 h-5" />
@@ -373,7 +397,8 @@ const CreatePost = () => {
                             Upload Featured Image
                           </h3>
                           <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto">
-                            Drag and drop your image here, or click to browse. A compelling image helps attract readers.
+                            Drag and drop your image here, or click to browse. A
+                            compelling image helps attract readers.
                           </p>
                           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <input
@@ -390,7 +415,7 @@ const CreatePost = () => {
                               <ImageIcon className="w-5 h-5 inline mr-2" />
                               Choose Image
                             </label>
-                            
+
                             {file && (
                               <motion.button
                                 initial={{ opacity: 0, scale: 0.9 }}
@@ -415,7 +440,8 @@ const CreatePost = () => {
                             )}
                           </div>
                           <p className="text-sm text-slate-500 dark:text-slate-500 mt-6">
-                            Recommended: 1200x600px or larger, max 10MB (JPG, PNG, WebP)
+                            Recommended: 1200x600px or larger, max 10MB (JPG,
+                            PNG, WebP)
                           </p>
                         </div>
                       )}
@@ -435,12 +461,14 @@ const CreatePost = () => {
                         <span>~{Math.ceil(wordCount / 200)} min read</span>
                       </div>
                     </div>
-                    
+
                     <div className="bg-white dark:bg-slate-800 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-lg">
                       <ReactQuill
                         theme="snow"
                         value={formData.content}
-                        onChange={(content) => setFormData({ ...formData, content })}
+                        onChange={(content) =>
+                          setFormData({ ...formData, content })
+                        }
                         modules={quillModules}
                         formats={quillFormats}
                         placeholder="Start crafting your amazing story... Share insights, experiences, and knowledge that will inspire your readers."
@@ -450,14 +478,14 @@ const CreatePost = () => {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-6 pt-8 border-t border-slate-200/50 dark:border-slate-700/50">
+                  <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-200/50 dark:border-slate-700/50">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       type="button"
-                      className="flex-1 px-8 py-6 bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 text-slate-700 dark:text-slate-300 rounded-2xl hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-500 transition-all duration-300 font-bold text-lg flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 text-slate-700 dark:text-slate-300 rounded-2xl hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-500 transition-all duration-300 font-bold text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                     >
-                      <Eye className="w-6 h-6" />
+                      <Eye className="w-5 h-5" />
                       Preview Post
                     </motion.button>
 
@@ -465,28 +493,31 @@ const CreatePost = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       type="button"
-                      className="flex-1 px-8 py-6 bg-gradient-to-r from-blue-100 to-indigo-200 dark:from-blue-700 dark:to-indigo-600 text-blue-700 dark:text-blue-300 rounded-2xl hover:from-blue-200 hover:to-indigo-300 dark:hover:from-blue-600 dark:hover:to-indigo-500 transition-all duration-300 font-bold text-lg flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-100 to-indigo-200 dark:from-blue-700 dark:to-indigo-600 text-blue-700 dark:text-blue-300 rounded-2xl hover:from-blue-200 hover:to-indigo-300 dark:hover:from-blue-600 dark:hover:to-indigo-500 transition-all duration-300 font-bold text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                     >
-                      <Save className="w-6 h-6" />
+                      <Save className="w-5 h-5" />
                       Save Draft
                     </motion.button>
 
                     <motion.button
-                      whileHover={{ scale: 1.02, boxShadow: "0 25px 50px rgba(99, 102, 241, 0.4)" }}
+                      whileHover={{
+                        scale: 1.02,
+                        boxShadow: "0 20px 40px rgba(99, 102, 241, 0.3)",
+                      }}
                       whileTap={{ scale: 0.98 }}
                       type="submit"
                       disabled={isLoading}
                       onClick={handleSubmit}
-                      className="flex-2 px-8 py-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white rounded-2xl hover:shadow-2xl transition-all duration-300 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-xl"
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 font-bold text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
                     >
                       {isLoading ? (
                         <>
-                          <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                          <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                           Publishing Story...
                         </>
                       ) : (
                         <>
-                          <Send className="w-6 h-6" />
+                          <Send className="w-5 h-5" />
                           Publish Post
                         </>
                       )}
