@@ -294,3 +294,28 @@ export const getUser = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getUserProfileByUsername = async (req, res, next) => {
+  try {
+    const { username } = req.params;
+
+    const user = await User.findOne({ username: username.toLowerCase().trim() })
+      .select("username email profilePicture isVerified accountStatus createdAt favorites");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Sanitize further if needed (e.g., hide email)
+    const safeUser = {
+      username: user.username,
+      profilePicture: user.profilePicture,
+      isVerified: user.isVerified,
+      createdAt: user.createdAt,
+    };
+
+    res.json(safeUser);
+  } catch (error) {
+    next(error);
+  }
+}

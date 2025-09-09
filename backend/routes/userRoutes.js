@@ -9,8 +9,9 @@ import {
   getUser,
   requestPasswordUpdateOTP,
   updateUserPassword,
+  getUserProfileByUsername,
 } from "../controllers/userController.js";
-import { verifyToken } from "../utils/verifyUser.js";
+import { verifyToken } from "../utils/verifyToken.js";
 import { errorHandler } from "../utils/error.js";
 
 const router = express.Router();
@@ -47,7 +48,7 @@ const passwordUpdateLimiter = rateLimit({
   },
 });
 
-router.get("/test", test);
+router.get("/getuser/:username", getUserProfileByUsername);
 router.put("/update/:userId", verifyToken, updateUser);
 router.delete("/delete/:userId", verifyToken, deleteUser);
 router.post("/signout", signout);
