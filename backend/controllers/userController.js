@@ -235,17 +235,6 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
-export const signout = (req, res, next) => {
-  try {
-    res
-      .clearCookie("access_token")
-      .status(200)
-      .json("User has been signed out");
-  } catch (error) {
-    next(error);
-  }
-};
-
 export const getUsers = async (req, res, next) => {
   if (!req.user.isAdmin) {
     return next(errorHandler(403, "You are not allowed to see all users"));
@@ -308,6 +297,7 @@ export const getUserProfileByUsername = async (req, res, next) => {
 
     // Sanitize further if needed (e.g., hide email)
     const safeUser = {
+      _id: user._id,
       username: user.username,
       profilePicture: user.profilePicture,
       isVerified: user.isVerified,

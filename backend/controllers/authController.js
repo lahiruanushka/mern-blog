@@ -982,3 +982,15 @@ export const resendVerificationEmail = async (req, res, next) => {
     next(error);
   }
 };
+
+export const signout = (req, res, next) => {
+  try {
+    res
+      .clearCookie("access_token")
+      .clearCookie("refresh_token")
+      .status(200)
+      .json("User has been signed out");
+  } catch (error) {
+    next(error);
+  }
+};

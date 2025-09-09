@@ -15,13 +15,15 @@ import {
   HiHeart,
   HiChat,
   HiX,
+  HiRefresh,
 } from "react-icons/hi";
 import { ShieldIcon } from "lucide-react";
 import PostCard from "../components/PostCard";
-
+import { getUserProfileByUsername } from "../api/userService";
+import { getPostsByUserId } from "../api/postService";
 
 const UserProfilePage = () => {
-  const { userId } = useParams();
+  const { username } = useParams();
   const { currentUser, error, loading } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -38,19 +40,13 @@ const UserProfilePage = () => {
         setProfileLoading(true);
         setProfileError(null);
 
-        const [userRes, postsRes] = await Promise.all([
-          fetch(`/api/user/getuser/${userId}`),
-          fetch(`/api/post/getposts?userId=${userId}`),
-        ]);
-
-        const userData = await userRes.json();
-        const postsData = await postsRes.json();
-
-        if (!userRes.ok) throw new Error(userData.message || "Failed to load user");
-        if (!postsRes.ok) throw new Error(postsData.message || "Failed to load posts");
-
+        // Get user by username
+        const userData = await getUserProfileByUsername(username);
         setUser(userData);
-        setPosts(postsData.posts || []);
+
+        // Get posts by user ID
+        const postsData = await getPostsByUserId(userData._id);
+        setPosts(postsData);
       } catch (err) {
         setProfileError(err.message || "Something went wrong");
       } finally {
@@ -58,8 +54,8 @@ const UserProfilePage = () => {
       }
     };
 
-    if (userId) fetchData();
-  }, [userId]);
+    if (username) fetchData();
+  }, [username]);
 
   // Check if this is the current user's profile
   const isOwnProfile = currentUser && user && currentUser._id === user._id;
@@ -99,10 +95,30 @@ const UserProfilePage = () => {
   if (!user) return null;
 
   const stats = [
-    { icon: HiBookOpen, value: posts.length, label: "Posts", color: "from-blue-500 to-cyan-500" },
-    { icon: HiUsers, value: "1.2K", label: "Followers", color: "from-green-500 to-emerald-500" },
-    { icon: HiHeart, value: "3.4K", label: "Likes", color: "from-pink-500 to-rose-500" },
-    { icon: HiTrendingUp, value: "12K", label: "Views", color: "from-purple-500 to-indigo-500" },
+    {
+      icon: HiBookOpen,
+      value: posts.length,
+      label: "Posts",
+      color: "from-blue-500 to-cyan-500",
+    },
+    {
+      icon: HiUsers,
+      value: "1.2K",
+      label: "Followers",
+      color: "from-green-500 to-emerald-500",
+    },
+    {
+      icon: HiHeart,
+      value: "3.4K",
+      label: "Likes",
+      color: "from-pink-500 to-rose-500",
+    },
+    {
+      icon: HiTrendingUp,
+      value: "12K",
+      label: "Views",
+      color: "from-purple-500 to-indigo-500",
+    },
   ];
 
   const containerVariants = {
@@ -145,7 +161,7 @@ const UserProfilePage = () => {
             {/* Background Gradient */}
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10" />
             <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-transparent to-purple-400/5" />
-            
+
             {/* Decorative Elements */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-full -translate-y-16 translate-x-16 blur-3xl" />
             <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-pink-500/20 to-orange-500/20 rounded-full translate-y-20 -translate-x-20 blur-3xl" />
@@ -154,7 +170,7 @@ const UserProfilePage = () => {
               {/* Profile Picture */}
               <div className="relative w-32 h-32 mx-auto sm:mx-0">
                 <img
-                  src={user.profilePicture || 'https://via.placeholder.com/150'}
+                  src={user.profilePicture || "https://via.placeholder.com/150"}
                   alt={user.username}
                   className="w-full h-full rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-xl"
                 />
@@ -181,12 +197,10 @@ const UserProfilePage = () => {
 
                   <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 mb-6">
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                      <HiMail className="w-5 h-5" />
-                      <span className="text-lg">{user.email}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                       <HiCalendar className="w-5 h-5" />
-                      <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
+                      <span>
+                        Joined {new Date(user.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
 
@@ -198,7 +212,7 @@ const UserProfilePage = () => {
                     >
                       Member since {new Date(user.createdAt).getFullYear()}
                     </motion.span>
-                    
+
                     {user.isAdmin && (
                       <motion.span
                         whileHover={{ scale: 1.05 }}
@@ -208,7 +222,7 @@ const UserProfilePage = () => {
                         Admin
                       </motion.span>
                     )}
-                    
+
                     <motion.span
                       whileHover={{ scale: 1.05 }}
                       className="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-semibold shadow-lg backdrop-blur-xl flex items-center gap-2"
@@ -233,7 +247,9 @@ const UserProfilePage = () => {
                     whileHover={{ scale: 1.05, y: -5 }}
                   >
                     <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20 dark:border-gray-700/20 group-hover:shadow-2xl transition-all duration-300">
-                      <div className={`inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r ${stat.color} rounded-2xl mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                      <div
+                        className={`inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r ${stat.color} rounded-2xl mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                      >
                         <stat.icon className="w-6 h-6 text-white" />
                       </div>
                       <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
@@ -249,12 +265,8 @@ const UserProfilePage = () => {
             </div>
           </motion.div>
 
-
           {/* Posts Section */}
-          <motion.div
-            className="mt-10"
-            variants={itemVariants}
-          >
+          <motion.div className="mt-10" variants={itemVariants}>
             <div className="flex items-center justify-between mb-8">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -263,7 +275,7 @@ const UserProfilePage = () => {
                 className="flex items-center gap-4"
               >
                 <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-900 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent">
-                  Latest Posts
+                  {isOwnProfile ? "Your" : `${user.username}'s`} Posts
                 </h2>
                 <div className="px-4 py-2 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200 dark:border-indigo-800 rounded-2xl">
                   <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">
@@ -288,13 +300,16 @@ const UserProfilePage = () => {
                     No Posts Yet
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
-                    {isOwnProfile 
+                    {isOwnProfile
                       ? "Start sharing your thoughts and ideas with the world!"
                       : `${user.username} hasn't published any posts yet.`}
                   </p>
                   {isOwnProfile && (
                     <motion.button
-                      whileHover={{ scale: 1.05, boxShadow: "0 25px 50px rgba(99, 102, 241, 0.4)" }}
+                      whileHover={{
+                        scale: 1.05,
+                        boxShadow: "0 25px 50px rgba(99, 102, 241, 0.4)",
+                      }}
                       whileTap={{ scale: 0.95 }}
                       className="mt-6 px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300"
                       onClick={() => navigate("/create-post")}
@@ -320,14 +335,11 @@ const UserProfilePage = () => {
 
           {/* Load More Button */}
           {posts.length > 0 && posts.length >= 6 && (
-            <motion.div
-              className="text-center mt-12"
-              variants={itemVariants}
-            >
+            <motion.div className="text-center mt-12" variants={itemVariants}>
               <motion.button
-                whileHover={{ 
-                  scale: 1.05, 
-                  boxShadow: "0 25px 50px rgba(16, 185, 129, 0.4)" 
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 25px 50px rgba(16, 185, 129, 0.4)",
                 }}
                 whileTap={{ scale: 0.95 }}
                 className="group relative px-10 py-4 bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 text-white font-semibold rounded-2xl overflow-hidden shadow-2xl"
@@ -336,7 +348,11 @@ const UserProfilePage = () => {
                   Load More Posts
                   <motion.div
                     animate={{ rotate: [0, 180, 360] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                     className="ml-2"
                   >
                     <HiRefresh className="w-5 h-5" />

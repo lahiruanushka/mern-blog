@@ -48,7 +48,7 @@ const App = () => {
           <Route path="/posts" element={<PostsPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/support" element={<SupportPage />} />
-          <Route path="/user/:userId" element={<UserProfilePage />} />
+          <Route path="/:username" element={<UserProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/update-post/:postId" element={<UpdatePost />} />

@@ -25,7 +25,10 @@ const __dirname = path.resolve();
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+}));
 
 // MongoDB Connection
 mongoose
@@ -37,11 +40,11 @@ mongoose
   });
 
 // Routes
-app.use("/api/user", userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/post", postRoutes);
-app.use("/api/comment", commentRoutes);
-app.use("/api/category", categoryRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/categories", categoryRoutes);
 app.use("/api/favorites", favoriteRoutes);
 
 

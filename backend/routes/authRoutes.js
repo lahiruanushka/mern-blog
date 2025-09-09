@@ -9,6 +9,7 @@ import {
   verifyEmail,
   resendVerificationEmail,
   refreshToken,
+  signout,
 } from "../controllers/authController.js";
 import { errorHandler } from "../utils/error.js";
 
@@ -88,6 +89,7 @@ const resendVerificationLimiter = rateLimit({
 
 router.post("/signup", signupLimiter, signup);
 router.post("/signin", loginLimiter, signin);
+router.post("/signout", signout);
 router.post("/google", google);
 router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 router.post("/reset-password", resetPasswordLimiter, resetPassword);

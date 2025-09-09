@@ -62,7 +62,7 @@ const PostsPage = () => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const res = await fetch("/api/post/getposts");
+        const res = await fetch("/api/posts/getPosts");
         const data = await res.json();
 
         if (res.ok) {

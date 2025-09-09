@@ -2,9 +2,7 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import {
   deleteUser,
-  test,
   updateUser,
-  signout,
   getUsers,
   getUser,
   requestPasswordUpdateOTP,
@@ -51,7 +49,6 @@ const passwordUpdateLimiter = rateLimit({
 router.get("/getuser/:username", getUserProfileByUsername);
 router.put("/update/:userId", verifyToken, updateUser);
 router.delete("/delete/:userId", verifyToken, deleteUser);
-router.post("/signout", signout);
 router.get("/getuser/:userId", verifyToken, getUser);
 router.get("/getusers", verifyToken, getUsers);
 
