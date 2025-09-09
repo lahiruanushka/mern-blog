@@ -19,6 +19,7 @@ import { fetchFavorites } from "../features/favorites/favoritesSlice";
 import { Button, TextInput, Dropdown, Badge } from "flowbite-react";
 import PostCard from "../components/PostCard";
 import FavouritePostCard from "../components/FavouritePostCard";
+import Error from "../components/Error";
 
 const FavoritesPage = () => {
   const dispatch = useDispatch();
@@ -177,35 +178,10 @@ const FavoritesPage = () => {
 
   if (error) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900"
-      >
-        <motion.div
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          className="text-center p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md mx-4"
-        >
-          <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <FaHeart className="text-white text-xl" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-            Oops! Something went wrong
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {error.message || "We couldn't load your favorites right now."}
-          </p>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              gradientDuoTone="purpleToBlue"
-              onClick={() => dispatch(fetchFavorites())}
-            >
-              Try Again
-            </Button>
-          </motion.div>
-        </motion.div>
-      </motion.div>
+      <Error
+        onRetry={async () => await dispatch(fetchFavorites())}
+        showBackButton={true}
+      />
     );
   }
 
@@ -253,7 +229,10 @@ const FavoritesPage = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/" className="w-full sm:w-auto">
               <motion.button
-                whileHover={{ scale: 1.03, boxShadow: '0 10px 25px -5px rgba(139, 92, 246, 0.3)' }}
+                whileHover={{
+                  scale: 1.03,
+                  boxShadow: "0 10px 25px -5px rgba(139, 92, 246, 0.3)",
+                }}
                 whileTap={{ scale: 0.98 }}
                 className="w-full px-8 py-3.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
               >
@@ -263,7 +242,10 @@ const FavoritesPage = () => {
             </Link>
             <Link to="/search" className="w-full sm:w-auto">
               <motion.button
-                whileHover={{ scale: 1.03, boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.2)' }}
+                whileHover={{
+                  scale: 1.03,
+                  boxShadow: "0 10px 25px -5px rgba(99, 102, 241, 0.2)",
+                }}
                 whileTap={{ scale: 0.98 }}
                 className="w-full px-8 py-3.5 bg-white dark:bg-gray-800 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 font-semibold rounded-xl transition-all duration-300"
               >
