@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { 
-  HiOutlineExclamationCircle, 
-  HiPencil, 
-  HiTrash, 
+import {
+  HiOutlineExclamationCircle,
+  HiPencil,
+  HiTrash,
   HiEye,
   HiCalendar,
   HiTag,
@@ -12,7 +12,7 @@ import {
   HiSearch,
   HiFilter,
   HiSortAscending,
-  HiChartBar
+  HiChartBar,
 } from "react-icons/hi";
 
 const DashPosts = () => {
@@ -30,7 +30,9 @@ const DashPosts = () => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/post/getposts?userId=${currentUser._id}`);
+        const res = await fetch(
+          `/api/posts/getPosts?userId=${currentUser._id}`
+        );
         const data = await res.json();
         if (res.ok) {
           setUserPosts(data.posts);
@@ -52,7 +54,7 @@ const DashPosts = () => {
     try {
       setLoadingMore(true);
       const res = await fetch(
-        `/api/post/getposts?userId=${currentUser._id}&startIndex=${userPosts.length}`
+        `/api/posts/getPosts?userId=${currentUser._id}&startIndex=${userPosts.length}`
       );
       const data = await res.json();
       if (res.ok) {
@@ -83,13 +85,19 @@ const DashPosts = () => {
     }
   };
 
-  const filteredPosts = userPosts.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === "all" || post.category === filterCategory;
+  const filteredPosts = userPosts.filter((post) => {
+    const matchesSearch = post.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      filterCategory === "all" || post.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const categories = ["all", ...new Set(userPosts.map(post => post.category))];
+  const categories = [
+    "all",
+    ...new Set(userPosts.map((post) => post.category)),
+  ];
 
   if (loading) {
     return (
@@ -117,7 +125,7 @@ const DashPosts = () => {
                 Create, edit, and organize your content
               </p>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <HiPlus className="w-5 h-5" />
@@ -144,7 +152,7 @@ const DashPosts = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-700/20">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl">
@@ -152,7 +160,9 @@ const DashPosts = () => {
               </div>
               <div>
                 <div className="text-2xl font-black text-gray-900 dark:text-white">
-                  {userPosts.reduce((acc, post) => acc + (post.views || 0), 0).toLocaleString()}
+                  {userPosts
+                    .reduce((acc, post) => acc + (post.views || 0), 0)
+                    .toLocaleString()}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   Total Views
@@ -160,7 +170,7 @@ const DashPosts = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-700/20">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl">
@@ -191,7 +201,7 @@ const DashPosts = () => {
                 className="w-full pl-12 pr-4 py-3 bg-gray-50/50 dark:bg-gray-700/50 border border-gray-200/50 dark:border-gray-600/50 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
               />
             </div>
-            
+
             <div className="flex items-center gap-2">
               <HiFilter className="text-gray-500 w-5 h-5" />
               <select
@@ -199,7 +209,7 @@ const DashPosts = () => {
                 onChange={(e) => setFilterCategory(e.target.value)}
                 className="px-4 py-3 bg-gray-50/50 dark:bg-gray-700/50 border border-gray-200/50 dark:border-gray-600/50 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
               >
-                {categories.map(category => (
+                {categories.map((category) => (
                   <option key={category} value={category}>
                     {category === "all" ? "All Categories" : category}
                   </option>
@@ -226,7 +236,7 @@ const DashPosts = () => {
                       className="w-full lg:w-48 h-32 lg:h-28 object-cover rounded-2xl shadow-md group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-                  
+
                   {/* Post Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -234,20 +244,22 @@ const DashPosts = () => {
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-300">
                           {post.title}
                         </h3>
-                        
+
                         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
                           <div className="flex items-center gap-1">
                             <HiCalendar className="w-4 h-4" />
-                            <span>{new Date(post.updatedAt).toLocaleDateString()}</span>
+                            <span>
+                              {new Date(post.updatedAt).toLocaleDateString()}
+                            </span>
                           </div>
-                          
+
                           <div className="flex items-center gap-1">
                             <HiTag className="w-4 h-4" />
                             <span className="px-2 py-1 bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
                               {post.category}
                             </span>
                           </div>
-                          
+
                           {post.views && (
                             <div className="flex items-center gap-1">
                               <HiEye className="w-4 h-4" />
@@ -256,25 +268,32 @@ const DashPosts = () => {
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Actions */}
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => window.open(`/post/${post.slug}`, '_blank')}
+                          onClick={() =>
+                            window.open(`/post/${post.slug}`, "_blank")
+                          }
                           className="p-3 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-xl transition-all duration-300 hover:scale-110"
                           title="View Post"
                         >
                           <HiEye className="w-5 h-5" />
                         </button>
-                        
+
                         <button
-                          onClick={() => window.open(`/dashboard/update-post/${post._id}`, '_blank')}
+                          onClick={() =>
+                            window.open(
+                              `/dashboard/update-post/${post._id}`,
+                              "_blank"
+                            )
+                          }
                           className="p-3 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded-xl transition-all duration-300 hover:scale-110"
                           title="Edit Post"
                         >
                           <HiPencil className="w-5 h-5" />
                         </button>
-                        
+
                         <button
                           onClick={() => {
                             setShowModal(true);
@@ -321,7 +340,7 @@ const DashPosts = () => {
               No posts found
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              {searchTerm || filterCategory !== "all" 
+              {searchTerm || filterCategory !== "all"
                 ? "Try adjusting your search or filter criteria"
                 : "Create your first post to get started"}
             </p>
@@ -344,7 +363,8 @@ const DashPosts = () => {
                   Delete Post
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-8">
-                  Are you sure you want to delete this post? This action cannot be undone.
+                  Are you sure you want to delete this post? This action cannot
+                  be undone.
                 </p>
                 <div className="flex gap-4">
                   <button

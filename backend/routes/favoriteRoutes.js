@@ -4,7 +4,7 @@ import {
   getUserFavorites,
   removeFromFavorites,
 } from "../controllers/favoriteController.js";
-import { verifyToken } from "../utils/verifyUser.js";
+import { verifyToken } from "../utils/verifyToken.js";
 
 const router = express.Router();
 

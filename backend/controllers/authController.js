@@ -348,23 +348,37 @@ export const signin = async (req, res, next) => {
     user.lockUntil = null;
     await user.save();
 
-    // Generate JWT token with short expiry
-    const token = jwt.sign(
+    // Generate access token with short expiry
+    const accessToken = jwt.sign(
       {
         id: user._id,
         isAdmin: user.isAdmin,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "15m" } // 15 minutes
     );
 
-    // Set secure cookie options
-    const cookieOptions = {
+    // Generate refresh token with longer expiry
+    const refreshToken = jwt.sign(
+      { id: user._id, isAdmin: user.isAdmin },
+      process.env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret',
+      { expiresIn: '7d' } // 7 days
+    );
+
+    // Set secure cookie options for access token
+    const accessTokenCookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 15 * 60 * 1000, // 15 minutes
       path: "/",
+    };
+
+    // Set secure cookie options for refresh token
+    const refreshTokenCookieOptions = {
+      ...accessTokenCookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: "/api/auth/refresh-token",
     };
 
     // Remove sensitive data
@@ -372,13 +386,17 @@ export const signin = async (req, res, next) => {
 
     await logAuthEvent("signin", user._id, true, ip, userAgent);
 
+    // Set both tokens in cookies and send user data
     res
       .status(200)
-      .cookie("access_token", token, cookieOptions)
+      .cookie("access_token", accessToken, accessTokenCookieOptions)
+      .cookie("refresh_token", refreshToken, refreshTokenCookieOptions)
       .json({
         ...userData,
+        accessToken,
+        refreshToken,
         loginTimestamp: new Date(),
-        expiresIn: 3600, // 1 hour in seconds
+        expiresIn: 15 * 60, // 15 minutes in seconds
       });
   } catch (error) {
     console.error("Login error:", error);
@@ -480,19 +498,49 @@ export const google = async (req, res, next) => {
         // Reset login attempts on successful login
         loginAttempts.delete(ip);
 
-        const token = jwt.sign(
+        // Generate access token with short expiry
+        const accessToken = jwt.sign(
           { id: user._id, isAdmin: user.isAdmin },
-          process.env.JWT_SECRET
+          process.env.JWT_SECRET,
+          { expiresIn: '15m' } // 15 minutes
         );
-        const { password, ...rest } = user._doc;
+
+        // Generate refresh token with longer expiry
+        const refreshToken = jwt.sign(
+          { id: user._id, isAdmin: user.isAdmin },
+          process.env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret',
+          { expiresIn: '7d' } // 7 days
+        );
+
+        // Set secure cookie options for access token
+        const accessTokenCookieOptions = {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          maxAge: 15 * 60 * 1000, // 15 minutes
+          path: "/",
+        };
+
+        // Set secure cookie options for refresh token
+        const refreshTokenCookieOptions = {
+          ...accessTokenCookieOptions,
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          path: "/api/auth/refresh-token",
+        };
+
+        const { password, ...userData } = user._doc;
+        
         return res
           .status(200)
-          .cookie("access_token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-          })
-          .json(rest);
+          .cookie("access_token", accessToken, accessTokenCookieOptions)
+          .cookie("refresh_token", refreshToken, refreshTokenCookieOptions)
+          .json({
+            ...userData,
+            accessToken,
+            refreshToken,
+            loginTimestamp: new Date(),
+            expiresIn: 15 * 60, // 15 minutes in seconds
+          });
       } else {
         // Update login attempts for failed authentication
         loginAttempts.set(ip, {
@@ -531,20 +579,49 @@ export const google = async (req, res, next) => {
       // Reset login attempts on successful signup
       loginAttempts.delete(ip);
 
-      const token = jwt.sign(
+      // Generate access token with short expiry
+      const accessToken = jwt.sign(
         { id: newUser._id, isAdmin: newUser.isAdmin },
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET,
+        { expiresIn: '15m' } // 15 minutes
       );
 
-      const { password, ...rest } = newUser._doc;
+      // Generate refresh token with longer expiry
+      const refreshToken = jwt.sign(
+        { id: newUser._id, isAdmin: newUser.isAdmin },
+        process.env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret',
+        { expiresIn: '7d' } // 7 days
+      );
+
+      // Set secure cookie options for access token
+      const accessTokenCookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 15 * 60 * 1000, // 15 minutes
+        path: "/",
+      };
+
+      // Set secure cookie options for refresh token
+      const refreshTokenCookieOptions = {
+        ...accessTokenCookieOptions,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: "/api/auth/refresh-token",
+      };
+
+      const { password, ...userData } = newUser._doc;
+      
       return res
         .status(200)
-        .cookie("access_token", token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        })
-        .json(rest);
+        .cookie("access_token", accessToken, accessTokenCookieOptions)
+        .cookie("refresh_token", refreshToken, refreshTokenCookieOptions)
+        .json({
+          ...userData,
+          accessToken,
+          refreshToken,
+          loginTimestamp: new Date(),
+          expiresIn: 15 * 60, // 15 minutes in seconds
+        });
     }
   } catch (error) {
     next(error);
@@ -832,6 +909,31 @@ export const verifyEmail = async (req, res, next) => {
 };
 
 // Resend verification email handler
+// Refresh access token
+export const refreshToken = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.refresh_token; // match the cookie name
+    if (!refreshToken) return next(errorHandler(401, 'No refresh token provided'));
+
+    const decoded = jwt.decode(refreshToken);
+
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+      if (err) return next(errorHandler(403, 'Invalid refresh token'));
+
+      const accessToken = jwt.sign(
+        { id: user.id, isAdmin: user.isAdmin },
+        process.env.JWT_SECRET,
+        { expiresIn: '15m' }
+      );
+
+      res.status(200).json({ accessToken });
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 export const resendVerificationEmail = async (req, res, next) => {
   const { email } = req.body;
 
@@ -876,6 +978,18 @@ export const resendVerificationEmail = async (req, res, next) => {
       success: true,
       message: "Verification email resent. Please check your inbox.",
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const signout = (req, res, next) => {
+  try {
+    res
+      .clearCookie("access_token")
+      .clearCookie("refresh_token")
+      .status(200)
+      .json("User has been signed out");
   } catch (error) {
     next(error);
   }

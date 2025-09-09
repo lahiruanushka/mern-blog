@@ -145,3 +145,12 @@ export const toggleLikePost = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getPostsByUserId = async (req, res, next) => {
+  try {
+    const posts = await Post.find({ userId: req.params.userId });
+    res.status(200).json(posts);
+  } catch (error) {
+    next(error);
+  }
+};

@@ -8,6 +8,8 @@ import {
   resetPassword,
   verifyEmail,
   resendVerificationEmail,
+  refreshToken,
+  signout,
 } from "../controllers/authController.js";
 import { errorHandler } from "../utils/error.js";
 
@@ -19,6 +21,7 @@ const loginLimiter = rateLimit({
   max: 5, // Limit each IP to 5 login attempts per windowMs
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  keyGenerator: (req, res) => req.ip, // Use req.ip which respects trust proxy
   handler: (req, res, next) => {
     next(
       errorHandler(
@@ -33,6 +36,7 @@ const loginLimiter = rateLimit({
 const signupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 3, // Limit each IP to 3 signup attempts per windowMs
+  keyGenerator: (req, res) => req.ip, // Use req.ip which respects trust proxy
   handler: (req, res, next) => {
     next(errorHandler(429, "Too many signup attempts, please try again later"));
   },
@@ -42,6 +46,7 @@ const signupLimiter = rateLimit({
 const forgotPasswordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 3, // Limit each IP to 3 forgot password requests per windowMs
+  keyGenerator: (req, res) => req.ip, // Use req.ip which respects trust proxy
   handler: (req, res, next) => {
     next(
       errorHandler(
@@ -56,6 +61,7 @@ const forgotPasswordLimiter = rateLimit({
 const resetPasswordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 3, // Limit each IP to 3 password reset attempts per windowMs
+  keyGenerator: (req, res) => req.ip, // Use req.ip which respects trust proxy
   handler: (req, res, next) => {
     next(
       errorHandler(
@@ -70,6 +76,7 @@ const resetPasswordLimiter = rateLimit({
 const resendVerificationLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 3, // Limit each IP to 3 resend verification requests per windowMs
+  keyGenerator: (req, res) => req.ip, // Use req.ip which respects trust proxy
   handler: (req, res, next) => {
     next(
       errorHandler(
@@ -82,6 +89,7 @@ const resendVerificationLimiter = rateLimit({
 
 router.post("/signup", signupLimiter, signup);
 router.post("/signin", loginLimiter, signin);
+router.post("/signout", signout);
 router.post("/google", google);
 router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 router.post("/reset-password", resetPasswordLimiter, resetPassword);
@@ -91,5 +99,6 @@ router.post(
   resendVerificationLimiter,
   resendVerificationEmail
 );
+router.post("/refresh-token", refreshToken);
 
 export default router;
