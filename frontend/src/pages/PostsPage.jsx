@@ -15,7 +15,6 @@ import {
   Clock,
   Eye,
   Heart,
-  Loader,
   ChevronLeft,
   ChevronRight,
   Sparkles,
@@ -23,6 +22,7 @@ import {
   Users,
   Star,
 } from "lucide-react";
+import Loader from "../components/Loader";
 
 const PostsPage = () => {
   const [posts, setPosts] = useState([]);
@@ -190,32 +190,7 @@ const PostsPage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-100/50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900/20">
-        <div className="pt-32 pb-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-center min-h-[400px]">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center"
-              >
-                <div className="relative mb-8">
-                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-gradient-to-r from-blue-500 to-purple-500 border-t-transparent mx-auto"></div>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-20 blur-md"></div>
-                </div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                  Loading Posts
-                </h2>
-                <p className="text-slate-600 dark:text-slate-400">
-                  Fetching the latest articles for you...
-                </p>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <Loader message="Loading Posts" variant="primary" size="medium" />;
   }
 
   if (error) {
