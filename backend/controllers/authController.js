@@ -307,6 +307,17 @@ export const signin = async (req, res, next) => {
       return next(errorHandler(404, "Invalid email or password"));
     }
 
+    // Check the email is verified
+    if (!user.isVerified) {
+      return next(
+        errorHandler(
+          400,
+          "Your email is not verified. Please verify your email"
+        )
+      );
+    }
+
+    // Check if the account is locked
     if (user.lockUntil && user.lockUntil > Date.now()) {
       const remainingTime = Math.ceil(
         (user.lockUntil - Date.now()) / 1000 / 60
@@ -361,8 +372,8 @@ export const signin = async (req, res, next) => {
     // Generate refresh token with longer expiry
     const refreshToken = jwt.sign(
       { id: user._id, isAdmin: user.isAdmin },
-      process.env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret',
-      { expiresIn: '7d' } // 7 days
+      process.env.REFRESH_TOKEN_SECRET || "your-refresh-token-secret",
+      { expiresIn: "7d" } // 7 days
     );
 
     // Set secure cookie options for access token
@@ -502,14 +513,14 @@ export const google = async (req, res, next) => {
         const accessToken = jwt.sign(
           { id: user._id, isAdmin: user.isAdmin },
           process.env.JWT_SECRET,
-          { expiresIn: '15m' } // 15 minutes
+          { expiresIn: "15m" } // 15 minutes
         );
 
         // Generate refresh token with longer expiry
         const refreshToken = jwt.sign(
           { id: user._id, isAdmin: user.isAdmin },
-          process.env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret',
-          { expiresIn: '7d' } // 7 days
+          process.env.REFRESH_TOKEN_SECRET || "your-refresh-token-secret",
+          { expiresIn: "7d" } // 7 days
         );
 
         // Set secure cookie options for access token
@@ -529,7 +540,7 @@ export const google = async (req, res, next) => {
         };
 
         const { password, ...userData } = user._doc;
-        
+
         return res
           .status(200)
           .cookie("access_token", accessToken, accessTokenCookieOptions)
@@ -583,14 +594,14 @@ export const google = async (req, res, next) => {
       const accessToken = jwt.sign(
         { id: newUser._id, isAdmin: newUser.isAdmin },
         process.env.JWT_SECRET,
-        { expiresIn: '15m' } // 15 minutes
+        { expiresIn: "15m" } // 15 minutes
       );
 
       // Generate refresh token with longer expiry
       const refreshToken = jwt.sign(
         { id: newUser._id, isAdmin: newUser.isAdmin },
-        process.env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret',
-        { expiresIn: '7d' } // 7 days
+        process.env.REFRESH_TOKEN_SECRET || "your-refresh-token-secret",
+        { expiresIn: "7d" } // 7 days
       );
 
       // Set secure cookie options for access token
@@ -610,7 +621,7 @@ export const google = async (req, res, next) => {
       };
 
       const { password, ...userData } = newUser._doc;
-      
+
       return res
         .status(200)
         .cookie("access_token", accessToken, accessTokenCookieOptions)
@@ -695,23 +706,23 @@ export const forgotPassword = async (req, res, next) => {
     }
 
     const user = await User.findOne({ email });
-    
+
     // If user doesn't exist, send generic response
     if (!user) {
       return res.json({
-        message: "If an account exists, a reset link will be sent.",
+        message: "If we found an account with this email, a password reset link has been sent. Please check your inbox.",
       });
     }
 
     // Check if user uses social authentication
-    if (user.authProvider !== 'local') {
+    if (user.authProvider !== "local") {
       // Log the attempt for security monitoring
       console.warn("Password reset attempted for social auth account:", {
         email,
         authProvider: user.authProvider,
         ip,
       });
-      
+
       // Send a specific message for social auth users
       return res.status(400).json({
         message: `This account uses ${user.authProvider} authentication. Please sign in with ${user.authProvider}.`,
@@ -745,23 +756,480 @@ export const forgotPassword = async (req, res, next) => {
     });
 
     const mailOptions = {
-      from: `"Security" <${process.env.EMAIL_USER}>`,
+      from: `"ByteThoughts Security" <${process.env.EMAIL_USER}>`,
       to: user.email,
-      subject: "Password Reset Request",
+      subject: "🔐 Secure Password Reset - ByteThoughts",
       html: `
-        <p>You requested a password reset. Click the button below to reset your password:</p>
-        <a href="${resetUrl}" style="padding: 10px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">
-          Reset Password
-        </a>
-        <p>If you didn't request this, please ignore this email.</p>
-        <p>This link will expire in 15 minutes for your security.</p>
-        <p>If the button doesn't work, copy and paste this URL into your browser:</p>
-        <p>${resetUrl}</p>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Password Reset - ByteThoughts</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #334155;
+                    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                    padding: 20px 0;
+                }
+                
+                .email-container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background: #ffffff;
+                    border-radius: 24px;
+                    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+                    overflow: hidden;
+                    border: 1px solid #e2e8f0;
+                }
+                
+                .header {
+                    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #6366f1 100%);
+                    padding: 40px 30px;
+                    text-align: center;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .header::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    left: -50%;
+                    width: 200%;
+                    height: 200%;
+                    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+                    animation: shimmer 3s ease-in-out infinite;
+                }
+                
+                @keyframes shimmer {
+                    0%, 100% { transform: rotate(0deg); }
+                    50% { transform: rotate(180deg); }
+                }
+                
+                .logo {
+                    position: relative;
+                    z-index: 2;
+                }
+                
+                .logo h1 {
+                    color: #ffffff;
+                    font-size: 32px;
+                    font-weight: 900;
+                    margin-bottom: 8px;
+                    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+                }
+                
+                .logo p {
+                    color: #e2e8f0;
+                    font-size: 14px;
+                    font-weight: 500;
+                    opacity: 0.9;
+                }
+                
+                .security-badge {
+                    position: relative;
+                    z-index: 2;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: rgba(255, 255, 255, 0.2);
+                    backdrop-filter: blur(10px);
+                    padding: 12px 20px;
+                    border-radius: 16px;
+                    margin-top: 20px;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                }
+                
+                .security-badge svg {
+                    width: 20px;
+                    height: 20px;
+                    fill: #ffffff;
+                }
+                
+                .security-badge span {
+                    color: #ffffff;
+                    font-weight: 600;
+                    font-size: 14px;
+                }
+                
+                .content {
+                    padding: 50px 40px;
+                    background: #ffffff;
+                }
+                
+                .greeting {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    margin-bottom: 16px;
+                    text-align: center;
+                }
+                
+                .message {
+                    font-size: 16px;
+                    color: #64748b;
+                    margin-bottom: 32px;
+                    text-align: center;
+                    line-height: 1.7;
+                }
+                
+                .security-notice {
+                    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                    border: 1px solid #f59e0b;
+                    border-radius: 16px;
+                    padding: 20px;
+                    margin: 32px 0;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .security-notice::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 4px;
+                    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+                }
+                
+                .security-notice .notice-title {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-weight: 700;
+                    color: #92400e;
+                    margin-bottom: 8px;
+                    font-size: 14px;
+                }
+                
+                .security-notice .notice-title svg {
+                    width: 16px;
+                    height: 16px;
+                    fill: #f59e0b;
+                }
+                
+                .security-notice p {
+                    color: #92400e;
+                    font-size: 14px;
+                    margin: 0;
+                }
+                
+                .cta-section {
+                    text-align: center;
+                    margin: 40px 0;
+                }
+                
+                .reset-button {
+                    display: inline-block;
+                    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                    color: #ffffff !important;
+                    text-decoration: none;
+                    padding: 20px 40px;
+                    border-radius: 16px;
+                    font-weight: 700;
+                    font-size: 16px;
+                    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                }
+                
+                .reset-button:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 15px 40px rgba(59, 130, 246, 0.5);
+                }
+                
+                .reset-button::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                    transition: left 0.5s;
+                }
+                
+                .reset-button:hover::before {
+                    left: 100%;
+                }
+                
+                .button-icon {
+                    display: inline-block;
+                    width: 20px;
+                    height: 20px;
+                    margin-right: 8px;
+                    vertical-align: middle;
+                    fill: currentColor;
+                }
+                
+                .alternative-method {
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 16px;
+                    padding: 24px;
+                    margin: 32px 0;
+                }
+                
+                .alternative-method h3 {
+                    color: #1e293b;
+                    font-size: 16px;
+                    font-weight: 600;
+                    margin-bottom: 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                
+                .alternative-method h3 svg {
+                    width: 18px;
+                    height: 18px;
+                    fill: #64748b;
+                }
+                
+                .url-box {
+                    background: #ffffff;
+                    border: 2px dashed #cbd5e1;
+                    border-radius: 12px;
+                    padding: 16px;
+                    margin-top: 12px;
+                    word-break: break-all;
+                    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                    font-size: 13px;
+                    color: #475569;
+                    line-height: 1.5;
+                }
+                
+                .stats-section {
+                    display: flex;
+                    justify-content: space-between;
+                    gap: 20px;
+                    margin: 32px 0;
+                }
+                
+                .stat-item {
+                    flex: 1;
+                    text-align: center;
+                    padding: 20px;
+                    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+                    border-radius: 16px;
+                    border: 1px solid #cbd5e1;
+                }
+                
+                .stat-number {
+                    font-size: 24px;
+                    font-weight: 900;
+                    color: #3b82f6;
+                    display: block;
+                    margin-bottom: 4px;
+                }
+                
+                .stat-label {
+                    font-size: 12px;
+                    color: #64748b;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                
+                .footer {
+                    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                    color: #e2e8f0;
+                    padding: 40px;
+                    text-align: center;
+                }
+                
+                .footer-brand {
+                    font-size: 20px;
+                    font-weight: 800;
+                    color: #ffffff;
+                    margin-bottom: 8px;
+                }
+                
+                .footer-tagline {
+                    font-size: 14px;
+                    color: #94a3b8;
+                    margin-bottom: 24px;
+                }
+                
+                .footer-links {
+                    display: flex;
+                    justify-content: center;
+                    gap: 30px;
+                    margin-bottom: 24px;
+                    flex-wrap: wrap;
+                }
+                
+                .footer-links a {
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    font-size: 14px;
+                    font-weight: 500;
+                    transition: color 0.3s ease;
+                }
+                
+                .footer-links a:hover {
+                    color: #3b82f6;
+                }
+                
+                .footer-social {
+                    display: flex;
+                    justify-content: center;
+                    gap: 15px;
+                    margin-bottom: 20px;
+                }
+                
+                .social-link {
+                    display: inline-block;
+                    width: 40px;
+                    height: 40px;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 50%;
+                    text-align: center;
+                    line-height: 40px;
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    transition: all 0.3s ease;
+                }
+                
+                .social-link:hover {
+                    background: #3b82f6;
+                    color: #ffffff;
+                    transform: translateY(-2px);
+                }
+                
+                .footer-disclaimer {
+                    font-size: 12px;
+                    color: #64748b;
+                    line-height: 1.5;
+                    margin-top: 20px;
+                    padding-top: 20px;
+                    border-top: 1px solid #475569;
+                }
+                
+                @media only screen and (max-width: 600px) {
+                    .email-container {
+                        margin: 0 10px;
+                        border-radius: 16px;
+                    }
+                    
+                    .content {
+                        padding: 30px 20px;
+                    }
+                    
+                    .header {
+                        padding: 30px 20px;
+                    }
+                    
+                    .logo h1 {
+                        font-size: 28px;
+                    }
+                    
+                    .stats-section {
+                        flex-direction: column;
+                        gap: 12px;
+                    }
+                    
+                    .footer-links {
+                        flex-direction: column;
+                        gap: 20px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <!-- Header Section -->
+                <div class="header">
+                    <div class="logo">
+                        <h1>ByteThoughts</h1>
+                        <p>One byte, one thought</p>
+                    </div>
+                    <div class="security-badge">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10V11H16V18H8V11H9.2V10C9.2,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.4,8.7 10.4,10V11H13.6V10C13.6,8.7 12.8,8.2 12,8.2Z" />
+                        </svg>
+                        <span>Secure Reset Request</span>
+                    </div>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="content">
+                    <h2 class="greeting">Password Reset Request</h2>
+                    <p class="message">
+                        We received a request to reset the password for your ByteThoughts account. 
+                        If you made this request, click the secure button below to create a new password.
+                    </p>
+                    
+                    <!-- Security Notice -->
+                    <div class="security-notice">
+                        <div class="notice-title">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,7H13V9H11V7M11,11H13V17H11V11Z" />
+                            </svg>
+                            Security Information
+                        </div>
+                        <p>This reset link will expire in exactly 15 minutes for your security. If you didn't request this reset, you can safely ignore this email - your account remains secure.</p>
+                    </div>
+                    
+                    <!-- CTA Section -->
+                    <div class="cta-section">
+                        <a href="${resetUrl}" class="reset-button">
+                            <svg class="button-icon" viewBox="0 0 24 24">
+                                <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M10.5,17L6.5,13L7.91,11.59L10.5,14.17L16.09,8.59L17.5,10L10.5,17Z" />
+                            </svg>
+                            Reset My Password Securely
+                        </a>
+                    </div>
+                  
+                </div>
+                
+                <!-- Footer -->
+                <div class="footer">
+                    <div class="footer-brand">ByteThoughts</div>
+                    <div class="footer-tagline">One byte, one thought</div>
+                    
+                    <div class="footer-links">
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Security Center</a>
+                        <a href="#">Help & Support</a>
+                        <a href="#">Contact Us</a>
+                    </div>
+                    
+                    <div class="footer-social">
+                        <a href="#" class="social-link">f</a>
+                        <a href="#" class="social-link">t</a>
+                        <a href="#" class="social-link">in</a>
+                        <a href="#" class="social-link">ig</a>
+                    </div>
+                    
+                    <div class="footer-disclaimer">
+                        <strong>Security Reminder:</strong> ByteThoughts will never ask for your password via email. 
+                        This automated message was sent from a secure server. If you have any concerns about 
+                        this email's authenticity, please contact our security team immediately.
+                        <br><br>
+                        This email was sent to ${user.email} because a password reset was requested for your ByteThoughts account.
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
       `,
     };
 
     await transporter.sendMail(mailOptions);
-    res.json({ message: "If an account exists, a reset link will be sent." });
+    res.json({ message: "If we found an account with this email, a password reset link has been sent. Please check your inbox." });
   } catch (error) {
     console.error("Password reset error:", error);
     return next(
@@ -908,22 +1376,22 @@ export const verifyEmail = async (req, res, next) => {
   }
 };
 
-// Resend verification email handler
 // Refresh access token
 export const refreshToken = async (req, res, next) => {
   try {
     const refreshToken = req.cookies.refresh_token; // match the cookie name
-    if (!refreshToken) return next(errorHandler(401, 'No refresh token provided'));
+    if (!refreshToken)
+      return next(errorHandler(401, "No refresh token provided"));
 
     const decoded = jwt.decode(refreshToken);
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-      if (err) return next(errorHandler(403, 'Invalid refresh token'));
+      if (err) return next(errorHandler(403, "Invalid refresh token"));
 
       const accessToken = jwt.sign(
         { id: user.id, isAdmin: user.isAdmin },
         process.env.JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: "15m" }
       );
 
       res.status(200).json({ accessToken });
@@ -933,7 +1401,7 @@ export const refreshToken = async (req, res, next) => {
   }
 };
 
-
+// Resend verification email handler
 export const resendVerificationEmail = async (req, res, next) => {
   const { email } = req.body;
 
@@ -941,7 +1409,7 @@ export const resendVerificationEmail = async (req, res, next) => {
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return next(errorHandler(404, "User not found"));
+      return next(errorHandler(404, "Invalid email or password"));
     }
 
     // Check if the user is already verified
