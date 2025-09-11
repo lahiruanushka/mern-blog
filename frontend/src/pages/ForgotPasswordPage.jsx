@@ -5,6 +5,7 @@ import { Mail, ArrowLeft, Loader, Send, Shield, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBolt, FaEnvelope } from "react-icons/fa";
 import { Sparkles } from "lucide-react";
+import authService from "../api/authService";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -68,23 +69,22 @@ const ForgotPasswordPage = () => {
         }
       }
 
-      const res = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          recaptchaToken,
-        }),
+      const res = await authService.forgotPassword({
+        email,
+        recaptchaToken,
       });
 
-      const data = await res.json();
-      if (res.ok) {
-        setSuccess(data.message || "Check your email for a reset link.");
+      if (res.success) {
+        setSuccess(
+          res.message ||
+            "If the email is valid, a reset link has been sent to your email."
+        );
         setEmail("");
       } else {
-        setError(data.message || "Failed to send reset link.");
+        setError(res.message || "Failed to send reset link.");
       }
     } catch (err) {
+      console.error("Error sending reset link:", err);
       setError("An error occurred. Please try again later.");
     } finally {
       setLoading(false);

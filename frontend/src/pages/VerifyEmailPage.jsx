@@ -1,13 +1,28 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Button, Alert, Spinner } from "flowbite-react";
-import { HiMail, HiRefresh, HiCheckCircle, HiExclamationCircle } from "react-icons/hi";
+import {
+  HiMail,
+  HiRefresh,
+  HiCheckCircle,
+  HiExclamationCircle,
+} from "react-icons/hi";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBolt } from "react-icons/fa";
-import { Sparkles, Mail, Send, RefreshCw, Shield, Clock, CheckCircle2 } from "lucide-react";
+import {
+  Sparkles,
+  Mail,
+  Send,
+  RefreshCw,
+  Shield,
+  Clock,
+  CheckCircle2,
+} from "lucide-react";
 
 const VerifyEmailPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const email = location.state?.email || "your email address";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,7 +42,9 @@ const VerifyEmailPage = () => {
 
       const data = await response.json();
       if (data.success) {
-        setSuccessMessage("A new verification email has been sent to your inbox.");
+        setSuccessMessage(
+          "A new verification email has been sent to your inbox."
+        );
       } else {
         setError(
           data.message || "Failed to resend the email. Please try again later."
@@ -44,18 +61,18 @@ const VerifyEmailPage = () => {
     {
       icon: Mail,
       title: "Check Your Inbox",
-      description: "Look for an email from ByteThoughts in your inbox"
+      description: "Look for an email from ByteThoughts in your inbox",
     },
     {
       icon: CheckCircle2,
       title: "Click Verify",
-      description: "Click the verification link in the email"
+      description: "Click the verification link in the email",
     },
     {
       icon: Sparkles,
       title: "Start Learning",
-      description: "Begin your ByteThoughts journey!"
-    }
+      description: "Begin your ByteThoughts journey!",
+    },
   ];
 
   return (
@@ -64,7 +81,7 @@ const VerifyEmailPage = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 via-purple-500/20 to-pink-500/20 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-400/20 via-purple-500/20 to-indigo-500/20 rounded-full blur-3xl" />
-        
+
         {/* Floating particles */}
         {[...Array(12)].map((_, i) => (
           <motion.div
@@ -131,7 +148,11 @@ const VerifyEmailPage = () => {
                 >
                   <motion.div
                     animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 10,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                   >
                     <FaBolt className="text-white text-3xl" />
                   </motion.div>
@@ -145,7 +166,7 @@ const VerifyEmailPage = () => {
                 >
                   Check Your Email
                 </motion.h1>
-                
+
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -175,14 +196,14 @@ const VerifyEmailPage = () => {
                   <div className="relative">
                     <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-3xl flex items-center justify-center shadow-2xl">
                       <motion.div
-                        animate={{ 
+                        animate={{
                           y: [0, -5, 0],
-                          rotate: [0, 5, 0] 
+                          rotate: [0, 5, 0],
                         }}
-                        transition={{ 
+                        transition={{
                           duration: 3,
                           repeat: Infinity,
-                          ease: "easeInOut"
+                          ease: "easeInOut",
                         }}
                       >
                         <Mail className="text-white text-3xl" />
@@ -242,7 +263,7 @@ const VerifyEmailPage = () => {
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 text-center">
                   Next Steps
                 </h3>
-                
+
                 <div className="grid md:grid-cols-3 gap-6">
                   {steps.map((step, index) => (
                     <motion.div
@@ -347,7 +368,7 @@ const VerifyEmailPage = () => {
                 <Button
                   color="gray"
                   className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 border-0 rounded-xl px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                  onClick={() => window.location.href = '/signin'}
+                  onClick={() => navigate("/signin")}
                 >
                   <div className="flex items-center">
                     <HiMail className="w-4 h-4 mr-2" />

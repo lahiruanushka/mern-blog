@@ -10,8 +10,10 @@ import {
   resendVerificationEmail,
   refreshToken,
   signout,
+  getCurrentUser,
 } from "../controllers/authController.js";
 import { errorHandler } from "../utils/error.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -100,5 +102,7 @@ router.post(
   resendVerificationEmail
 );
 router.post("/refresh-token", refreshToken);
+
+router.get("/me", protect, getCurrentUser);
 
 export default router;

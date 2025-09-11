@@ -15,6 +15,7 @@ import zxcvbn from "zxcvbn";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBolt, FaLock, FaCheckCircle } from "react-icons/fa";
 import { Sparkles } from "lucide-react";
+import authService from "../api/authService";
 
 const ResetPasswordPage = () => {
   const { token } = useParams();
@@ -114,22 +115,17 @@ const ResetPasswordPage = () => {
         }
       }
 
-      const res = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          newPassword: formData.password,
-          recaptchaToken,
-        }),
+      const res = await authService.resetPassword({
+        token,
+        newPassword: formData.password,
+        recaptchaToken,
       });
 
-      const data = await res.json();
-      if (res.ok) {
+      if (res.success) {
         setSuccess("Password reset successful. Redirecting to login...");
         setTimeout(() => navigate("/signin"), 3000);
       } else {
-        setError(data.message || "Failed to reset password.");
+        setError(res.message || "Failed to reset password.");
       }
     } catch (err) {
       setError("An error occurred. Please try again later.");

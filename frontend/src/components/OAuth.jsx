@@ -6,6 +6,7 @@ import { app } from "../firebase";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../features/user/userSlice";
 import { useNavigate } from "react-router-dom";
+import authService from "../api/authService";
 
 const OAuth = () => {
   const auth = getAuth(app);
@@ -67,28 +68,22 @@ const OAuth = () => {
 
       const resultsFromGoogle = await signInWithPopup(auth, provider);
 
-      const res = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: resultsFromGoogle.user.displayName,
-          email: resultsFromGoogle.user.email,
-          googlePhotoUrl: resultsFromGoogle.user.photoURL,
-          googleId: resultsFromGoogle.user.uid,
-          recaptchaToken,
-        }),
+      const res = await authService.googleAuth({
+        name: resultsFromGoogle.user.displayName,
+        email: resultsFromGoogle.user.email,
+        googlePhotoUrl: resultsFromGoogle.user.photoURL,
+        googleId: resultsFromGoogle.user.uid,
+        recaptchaToken,
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        dispatch(signInSuccess(data));
+      if (res.success) {
+        dispatch(signInSuccess(res.data));
         setAlertMessage("signin successful! Redirecting...");
         setAlertType("success");
         navigate("/");
       } else {
         console.error("Google signin failed", data.message);
-        setAlertMessage(data.message || "Google signin failed.");
+        setAlertMessage(res.message || "Google signin failed.");
         setAlertType("failure");
       }
     } catch (error) {

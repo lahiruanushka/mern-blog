@@ -1,15 +1,27 @@
 import express from "express";
-import { verifyToken } from "../utils/verifyToken.js";
-import { create, getposts,deletepost, updatepost, getpost, toggleLikePost, getPostsByUserId  } from "../controllers/postController.js";
+import { protect } from "../middleware/authMiddleware.js";
+import {
+  create,
+  getposts,
+  getpost,
+  updatepost,
+  deletepost,
+  likePost,
+  unlikePost,
+  getPostLikes,
+} from "../controllers/postController.js";
 
 const router = express.Router();
 
-router.post("/create", verifyToken, create);
-router.get('/getpost/:postId', getpost);
-router.get("/getposts", getposts);
-router.delete('/deletepost/:postId/:userId', verifyToken, deletepost)
-router.put('/updatepost/:postId/:userId', verifyToken, updatepost)
-router.put('/like/:postId', verifyToken, toggleLikePost)
-router.get('/getpostsbyuserid/:userId', verifyToken, getPostsByUserId)
+router.post("/", protect, create);
+router.get("/", getposts);
+router.get("/:id", getpost);
+router.put("/:id", protect, updatepost);
+router.delete("/:id", protect, deletepost);
+
+// Likes as a sub-resource
+router.post("/:id/likes", protect, likePost); // like a post
+router.delete("/:id/likes", protect, unlikePost); // unlike a post
+router.get("/:id/likes", getPostLikes); // get all likes
 
 export default router;

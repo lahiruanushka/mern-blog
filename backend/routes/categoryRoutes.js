@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyToken } from "../utils/verifyToken.js";
+import { protect } from "../middleware/authMiddleware.js";
 import {
   createCategory,
   deleteCategory,
@@ -9,9 +9,9 @@ import {
 
 const router = express.Router();
 
-router.post("/create", verifyToken, createCategory);
+router.post("/create", protect, createCategory);
 router.get("/all", getCategories);
-router.put("/update/:categoryId", verifyToken, updateCategory);
-router.delete("/delete/:categoryId", verifyToken, deleteCategory);
+router.put("/update/:categoryId", protect, updateCategory);
+router.delete("/delete/:categoryId", protect, deleteCategory);
 
 export default router;

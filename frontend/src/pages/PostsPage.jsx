@@ -23,6 +23,7 @@ import {
   Star,
 } from "lucide-react";
 import Loader from "../components/Loader";
+import postService from "../api/postService";
 
 const PostsPage = () => {
   const [posts, setPosts] = useState([]);
@@ -62,16 +63,18 @@ const PostsPage = () => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const res = await fetch("/api/posts/getPosts");
-        const data = await res.json();
 
-        if (res.ok) {
+        const data = await postService.getPosts();
+
+        console.log(data);
+        if (data.success) {
           setPosts(data.posts || []);
           setFilteredPosts(data.posts || []);
         } else {
           setError("Failed to fetch posts");
         }
       } catch (err) {
+        console.log(err);
         setError("An error occurred while fetching posts");
       } finally {
         setLoading(false);

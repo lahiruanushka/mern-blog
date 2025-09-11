@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { HiHome, HiArrowLeft, HiSparkles } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
 
 // NotFoundPage Component
 const NotFoundPage = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -153,7 +155,7 @@ const NotFoundPage = () => {
               }}
               whileTap={{ scale: 0.95 }}
               className="group relative px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold rounded-2xl overflow-hidden shadow-2xl"
-              onClick={() => (window.location.href = "/")}
+              onClick={() => navigate("/")}
             >
               <span className="relative z-10 flex items-center justify-center">
                 <HiHome className="w-5 h-5 mr-2 group-hover:animate-pulse" />

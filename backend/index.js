@@ -1,5 +1,4 @@
 import express from "express";
-import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -12,41 +11,37 @@ import commentRoutes from "./routes/commentRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
 import path from "path";
+import { connectDB } from "./db/connect.js";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 8000;
 const app = express();
 
-app.set('trust proxy', true);
+app.set("trust proxy", true);
 
 const __dirname = path.resolve();
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 
 // MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB is connected"))
-  .catch((error) => {
-    console.error("MongoDB connection error:", error);
-    process.exit(1); // Exit process if connection fails
-  });
+connectDB();
 
 // Routes
-app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/favorites", favoriteRoutes);
-
 
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
 

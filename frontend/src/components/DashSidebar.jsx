@@ -20,10 +20,11 @@ import {
 } from "react-icons/hi";
 import { ShieldIcon } from "lucide-react";
 import { useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
   const { currentUser } = useSelector((state) => state.user);
+  const navigate = useNavigate();
 
   const sidebarVariants = {
     open: {
@@ -70,7 +71,7 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
   };
 
   const location = useLocation();
-  
+
   const NavItem = ({ to, icon: Icon, label, badge }) => {
     const isActive = location.pathname === to;
 
@@ -389,7 +390,7 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => window.location.href = "/"}
+                onClick={() => navigate("/")}
                 className={`flex items-center gap-3 w-full px-4 py-3 mb-2 text-indigo-600 dark:text-indigo-400 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-950/50 dark:hover:to-purple-950/50 rounded-2xl transition-all duration-300 group transform hover:shadow-lg border border-transparent hover:border-indigo-200/50 dark:hover:border-indigo-800/50 ${
                   isCollapsed ? "justify-center" : ""
                 }`}

@@ -19,10 +19,12 @@ import {
 } from "react-icons/hi";
 import { ShieldIcon } from "lucide-react";
 import PostCard from "../components/PostCard";
-import { getUserProfileByUsername } from "../api/userService";
-import { getPostsByUserId } from "../api/postService";
+import postService from "../api/postService";
+import userService from "../api/userService";
+import Loader from "../components/Loader";
+import Error from "../components/Error";
 
-const UserProfilePage = () => {
+const ProfilePage = () => {
   const { username } = useParams();
   const { currentUser, error, loading } = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -41,12 +43,11 @@ const UserProfilePage = () => {
         setProfileError(null);
 
         // Get user by username
-        const userData = await getUserProfileByUsername(username);
-        setUser(userData);
-
+        const userData = await userService.getUserByUsername(username);
+        setUser(userData.data);
         // Get posts by user ID
-        const postsData = await getPostsByUserId(userData._id);
-        setPosts(postsData);
+        const postsData = await userService.getUserPosts(user._id);
+        setPosts(postsData.data);
       } catch (err) {
         setProfileError(err.message || "Something went wrong");
       } finally {
@@ -61,35 +62,12 @@ const UserProfilePage = () => {
   const isOwnProfile = currentUser && user && currentUser._id === user._id;
 
   if (profileLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 border-4 border-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 border-t-transparent rounded-full"
-        />
-      </div>
-    );
+    return <Loader message="Loading profile..." />;
   }
 
   if (profileError) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 flex items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full p-8 rounded-3xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-red-200 dark:border-red-800 shadow-xl"
-        >
-          <div className="text-center">
-            <HiX className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              Profile Not Found
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">{profileError}</p>
-          </div>
-        </motion.div>
-      </div>
-    );
+    console.log(profileError);
+    return <Error message="Profile not found" />;
   }
 
   if (!user) return null;
@@ -188,6 +166,9 @@ const UserProfilePage = () => {
                     <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
                       @{user.username}
                     </span>
+                    <div className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-300 mt-2">
+                      {user.firstName} {user.lastName}
+                    </div>
                     {user.isAdmin && (
                       <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-pink-500 to-rose-600 text-white">
                         <ShieldIcon className="w-3 h-3 mr-1" /> Admin
@@ -368,4 +349,4 @@ const UserProfilePage = () => {
   );
 };
 
-export default UserProfilePage;
+export default ProfilePage;

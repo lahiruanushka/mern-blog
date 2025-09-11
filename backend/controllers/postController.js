@@ -1,23 +1,24 @@
 import Post from '../models/postModel.js';
 import { errorHandler } from '../utils/error.js';
 
+// Create a new post
 export const create = async (req, res, next) => {
-  if (!req.user.isAdmin) {
-    return next(errorHandler(403, 'You are not allowed to create a post'));
-  }
   if (!req.body.title || !req.body.content) {
     return next(errorHandler(400, 'Please provide all required fields'));
   }
+
   const slug = req.body.title
     .split(' ')
     .join('-')
     .toLowerCase()
     .replace(/[^a-zA-Z0-9-]/g, '');
+
   const newPost = new Post({
     ...req.body,
     slug,
     userId: req.user.id,
   });
+
   try {
     const savedPost = await newPost.save();
     res.status(201).json(savedPost);
@@ -26,11 +27,13 @@ export const create = async (req, res, next) => {
   }
 };
 
+// Get all posts with filters, pagination, search
 export const getposts = async (req, res, next) => {
   try {
     const startIndex = parseInt(req.query.startIndex) || 0;
     const limit = parseInt(req.query.limit) || 9;
     const sortDirection = req.query.order === 'asc' ? 1 : -1;
+
     const posts = await Post.find({
       ...(req.query.userId && { userId: req.query.userId }),
       ...(req.query.category && { category: req.query.category }),
@@ -46,16 +49,20 @@ export const getposts = async (req, res, next) => {
       .sort({ updatedAt: sortDirection })
       .skip(startIndex)
       .limit(limit);
+
     const totalPosts = await Post.countDocuments();
+
     const now = new Date();
     const oneMonthAgo = new Date(
       now.getFullYear(),
       now.getMonth() - 1,
       now.getDate()
     );
+
     const lastMonthPosts = await Post.countDocuments({
       createdAt: { $gte: oneMonthAgo },
     });
+
     res.status(200).json({
       posts,
       totalPosts,
@@ -66,45 +73,73 @@ export const getposts = async (req, res, next) => {
   }
 };
 
+// Delete a post 
 export const deletepost = async (req, res, next) => {
-  if (!req.user.isAdmin || req.user.id !== req.params.userId) {
-    return next(errorHandler(403, 'You are not allowed to delete this post'));
-  }
   try {
-    await Post.findByIdAndDelete(req.params.postId);
-    res.status(200).json('The post has been deleted');
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return next(errorHandler(404, 'Post not found'));
+    }
+
+    if (req.user.id !== post.userId) {
+      return next(errorHandler(403, 'You are not allowed to delete this post'));
+    }
+
+    await Post.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'The post has been deleted' });
   } catch (error) {
     next(error);
   }
 };
 
+// Update a post 
 export const updatepost = async (req, res, next) => {
-  if (!req.user.isAdmin || req.user.id !== req.params.userId) {
-    return next(errorHandler(403, 'You are not allowed to update this post'));
-  }
   try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return next(errorHandler(404, 'Post not found'));
+    }
+
+    if (req.user.id !== post.userId) {
+      return next(errorHandler(403, 'You are not allowed to update this post'));
+    }
+
+    let slug = post.slug;
+    if (req.body.title) {
+      slug = req.body.title
+        .split(' ')
+        .join('-')
+        .toLowerCase()
+        .replace(/[^a-zA-Z0-9-]/g, '');
+    }
+
     const updatedPost = await Post.findByIdAndUpdate(
-      req.params.postId,
+      req.params.id,
       {
         $set: {
-          title: req.body.title,
-          content: req.body.content,
-          category: req.body.category,
-          image: req.body.image,
+          title: req.body.title || post.title,
+          content: req.body.content || post.content,
+          category: req.body.category || post.category,
+          image: req.body.image || post.image,
+          slug: slug,
         },
       },
       { new: true }
     );
+
     res.status(200).json(updatedPost);
   } catch (error) {
     next(error);
   }
 };
 
+// Get a single post
 export const getpost = async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.postId);
-    
+    const post = await Post.findById(req.params.id);
+
     if (!post) {
       return next(errorHandler(404, 'Post not found'));
     }
@@ -115,42 +150,71 @@ export const getpost = async (req, res, next) => {
   }
 };
 
-export const toggleLikePost = async (req, res, next) => {
+// Like a post
+export const likePost = async (req, res, next) => {
   try {
-    const postId = req.params.postId;
-    const userId = req.user.id;
+    const post = await Post.findById(req.params.id);
+    if (!post) return next(errorHandler(404, "Post not found"));
 
-    const post = await Post.findById(postId);
-    if (!post) {
-      return next(errorHandler(404, 'Post not found'));
+    if (post.likes.includes(req.user.id)) {
+      return next(errorHandler(400, "You already liked this post"));
     }
 
-    const likeIndex = post.likes.indexOf(userId);
-    if (likeIndex === -1) {
-      post.likes.push(userId);
-      post.numberOfLikes += 1;
-    } else {
-      post.likes.splice(likeIndex, 1);
-      post.numberOfLikes = Math.max(0, post.numberOfLikes - 1);
-    }
+    post.likes.push(req.user.id);
+    post.numberOfLikes = post.likes.length;
 
     await post.save();
-    res.status(200).json({
+
+    res.status(201).json({
+      message: "Post liked successfully",
       postId: post._id,
       numberOfLikes: post.numberOfLikes,
-      likes: post.likes,
-      liked: likeIndex === -1,
+      likes: post.likes
     });
   } catch (error) {
     next(error);
   }
 };
 
-export const getPostsByUserId = async (req, res, next) => {
+// Unlike a post
+export const unlikePost = async (req, res, next) => {
   try {
-    const posts = await Post.find({ userId: req.params.userId });
-    res.status(200).json(posts);
+    const post = await Post.findById(req.params.id);
+    if (!post) return next(errorHandler(404, "Post not found"));
+
+    if (!post.likes.includes(req.user.id)) {
+      return next(errorHandler(400, "You haven't liked this post"));
+    }
+
+    post.likes = post.likes.filter((id) => id !== req.user.id);
+    post.numberOfLikes = post.likes.length;
+
+    await post.save();
+
+    res.status(200).json({
+      message: "Post unliked successfully",
+      postId: post._id,
+      numberOfLikes: post.numberOfLikes,
+      likes: post.likes
+    });
   } catch (error) {
     next(error);
   }
 };
+
+// Get all likes of a post
+export const getPostLikes = async (req, res, next) => {
+  try {
+    const post = await Post.findById(req.params.id).select("likes numberOfLikes");
+    if (!post) return next(errorHandler(404, "Post not found"));
+
+    res.status(200).json({
+      postId: post._id,
+      numberOfLikes: post.numberOfLikes,
+      likes: post.likes
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

@@ -31,10 +31,12 @@ import {
   EyeOff,
   Eye,
 } from "lucide-react";
+import authService from "../api/authService";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
-    username: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
   });
@@ -74,7 +76,8 @@ const SignUpPage = () => {
 
   const isSignupEnabled = () => {
     return (
-      formData.username &&
+      formData.firstName &&
+      formData.lastName &&
       formData.email &&
       formData.password &&
       passwordStrength &&
@@ -119,7 +122,12 @@ const SignUpPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.username || !formData.email || !formData.password) {
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.email ||
+      !formData.password
+    ) {
       return setErrors("Please fill out all fields");
     }
 
@@ -142,27 +150,27 @@ const SignUpPage = () => {
         }
       }
 
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          recaptchaToken,
-        }),
+      const res = await authService.signup({
+        ...formData,
+        recaptchaToken,
       });
 
-      const data = await res.json();
-
-      if (!data.success) {
-        return setErrors(data.message);
+      if (!res.success) {
+        return setErrors(res.message);
       } else {
         navigate("/verify-email", {
           state: { email: formData.email },
         });
       }
     } catch (error) {
-      console.log(error);
-      setErrors("An unexpected error occurred.");
+      console.error("Signup Error:", error);
+
+      // Check if backend sent a custom message
+      if (error.response?.data?.message) {
+        setErrors(error.response.data.message);
+      } else {
+        setErrors("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
@@ -350,30 +358,61 @@ const SignUpPage = () => {
                   </div>
 
                   <form className="space-y-6" onSubmit={handleSubmit}>
+                    {/* First Name */}
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 }}
+                      transition={{ delay: 0.2 }}
                     >
                       <Label
-                        htmlFor="username"
+                        htmlFor="firstName"
                         className="block mb-3 text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2"
                       >
                         <FaUser className="w-4 h-4 text-purple-600" />
-                        Username
+                        First Name
                       </Label>
                       <TextInput
                         type="text"
-                        id="username"
-                        placeholder="Choose a unique username"
+                        id="firstName"
+                        name="firstName"
+                        placeholder="Enter your first name"
                         required
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-transparent
-            [background:linear-gradient(white,white)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
-            dark:[background:linear-gradient(#1e293b,#1e293b)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
-            text-gray-900 dark:text-gray-100
-            placeholder-gray-500 dark:placeholder-gray-400
-            focus:ring-2 focus:ring-purple-500 focus:outline-none"
+      [background:linear-gradient(white,white)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+      dark:[background:linear-gradient(#1e293b,#1e293b)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+      text-gray-900 dark:text-gray-100
+      placeholder-gray-500 dark:placeholder-gray-400
+      focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                      />
+                    </motion.div>
+
+                    {/* Last Name */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <Label
+                        htmlFor="lastName"
+                        className="block mb-3 text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2"
+                      >
+                        <FaUser className="w-4 h-4 text-purple-600" />
+                        Last Name
+                      </Label>
+                      <TextInput
+                        type="text"
+                        id="lastName"
+                        name="lastName"
+                        placeholder="Enter your last name"
+                        required
+                        onChange={handleChange}
+                        className="w-full rounded-xl border-2 border-transparent
+      [background:linear-gradient(white,white)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+      dark:[background:linear-gradient(#1e293b,#1e293b)_padding-box,linear-gradient(45deg,#4F46E5,#7C3AED,#DB2777)_border-box]
+      text-gray-900 dark:text-gray-100
+      placeholder-gray-500 dark:placeholder-gray-400
+      focus:ring-2 focus:ring-purple-500 focus:outline-none"
                       />
                     </motion.div>
 
