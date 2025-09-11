@@ -22,7 +22,7 @@ import PostCard from "../components/PostCard";
 import postService from "../api/postService";
 import userService from "../api/userService";
 import Loader from "../components/Loader";
-import Error from "../components/Error";
+import ErrorMessage from "../components/ErrorMessage";
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -37,25 +37,31 @@ const ProfilePage = () => {
   const [profileError, setProfileError] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUserData = async () => {
       try {
         setProfileLoading(true);
         setProfileError(null);
 
-        // Get user by username
+        // First, get user by username
         const userData = await userService.getUserByUsername(username);
         setUser(userData.data);
-        // Get posts by user ID
-        const postsData = await userService.getUserPosts(user._id);
-        setPosts(postsData.data);
+
+        // Then get posts by user ID
+        if (userData.data?._id) {
+          const postsData = await userService.getUserPosts(userData.data._id);
+          setPosts(postsData.data);
+        }
       } catch (err) {
-        setProfileError(err.message || "Something went wrong");
+        console.error("Error fetching profile data:", err);
+        setProfileError(err.response?.data?.message || "Something went wrong");
       } finally {
         setProfileLoading(false);
       }
     };
 
-    if (username) fetchData();
+    if (username) {
+      fetchUserData();
+    }
   }, [username]);
 
   // Check if this is the current user's profile
@@ -67,7 +73,7 @@ const ProfilePage = () => {
 
   if (profileError) {
     console.log(profileError);
-    return <Error message="Profile not found" />;
+    return <ErrorMessage message="Profile not found" />;
   }
 
   if (!user) return null;

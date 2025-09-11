@@ -1,20 +1,20 @@
 import express from "express";
 import {
   addToFavorite,
-  getUserFavorites,
   removeFromFavorites,
+  getFavoritePosts,
 } from "../controllers/favoriteController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // Add a post to favorites
-router.post("/add-favorite", protect, addToFavorite);
+router.post("/", protect, addToFavorite);
 
 // Remove a post from favorites
-router.delete("/remove-favorite/:postId", protect, removeFromFavorites);
+router.delete("/:postId", protect, removeFromFavorites);
 
 // Get user's favorites
-router.get("/get-favorites", protect, getUserFavorites);
+router.get("/", protect, getFavoritePosts);
 
 export default router;

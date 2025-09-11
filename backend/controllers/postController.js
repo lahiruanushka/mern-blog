@@ -1,17 +1,17 @@
-import Post from '../models/postModel.js';
-import { errorHandler } from '../utils/error.js';
+import Post from "../models/postModel.js";
+import { errorHandler } from "../utils/error.js";
 
 // Create a new post
 export const create = async (req, res, next) => {
   if (!req.body.title || !req.body.content) {
-    return next(errorHandler(400, 'Please provide all required fields'));
+    return next(errorHandler(400, "Please provide all required fields"));
   }
 
   const slug = req.body.title
-    .split(' ')
-    .join('-')
+    .split(" ")
+    .join("-")
     .toLowerCase()
-    .replace(/[^a-zA-Z0-9-]/g, '');
+    .replace(/[^a-zA-Z0-9-]/g, "");
 
   const newPost = new Post({
     ...req.body,
@@ -32,7 +32,7 @@ export const getposts = async (req, res, next) => {
   try {
     const startIndex = parseInt(req.query.startIndex) || 0;
     const limit = parseInt(req.query.limit) || 9;
-    const sortDirection = req.query.order === 'asc' ? 1 : -1;
+    const sortDirection = req.query.order === "asc" ? 1 : -1;
 
     const posts = await Post.find({
       ...(req.query.userId && { userId: req.query.userId }),
@@ -41,8 +41,8 @@ export const getposts = async (req, res, next) => {
       ...(req.query.postId && { _id: req.query.postId }),
       ...(req.query.searchTerm && {
         $or: [
-          { title: { $regex: req.query.searchTerm, $options: 'i' } },
-          { content: { $regex: req.query.searchTerm, $options: 'i' } },
+          { title: { $regex: req.query.searchTerm, $options: "i" } },
+          { content: { $regex: req.query.searchTerm, $options: "i" } },
         ],
       }),
     })
@@ -52,67 +52,57 @@ export const getposts = async (req, res, next) => {
 
     const totalPosts = await Post.countDocuments();
 
-    const now = new Date();
-    const oneMonthAgo = new Date(
-      now.getFullYear(),
-      now.getMonth() - 1,
-      now.getDate()
-    );
-
-    const lastMonthPosts = await Post.countDocuments({
-      createdAt: { $gte: oneMonthAgo },
-    });
-
     res.status(200).json({
+      success: true,
+      message: "Posts fetched successfully",
       posts,
       totalPosts,
-      lastMonthPosts,
     });
   } catch (error) {
     next(error);
   }
 };
 
-// Delete a post 
+// Delete a post
 export const deletepost = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return next(errorHandler(404, 'Post not found'));
+      return next(errorHandler(404, "Post not found"));
     }
 
     if (req.user.id !== post.userId) {
-      return next(errorHandler(403, 'You are not allowed to delete this post'));
+      return next(errorHandler(403, "You are not allowed to delete this post"));
     }
 
     await Post.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'The post has been deleted' });
+    res.status(200).json({ message: "The post has been deleted" });
   } catch (error) {
     next(error);
   }
 };
 
-// Update a post 
+// Update a post
 export const updatepost = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return next(errorHandler(404, 'Post not found'));
+      return next(errorHandler(404, "Post not found"));
     }
 
     if (req.user.id !== post.userId) {
-      return next(errorHandler(403, 'You are not allowed to update this post'));
+      return next(errorHandler(403, "You are not allowed to update this post"));
     }
 
     let slug = post.slug;
     if (req.body.title) {
       slug = req.body.title
-        .split(' ')
-        .join('-')
+        .split(" ")
+        .join("-")
         .toLowerCase()
-        .replace(/[^a-zA-Z0-9-]/g, '');
+        .replace(/[^a-zA-Z0-9-]/g, "");
     }
 
     const updatedPost = await Post.findByIdAndUpdate(
@@ -141,7 +131,7 @@ export const getpost = async (req, res, next) => {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return next(errorHandler(404, 'Post not found'));
+      return next(errorHandler(404, "Post not found"));
     }
 
     res.status(200).json(post);
@@ -169,7 +159,7 @@ export const likePost = async (req, res, next) => {
       message: "Post liked successfully",
       postId: post._id,
       numberOfLikes: post.numberOfLikes,
-      likes: post.likes
+      likes: post.likes,
     });
   } catch (error) {
     next(error);
@@ -195,7 +185,7 @@ export const unlikePost = async (req, res, next) => {
       message: "Post unliked successfully",
       postId: post._id,
       numberOfLikes: post.numberOfLikes,
-      likes: post.likes
+      likes: post.likes,
     });
   } catch (error) {
     next(error);
@@ -205,16 +195,17 @@ export const unlikePost = async (req, res, next) => {
 // Get all likes of a post
 export const getPostLikes = async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id).select("likes numberOfLikes");
+    const post = await Post.findById(req.params.id).select(
+      "likes numberOfLikes"
+    );
     if (!post) return next(errorHandler(404, "Post not found"));
 
     res.status(200).json({
       postId: post._id,
       numberOfLikes: post.numberOfLikes,
-      likes: post.likes
+      likes: post.likes,
     });
   } catch (error) {
     next(error);
   }
 };
-

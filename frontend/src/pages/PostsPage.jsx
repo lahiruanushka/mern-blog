@@ -64,12 +64,11 @@ const PostsPage = () => {
       try {
         setLoading(true);
 
-        const data = await postService.getPosts();
+        const response = await postService.getPosts();
 
-        console.log(data);
-        if (data.success) {
-          setPosts(data.posts || []);
-          setFilteredPosts(data.posts || []);
+        if (response.success) {
+          setPosts(response.posts || []);
+          setFilteredPosts(response.posts || []);
         } else {
           setError("Failed to fetch posts");
         }

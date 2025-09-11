@@ -27,11 +27,14 @@ import {
   BookOpen,
 } from "lucide-react";
 import LoginPrompt from "../components/LoginPrompt";
+import { PostsLoader } from "../components/Loader";
+import ErrorMessage from "../components/ErrorMessage";
+import postService from "../api/postService";
 
 const PostPage = () => {
   const { postSlug } = useParams();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null);
   const [post, setPost] = useState(null);
   const [recentPosts, setRecentPosts] = useState(null);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
@@ -62,16 +65,15 @@ const PostPage = () => {
     const fetchPost = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/posts/getPosts?slug=${postSlug}`);
-        const data = await res.json();
-        if (!res.ok) {
-          setError(true);
-          setLoading(false);
+        const res = await postService.getPosts({
+          slug: postSlug,
+        });
+        if (!res.success) {
+          setError(res.message);
           return;
-        }
-        if (res.ok) {
-          setPost(data.posts[0]);
-          const fetchedPost = data.posts[0];
+        } else {
+          setPost(res.posts[0]);
+          const fetchedPost = res.posts[0];
           setLikeCount(
             fetchedPost?.numberOfLikes || fetchedPost?.likes?.length || 0
           );
@@ -80,11 +82,10 @@ const PostPage = () => {
           } else {
             setLiked(false);
           }
-          setLoading(false);
-          setError(false);
         }
       } catch (error) {
-        setError(true);
+        setError(error.message || "Failed to fetch post");
+      } finally {
         setLoading(false);
       }
     };
@@ -95,10 +96,9 @@ const PostPage = () => {
   useEffect(() => {
     const fetchRecentPosts = async () => {
       try {
-        const res = await fetch(`/api/posts/getPosts?limit=3`);
-        const data = await res.json();
-        if (res.ok) {
-          setRecentPosts(data.posts);
+        const res = await postService.getPosts({ limit: 3 });
+        if (res.success) {
+          setRecentPosts(res.posts);
         }
       } catch (error) {
         console.log(error.message);
@@ -247,64 +247,12 @@ const PostPage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center space-y-6 p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20"
-        >
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-indigo-200 dark:border-indigo-800 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin"></div>
-            <div
-              className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-purple-600 dark:border-t-purple-400 rounded-full animate-spin"
-              style={{
-                animationDirection: "reverse",
-                animationDuration: "1.5s",
-              }}
-            ></div>
-          </div>
-          <div className="text-center">
-            <p className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              Loading Article
-            </p>
-            <p className="text-gray-600 dark:text-gray-400">
-              Preparing your reading experience...
-            </p>
-          </div>
-        </motion.div>
-      </div>
-    );
+    return <PostsLoader message="Loading post" />;
   }
 
   if (error || !post) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20 max-w-md"
-        >
-          <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <BookOpen className="w-10 h-10 text-white" />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Article Not Found
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-            Sorry, we couldn't find the article you're looking for. It might
-            have been moved or deleted.
-          </p>
-          <Link
-            to="/blog"
-            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-2xl hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Blog
-          </Link>
-        </motion.div>
-      </div>
-    );
+    console.log("Error loading post", error);
+    return <ErrorMessage />;
   }
 
   return (

@@ -2,8 +2,10 @@ import axiosInstance from "./axiosInstance";
 
 const userService = {
   // Get all users (admin only)
-  getUsers: async () => {
-    const response = await axiosInstance.get("/users");
+  getUsers: async (startIndex = 0) => {
+    const response = await axiosInstance.get("/users", {
+      params: { startIndex }
+    });
     return response.data;
   },
 

@@ -1,26 +1,18 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import favoriteService from "../../api/favoriteService";
 
 // Async thunks for favorites operations
 export const addToFavorites = createAsyncThunk(
-  'favorites/addToFavorites',
+  "favorites/addToFavorites",
   async (postId, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/favorites/add-favorite', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ postId })
-      });
+      const response = await favoriteService.addToFavorites(postId);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data);
+      if (!response.success) {
+        return rejectWithValue(response.message || 'Failed to add to favorites');
       }
 
-      return data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -28,24 +20,16 @@ export const addToFavorites = createAsyncThunk(
 );
 
 export const removeFromFavorites = createAsyncThunk(
-  'favorites/removeFromFavorites',
+  "favorites/removeFromFavorites",
   async (postId, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/favorites/remove-favorite/${postId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const response = await favoriteService.removeFromFavorites(postId);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data);
+      if (!response.success) {
+        return rejectWithValue(response.message || 'Failed to remove from favorites');
       }
 
-      return data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -53,24 +37,16 @@ export const removeFromFavorites = createAsyncThunk(
 );
 
 export const fetchFavorites = createAsyncThunk(
-  'favorites/fetchFavorites',
+  "favorites/fetchFavorites",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/favorites/get-favorites', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const response = await favoriteService.getFavorites();
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data);
+      if (!response.success) {
+        return rejectWithValue(response.message || 'Failed to fetch favorites');
       }
 
-      return data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -78,18 +54,18 @@ export const fetchFavorites = createAsyncThunk(
 );
 
 const favoritesSlice = createSlice({
-  name: 'favorites',
+  name: "favorites",
   initialState: {
     items: [],
     loading: false,
     error: null,
     message: null,
-    count: 0
+    count: 0,
   },
   reducers: {
     clearMessage: (state) => {
       state.message = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -149,7 +125,7 @@ const favoritesSlice = createSlice({
         state.error = action.payload;
         state.message = null;
       });
-  }
+  },
 });
 
 export const { clearMessage } = favoritesSlice.actions;

@@ -6,15 +6,8 @@ export const addToFavorite = async (req, res, next) => {
   try {
     const { postId } = req.body;
 
-    // Validate postId
     if (!postId) {
       return next(errorHandler(400, "Post ID is required"));
-    }
-
-    // Find the user and check if post is already in favorites
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return next(errorHandler(404, "User not found"));
     }
 
     // Check if post exists
@@ -23,19 +16,19 @@ export const addToFavorite = async (req, res, next) => {
       return next(errorHandler(404, "Post not found"));
     }
 
-    // Check if already in favorites
-    if (user.favorites.includes(postId)) {
-      return res.status(200).json({
-        message: "Post already in favorites",
-        favorites: user.favorites,
-      });
+    // Add postId only if it's not already in favorites
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $addToSet: { favorites: postId } }, // prevents duplicates
+      { new: true }
+    ).populate("favorites", "-__v");
+
+    if (!user) {
+      return next(errorHandler(404, "User not found"));
     }
 
-    // Add to favorites
-    user.favorites.push(postId);
-    await user.save();
-
     res.status(201).json({
+      success: true,
       message: "Post added to favorites successfully",
       favorites: user.favorites,
     });
@@ -48,31 +41,23 @@ export const removeFromFavorites = async (req, res, next) => {
   try {
     const { postId } = req.params;
 
-    // Validate postId
     if (!postId) {
       return next(errorHandler(400, "Post ID is required"));
     }
 
-    const user = await User.findById(req.user.id);
+    // Remove postId if it exists
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $pull: { favorites: postId } },
+      { new: true }
+    ).populate("favorites", "-__v");
+
     if (!user) {
       return next(errorHandler(404, "User not found"));
     }
 
-    // Check if post is in favorites
-    const initialFavoritesLength = user.favorites.length;
-    user.favorites = user.favorites.filter((id) => id.toString() !== postId);
-
-    // If no favorites were removed
-    if (user.favorites.length === initialFavoritesLength) {
-      return res.status(404).json({
-        message: "Post not found in favorites",
-        favorites: user.favorites,
-      });
-    }
-
-    await user.save();
-
     res.status(200).json({
+      success: true,
       message: "Post removed from favorites successfully",
       favorites: user.favorites,
     });
@@ -81,11 +66,11 @@ export const removeFromFavorites = async (req, res, next) => {
   }
 };
 
-export const getUserFavorites = async (req, res, next) => {
+export const getFavoritePosts = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).populate({
       path: "favorites",
-      select: "-__v", // Exclude version key
+      select: "-__v",
     });
 
     if (!user) {
@@ -93,6 +78,7 @@ export const getUserFavorites = async (req, res, next) => {
     }
 
     res.status(200).json({
+      success: true,
       message: "Favorites retrieved successfully",
       favorites: user.favorites,
       count: user.favorites.length,
