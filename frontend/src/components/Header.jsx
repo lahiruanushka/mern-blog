@@ -23,7 +23,7 @@ import defaultAvatar from "/src/assets/default-avatar.png";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiMoon, HiSparkles, HiSun } from "react-icons/hi";
-import { signout } from "../api/authService";
+import authService from "../api/authService";
 
 const Header = () => {
   const { pathname } = useLocation();
@@ -57,7 +57,7 @@ const Header = () => {
 
   const handleSignout = async () => {
     try {
-      await signout();
+      await authService.signout();
       dispatch(signoutSuccess());
     } catch (error) {
       console.log(error.message);
@@ -278,7 +278,7 @@ const Header = () => {
 
               <Dropdown.Item
                 className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-200"
-                onClick={() => navigate(`/${currentUser?.username || ""}`)}
+                onClick={() => navigate(`users/${currentUser?.username || ""}`)}
               >
                 <span className="flex items-center gap-2">
                   <UserCircle2 className="w-4 h-4" />

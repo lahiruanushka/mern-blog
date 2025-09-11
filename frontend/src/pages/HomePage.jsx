@@ -15,6 +15,7 @@ import {
 } from "react-icons/hi";
 import PostCard from "../components/PostCard";
 import { Link, useNavigate } from "react-router-dom";
+import postService from "../api/postService";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -22,12 +23,10 @@ export default function Home() {
 
   const navigate = useNavigate();
 
-  // Mock data for demonstration - replace with your actual API call
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch("/api/posts/getPosts");
-        const data = await res.json();
+        const data = await postService.getPosts({ startIndex: 0, limit: 10 });
         setPosts(data.posts.slice(0, 6)); // Limit to 6 recent posts
       } catch (error) {
         console.error("Failed to fetch posts:", error);

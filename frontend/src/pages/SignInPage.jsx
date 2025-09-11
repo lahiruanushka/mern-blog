@@ -22,6 +22,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import authService from "../api/authService";
 
 const SignInPage = () => {
   const [formData, setFormData] = useState({
@@ -115,45 +116,44 @@ const SignInPage = () => {
         try {
           recaptchaToken = await executeRecaptcha();
         } catch (recaptchaError) {
+          console.error("reCAPTCHA error:", recaptchaError);
           dispatch(signInFailure("reCAPTCHA verification failed"));
           return;
         }
       }
 
-      const res = await fetch("/api/auth/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      try {
+        const res = await authService.signin({
           ...formData,
           recaptchaToken,
-        }),
-        credentials: "include",
-      });
+        });
 
-      const data = await res.json();
+        if (res.success) {
+          localStorage.removeItem("loginAttempts");
+          localStorage.removeItem("loginBlockedUntil");
+          dispatch(signInSuccess(res.data.user));
+          navigate("/");
+        } else {
+          const attempts =
+            parseInt(localStorage.getItem("loginAttempts") || "0") + 1;
+          localStorage.setItem("loginAttempts", attempts);
 
-      if (res.ok) {
-        localStorage.removeItem("loginAttempts");
-        localStorage.removeItem("loginBlockedUntil");
-        dispatch(signInSuccess(data));
-        navigate("/");
-      } else {
-        const attempts =
-          parseInt(localStorage.getItem("loginAttempts") || "0") + 1;
-        localStorage.setItem("loginAttempts", attempts);
+          if (attempts >= 5) {
+            const blockUntil = Date.now() + 15 * 60 * 1000;
+            localStorage.setItem("loginBlockedUntil", blockUntil);
+          }
 
-        if (attempts >= 5) {
-          const blockUntil = Date.now() + 15 * 60 * 1000;
-          localStorage.setItem("loginBlockedUntil", blockUntil);
+          dispatch(signInFailure(res.message || "Login failed. Please try again."));
         }
-
-        dispatch(signInFailure(data.message));
+      } catch (apiError) {
+        console.error("API Error:", apiError);
+        const errorMessage = apiError.response?.data?.message || 
+          "Unable to connect to the server. Please check your connection and try again.";
+        dispatch(signInFailure(errorMessage));
       }
     } catch (error) {
-      console.error("Login error:", error);
-      dispatch(
-        signInFailure("An unexpected error occurred. Please try again later.")
-      );
+      console.error("Unexpected error:", error);
+      dispatch(signInFailure("An unexpected error occurred. Please try again later."));
     }
   };
 

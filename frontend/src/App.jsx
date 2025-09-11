@@ -1,6 +1,7 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
+import AuthInitializer from "./components/AuthInitializer";
 import SearchPage from "./pages/SearchPage";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
@@ -14,7 +15,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
-import UserProfilePage from "./pages/UserProfilePage";
+import ProfilePage from "./pages/ProfilePage";
 import DashboardComp from "./components/DashboardComp";
 import DashPosts from "./components/DashPosts";
 import CreatePost from "./pages/CreatePost";
@@ -38,6 +39,7 @@ const App = () => {
   return (
     <Router>
       <RecaptchaBadgeRemovalWrapper />
+      <AuthInitializer />
       <Routes>
         {/* Public and user routes with UserLayout */}
         <Route element={<UserLayout />}>
@@ -48,7 +50,7 @@ const App = () => {
           <Route path="/posts" element={<PostsPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/support" element={<SupportPage />} />
-          <Route path="/:username" element={<UserProfilePage />} />
+          <Route path="/users/:username" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/update-post/:postId" element={<UpdatePost />} />

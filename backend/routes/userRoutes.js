@@ -4,18 +4,18 @@ import {
   updateUser,
   getUsers,
   getUser,
-  getUserProfileByUsername,
+  getUserByUsername,
   getPostsByUserId,
 } from "../controllers/userController.js";
-import { verifyToken } from "../utils/verifyToken.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", verifyToken, getUsers);
-router.get("/:id", verifyToken, getUser);
-router.get("/username/:username", getUserProfileByUsername);
-router.put("/:id", verifyToken, updateUser);
-router.delete("/:id", verifyToken, deleteUser);
+router.get("/", protect, getUsers);
+router.get("/:id", protect, getUser);
+router.get("/username/:username", getUserByUsername);
+router.put("/:id", protect, updateUser);
+router.delete("/:id", protect, deleteUser);
 
 // GET posts by user ID (sub-resource)
 router.get("/:id/posts", getPostsByUserId);

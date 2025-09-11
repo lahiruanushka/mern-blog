@@ -1,5 +1,5 @@
 import { Footer as FlowbiteFooter, Button, TextInput } from "flowbite-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   BsFacebook,
   BsInstagram,
@@ -26,6 +26,8 @@ const Footer = () => {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
@@ -440,7 +442,7 @@ const Footer = () => {
                       transition={{ type: "spring", stiffness: 300 }}
                     >
                       <FlowbiteFooter.Link
-                        href={link.href}
+                        onClick={() => navigate(link.href)}
                         className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 font-medium flex items-center gap-2 group"
                       >
                         <Zap className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
