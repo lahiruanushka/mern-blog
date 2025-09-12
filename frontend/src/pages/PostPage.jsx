@@ -290,14 +290,14 @@ const PostPage = () => {
             whileHover={{ scale: 1.02 }}
           >
             <Link
-              to={`/search?category=${post.category}`}
+              to={`/search?category=${post.category?.slug}`}
               className="group inline-flex items-center gap-3 px-6 py-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl border border-indigo-100 dark:border-indigo-900/50 hover:border-indigo-300 dark:hover:border-indigo-700 rounded-2xl text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 shadow-lg hover:shadow-xl transition-all duration-300"
             >
               <div className="p-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
                 <Tag className="w-4 h-4 text-white transition-transform group-hover:rotate-12" />
               </div>
               <span className="relative">
-                <span className="relative z-10">{post.category}</span>
+                <span className="relative z-10">{post.category?.name}</span>
                 <span className="absolute inset-x-0 -bottom-1 h-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
               </span>
             </Link>
@@ -453,7 +453,7 @@ const PostPage = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <img
-            src={post.image}
+            src={post.imageUrl}
             alt={post.title}
             className="w-full h-[400px] md:h-[500px] lg:h-[600px] object-cover group-hover:scale-105 transition-transform duration-700"
           />

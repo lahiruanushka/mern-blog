@@ -11,6 +11,8 @@ const AuthInitializer = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log(currentUser);
+
       try {
         // Only check auth if we don't have a user in the store
         if (!currentUser) {

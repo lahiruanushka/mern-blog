@@ -18,7 +18,7 @@ import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ProfilePage from "./pages/ProfilePage";
 import DashboardComp from "./components/DashboardComp";
 import DashPosts from "./components/DashPosts";
-import CreatePost from "./pages/CreatePost";
+import CreatePostPage from "./pages/CreatePostPage";
 import UpdatePost from "./pages/UpdatePost";
 import DashUsers from "./components/DashUsers";
 import DashCategories from "./components/DashCategories";
@@ -45,14 +45,14 @@ const App = () => {
         <Route element={<UserLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/post/:postSlug" element={<PostPage />} />
+          <Route path="/posts/:postSlug" element={<PostPage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/posts" element={<PostsPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/users/:username" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/create-post" element={<CreatePost />} />
+          <Route path="/create-post" element={<CreatePostPage />} />
           <Route path="/update-post/:postId" element={<UpdatePost />} />
 
           {/* Auth routes - only accessible when NOT logged in */}

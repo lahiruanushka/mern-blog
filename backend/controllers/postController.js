@@ -3,25 +3,52 @@ import { errorHandler } from "../utils/error.js";
 
 // Create a new post
 export const create = async (req, res, next) => {
-  if (!req.body.title || !req.body.content) {
-    return next(errorHandler(400, "Please provide all required fields"));
-  }
-
-  const slug = req.body.title
-    .split(" ")
-    .join("-")
-    .toLowerCase()
-    .replace(/[^a-zA-Z0-9-]/g, "");
-
-  const newPost = new Post({
-    ...req.body,
-    slug,
-    userId: req.user.id,
-  });
-
   try {
+    const { title, excerpt, content, categoryId, status, tags, imageUrl } =
+      req.body;
+
+    console.log(req.body);
+
+    // Validation
+    if (!title || !content) {
+      return next(errorHandler(400, "Title and content are required"));
+    }
+
+    if (title.length < 3) {
+      return next(errorHandler(400, "Title must be at least 3 characters"));
+    }
+
+    if (content.length < 20) {
+      return next(errorHandler(400, "Content must be at least 20 characters"));
+    }
+
+    // Validate the uniqueness of title
+    const existingPost = await Post.findOne({ title });
+    if (existingPost) {
+      return next(errorHandler(400, "Title already exists"));
+    }
+
+    // Create post
+    const newPost = new Post({
+      title,
+      excerpt,
+      content,
+      categoryId,
+      status: req.body.status || "draft", // use the status from request
+      userId: req.user.id,
+      tags: req.body.tags || [],
+      imageUrl:
+        req.body.imageUrl ||
+        "https://i.pinimg.com/736x/ea/e9/f2/eae9f20996f0251384373f987e002c98.jpg",
+    });
+
     const savedPost = await newPost.save();
-    res.status(201).json(savedPost);
+
+    res.status(201).json({
+      success: true,
+      message: "Post created successfully",
+      post: savedPost,
+    });
   } catch (error) {
     next(error);
   }
@@ -36,7 +63,7 @@ export const getposts = async (req, res, next) => {
 
     let posts = await Post.find({
       ...(req.query.userId && { userId: req.query.userId }),
-      ...(req.query.category && { category: req.query.category }),
+      ...(req.query.category && { categoryId: req.query.category }),
       ...(req.query.slug && { slug: req.query.slug }),
       ...(req.query.postId && { _id: req.query.postId }),
       ...(req.query.searchTerm && {
@@ -50,13 +77,16 @@ export const getposts = async (req, res, next) => {
       .skip(startIndex)
       .limit(limit)
       .populate("userId", "username firstName lastName profilePicture isAdmin")
-      .lean(); // returns plain JS objects
+      .populate("categoryId", "_id name slug description") // populate category
+      .lean();
 
-    // 🪄 Transform userId → user
+    // Transform userId → user and categoryId → category
     posts = posts.map((post) => ({
       ...post,
-      user: post.userId, // rename
-      userId: undefined, // remove old key
+      user: post.userId,
+      category: post.categoryId,
+      userId: undefined,
+      categoryId: undefined,
     }));
 
     const totalPosts = await Post.countDocuments();

@@ -212,7 +212,7 @@ const FavoritesPage = () => {
                 boxShadow: "0 10px 25px -5px rgba(139, 92, 246, 0.3)",
               }}
               whileTap={{ scale: 0.98 }}
-              className="w-full px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full px-8 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
               onClick={() => navigate("/posts")}
             >
               <FaSearch className="w-4 h-4" />
@@ -225,7 +225,7 @@ const FavoritesPage = () => {
                 boxShadow: "0 10px 25px -5px rgba(99, 102, 241, 0.2)",
               }}
               whileTap={{ scale: 0.98 }}
-              className="w-full px-8 py-3 bg-white dark:bg-gray-800 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 font-semibold rounded-xl transition-all duration-300"
+              className="w-full px-8 py-2 bg-white dark:bg-gray-800 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 font-semibold rounded-xl transition-all duration-300"
               onClick={() => navigate("/search")}
             >
               Search Topics
