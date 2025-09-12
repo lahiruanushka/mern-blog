@@ -12,7 +12,7 @@ export const protect = (req, res, next) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
         return next(
-          errorHandler(401, "Your session has expired. Please log in again")
+          errorHandler(403, "Your session has expired. Please log in again") // ✅ Changed to 403
         );
       }
       if (err.name === "JsonWebTokenError") {
@@ -26,4 +26,12 @@ export const protect = (req, res, next) => {
     req.user = user;
     next();
   });
+};
+// Check if user is admin
+export const adminOnly = (req, res, next) => {
+  if (req.user && req.user.isAdmin) {
+    next();
+  } else {
+    res.status(403).json({ message: "Access denied: Admins only" });
+  }
 };

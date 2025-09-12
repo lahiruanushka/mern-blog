@@ -39,11 +39,8 @@ const FavoritesPage = () => {
   useEffect(() => {
     if (currentUser?._id) {
       dispatch(fetchFavorites());
-    } else {
-      // Redirect to login if not authenticated
-      navigate('/signin', { state: { from: '/favorites' } });
     }
-  }, [dispatch, currentUser, navigate]);
+  }, [dispatch, currentUser]);
 
   useEffect(() => {
     if (favorites?.length > 0) {

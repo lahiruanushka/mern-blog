@@ -25,11 +25,12 @@ import {
   Star,
   Sparkles,
   BookOpen,
+  Crown,
 } from "lucide-react";
 import LoginPrompt from "../components/LoginPrompt";
-import { PostsLoader } from "../components/Loader";
 import ErrorMessage from "../components/ErrorMessage";
 import postService from "../api/postService";
+import Loader from "../components/Loader";
 
 const PostPage = () => {
   const { postSlug } = useParams();
@@ -247,7 +248,7 @@ const PostPage = () => {
   };
 
   if (loading) {
-    return <PostsLoader message="Loading post" />;
+    return <Loader message="Loading post" />;
   }
 
   if (error || !post) {
@@ -264,7 +265,7 @@ const PostPage = () => {
       transition={pageTransition}
       className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900"
     >
-      {/* Enhanced Reading Progress Bar */}
+      {/*  Reading Progress Bar */}
       <div className="fixed top-0 left-0 w-full h-1.5 bg-gray-200/50 dark:bg-gray-700/50 backdrop-blur-sm z-50 border-b border-white/20 dark:border-gray-700/20">
         <motion.div
           className="h-full bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 shadow-lg"
@@ -276,14 +277,14 @@ const PostPage = () => {
       </div>
 
       <article className="max-w-4xl mx-auto px-4 py-8">
-        {/* Enhanced Article Header */}
+        {/*  Article Header */}
         <motion.header
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="mb-12"
         >
-          {/* Enhanced Category Badge */}
+          {/*  Category Badge */}
           <motion.div
             className="flex items-center gap-2 mb-8"
             whileHover={{ scale: 1.02 }}
@@ -306,7 +307,7 @@ const PostPage = () => {
             {post.title}
           </h1>
 
-          {/* Enhanced Author and Meta Info Card */}
+          {/*  Author and Meta Info Card */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -319,25 +320,85 @@ const PostPage = () => {
 
             <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6">
               <div className="flex items-center gap-6">
-                <div className="relative">
-                  <img
-                    src={
-                      post.author?.avatar ||
-                      `https://ui-avatars.com/api/?name=${
-                        post.author?.name || "Author"
-                      }&background=random`
-                    }
-                    alt={post.author?.name || "Author"}
-                    className="w-20 h-20 rounded-2xl object-cover ring-4 ring-white/50 dark:ring-gray-700/50 shadow-lg"
-                  />
-                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-3 border-white dark:border-gray-800 shadow-lg flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                {/* Profile Picture with Link */}
+                <Link
+                  to={`/users/${post.user?.username}`}
+                  className="relative group"
+                >
+                  <div className="relative">
+                    {/* Glow effect on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl opacity-0 group-hover:opacity-100 blur-md scale-105 group-hover:scale-110 transition-all duration-300"></div>
+
+                    {/* Profile image container */}
+                    <div className="relative overflow-hidden rounded-2xl w-20 h-20 transition-all duration-300 group-hover:scale-105">
+                      <img
+                        src={
+                          post.user?.profilePicture ||
+                          `https://ui-avatars.com/api/?name=${
+                            post.user?.username || "Author"
+                          }&background=random`
+                        }
+                        alt={post.user?.username || "Author"}
+                        className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                      />
+
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+
+                    {/* Admin Crown Icon */}
+                    {post.user?.isAdmin && (
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full border-2 border-white dark:border-gray-800 shadow-lg flex items-center justify-center z-10">
+                        <Crown className="w-3.5 h-3.5 text-white" />
+                      </div>
+                    )}
+
+                    {/* Online Status (only show if not admin) */}
+                    {!post.user?.isAdmin && (
+                      <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 border-white dark:border-gray-800 shadow-md flex items-center justify-center z-10">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                    )}
                   </div>
-                </div>
+                </Link>
+
                 <div>
-                  <p className="font-bold text-xl text-gray-900 dark:text-white mb-2">
-                    {post.author?.name || "Anonymous Author"}
-                  </p>
+                  {/* User Name with Link */}
+                  <div className="mb-2">
+                    <Link
+                      to={`/users/${post.user?.username}`}
+                      className="inline-block"
+                    >
+                      <div className="flex items-center gap-2 group/name">
+                        <p className="font-bold text-xl text-gray-900 dark:text-white group-hover/name:text-indigo-600 dark:group-hover/name:text-indigo-400 transition-colors duration-200">
+                          {post.user?.firstName && post.user?.lastName
+                            ? `${post.user.firstName} ${post.user.lastName}`
+                            : post.user.username || "Anonymous Author"}
+                        </p>
+
+                        {post.user.isAdmin && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-yellow-800 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 dark:text-yellow-200 rounded-full border border-yellow-200 dark:border-yellow-700/50">
+                            <Crown className="w-3 h-3" />
+                            Admin
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Show username if we're displaying full name */}
+                      {post.user?.firstName &&
+                        post.user?.lastName &&
+                        post.user?.username && (
+                          <Link
+                            to={`/users/${post.user?.username}`}
+                            className="text-sm text-gray-500 dark:text-gray-400 font-medium hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200 inline-block mt-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            @{post.user?.username}
+                          </Link>
+                        )}
+                    </Link>
+                  </div>
+
                   <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 rounded-full">
                       <Calendar className="w-4 h-4 text-indigo-500" />
@@ -375,7 +436,7 @@ const PostPage = () => {
                 >
                   <MessageCircle className="w-4 h-4 text-blue-500" />
                   <span className="font-semibold text-gray-700 dark:text-gray-300">
-                    {post.comments || 0}
+                    {post?.comments?.length || 0}
                   </span>
                 </motion.div>
               </div>
@@ -383,7 +444,7 @@ const PostPage = () => {
           </motion.div>
         </motion.header>
 
-        {/* Enhanced Featured Image */}
+        {/*  Featured Image */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -406,7 +467,7 @@ const PostPage = () => {
           </div>
         </motion.div>
 
-        {/* Enhanced Article Content */}
+        {/*  Article Content */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -418,7 +479,7 @@ const PostPage = () => {
           </div>
         </motion.div>
 
-        {/* Enhanced Engagement Bar */}
+        {/*  Engagement Bar */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -131,15 +131,11 @@ export const getUsers = async (req, res, next) => {
 };
 
 /**
- * @desc    Get a single user by ID (Admin only)
+ * @desc    Get a single user by ID
  * @route   GET /api/users/:id
- * @access  Private/Admin
+ * @access  Private
  */
 export const getUser = async (req, res, next) => {
-  if (!req.user.isAdmin) {
-    return next(errorHandler(403, "You are not allowed to see this user"));
-  }
-
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -172,8 +168,6 @@ export const getUserByUsername = async (req, res, next) => {
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-
-    console.log(user);
 
     // Only return safe fields
     const safeUser = {

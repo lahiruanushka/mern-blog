@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import authService from '../api/authService';
-import { signInSuccess, signInFailure } from '../features/user/userSlice';
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import authService from "../api/authService";
+import { signInSuccess, signInFailure } from "../features/user/userSlice";
 
 const AuthInitializer = () => {
   const dispatch = useDispatch();
@@ -15,15 +15,16 @@ const AuthInitializer = () => {
         // Only check auth if we don't have a user in the store
         if (!currentUser) {
           const response = await authService.getCurrentUser();
-          if (response?.data?.user) {
+
+          if (response?.data) {
             dispatch(signInSuccess(response.data.user));
           } else {
-            dispatch(signInFailure('No active session found'));
+            dispatch(signInFailure("No active session found"));
           }
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
-        dispatch(signInFailure('Failed to check authentication status'));
+        console.error("Auth check failed:", error);
+        dispatch(signInFailure("Failed to check authentication status"));
       }
     };
 

@@ -2,41 +2,27 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Heart, 
-  Edit3, 
-  Trash2, 
-  Save, 
-  X, 
+import {
+  Heart,
+  Edit3,
+  Trash2,
+  Save,
+  X,
   Clock,
   User,
   CheckCircle,
   MessageCircle,
-  Crown
+  Crown,
 } from "lucide-react";
+import userService from "../api/userService";
+import commentService from "../api/commentService";
 
 export default function Comment({ comment, onLike, onEdit, onDelete }) {
-  const [user, setUser] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(comment.content);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(comment.numberOfLikes || 0);
   const { currentUser } = useSelector((state) => state.user);
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const res = await fetch(`/api/user/${comment.userId}`);
-        const data = await res.json();
-        if (res.ok) {
-          setUser(data);
-        }
-      } catch (error) {
-        console.log(error.message);
-      }
-    };
-    getUser();
-  }, [comment]);
 
   useEffect(() => {
     if (currentUser && comment.likes) {
@@ -52,16 +38,8 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`/api/comment/editComment/${comment._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: editedContent,
-        }),
-      });
-      if (res.ok) {
+      const res = await commentService.editComment(comment._id, editedContent);
+      if (res.success) {
         setIsEditing(false);
         onEdit(comment, editedContent);
       }
@@ -74,19 +52,21 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
     // Optimistic update
     const newIsLiked = !isLiked;
     const newCount = newIsLiked ? likeCount + 1 : Math.max(0, likeCount - 1);
-    
+
     setIsLiked(newIsLiked);
     setLikeCount(newCount);
-    
+
     // Call the parent function
     onLike(comment._id);
   };
 
-  const canEdit = currentUser && (currentUser._id === comment.userId || currentUser.isAdmin);
-  const canDelete = currentUser && (currentUser._id === comment.userId || currentUser.isAdmin);
+  const canEdit =
+    currentUser && (currentUser._id === comment.userId || currentUser.isAdmin);
+  const canDelete =
+    currentUser && (currentUser._id === comment.userId || currentUser.isAdmin);
 
   const timeAgo = moment(comment.createdAt).fromNow();
-  const isRecent = moment().diff(moment(comment.createdAt), 'hours') < 1;
+  const isRecent = moment().diff(moment(comment.createdAt), "hours") < 1;
 
   return (
     <motion.div
@@ -98,7 +78,7 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
       className="group relative"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-      
+
       <div className="relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-3xl p-8 border border-white/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
         <div className="flex gap-6">
           {/* Avatar Section */}
@@ -107,10 +87,15 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur-md opacity-0 group-hover/avatar:opacity-75 transition-opacity duration-300"></div>
               <img
                 className="relative w-14 h-14 rounded-full object-cover ring-2 ring-white dark:ring-slate-700 shadow-lg"
-                src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.username || 'User'}&background=random`}
-                alt={user.username || 'User'}
+                src={
+                  comment.user?.profilePicture ||
+                  `https://ui-avatars.com/api/?name=${
+                    comment.user.username || "User"
+                  }&background=random`
+                }
+                alt={comment.user.username || "User"}
               />
-              {user.isAdmin && (
+              {comment.user.isAdmin && (
                 <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
                   <Crown className="w-3 h-3 text-white" />
                 </div>
@@ -127,9 +112,11 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3 flex-wrap">
                 <h4 className="font-bold text-lg text-slate-900 dark:text-white">
-                  {user.username ? `@${user.username}` : "Anonymous User"}
+                  {comment.user.username
+                    ? `@${comment.user.username}`
+                    : "Anonymous User"}
                 </h4>
-                {user.isAdmin && (
+                {comment.user.isAdmin && (
                   <span className="px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
                     Admin
                   </span>
@@ -144,7 +131,7 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
                   )}
                 </div>
               </div>
-              
+
               {/* Action Buttons */}
               {(canEdit || canDelete) && (
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -196,13 +183,15 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
                       {200 - editedContent.length} chars left
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleSave}
-                      disabled={!editedContent.trim() || editedContent.length > 200}
+                      disabled={
+                        !editedContent.trim() || editedContent.length > 200
+                      }
                       className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Save className="w-4 h-4" />
@@ -247,18 +236,22 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
                         onClick={handleLikeClick}
                         className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
                           isLiked
-                            ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg'
-                            : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400'
+                            ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg"
+                            : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400"
                         }`}
                       >
                         <motion.div
                           animate={isLiked ? { scale: [1, 1.2, 1] } : {}}
                           transition={{ duration: 0.3 }}
                         >
-                          <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                          <Heart
+                            className={`w-4 h-4 ${
+                              isLiked ? "fill-current" : ""
+                            }`}
+                          />
                         </motion.div>
                         <span className="text-sm">
-                          {likeCount > 0 ? likeCount : 'Like'}
+                          {likeCount > 0 ? likeCount : "Like"}
                         </span>
                       </motion.button>
 
@@ -274,7 +267,7 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
                       <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                         <Heart className="w-4 h-4 text-red-500" />
                         <span>
-                          {likeCount} {likeCount === 1 ? 'like' : 'likes'}
+                          {likeCount} {likeCount === 1 ? "like" : "likes"}
                         </span>
                       </div>
                     )}

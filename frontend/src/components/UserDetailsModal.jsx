@@ -18,19 +18,16 @@ import {
   Globe,
   Lock,
   Loader,
-  Settings
+  Settings,
 } from "lucide-react";
 import { useToast } from "../context/ToastContext";
 import zxcvbn from "zxcvbn";
+import userService from "../api/userService";
 
 const UserDetailsModal = ({ isOpen, onClose, userId }) => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
-
-  // Error and success states
-  const [updateUserError, setUpdateUserError] = useState(null);
-  const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -38,14 +35,12 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
 
       try {
         setLoading(true);
-        const response = await fetch(`/api/user/getuser/${userId}`);
+        const response = await userService.getUserById(userId);
 
-        if (!response.ok) {
+        if (!response.success) {
           throw new Error("Failed to fetch user details");
         }
-
-        const data = await response.json();
-        setUserData(data);
+        setUserData(response.data);
       } catch (error) {
         console.error("Error fetching user details:", error);
         showToast("Failed to load user details", "error");
@@ -57,28 +52,6 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
     fetchUserDetails();
   }, [isOpen, userId, showToast]);
 
-  // Auto-clear alerts after 5 seconds
-  useEffect(() => {
-    let errorTimer, successTimer;
-
-    if (updateUserError) {
-      errorTimer = setTimeout(() => {
-        setUpdateUserError(null);
-      }, 5000);
-    }
-
-    if (updateUserSuccess) {
-      successTimer = setTimeout(() => {
-        setUpdateUserSuccess(null);
-      }, 5000);
-    }
-
-    return () => {
-      if (errorTimer) clearTimeout(errorTimer);
-      if (successTimer) clearTimeout(successTimer);
-    };
-  }, [updateUserError, updateUserSuccess]);
-
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString("en-US", {
       year: "numeric",
@@ -88,144 +61,6 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
       minute: "2-digit",
       timeZoneName: "short",
     });
-  };
-
-  // Comprehensive password validation
-  const validatePasswords = () => {
-    const errors = [];
-
-    if (currentPassword.length < 6) {
-      errors.push("Current password is too short");
-    }
-
-    const passwordStrength = zxcvbn(newPassword);
-
-    if (newPassword !== confirmPassword) {
-      errors.push("New passwords do not match");
-    }
-
-    if (passwordStrength.score < 3) {
-      errors.push(
-        passwordStrength.feedback.warning || "Password is not strong enough"
-      );
-
-      if (passwordStrength.feedback.suggestions.length > 0) {
-        errors.push(
-          "Suggestions: " + passwordStrength.feedback.suggestions.join(". ")
-        );
-      }
-    }
-
-    return errors;
-  };
-
-  const handleRequestOTP = async () => {
-    const validationErrors = validatePasswords();
-
-    if (validationErrors.length > 0) {
-      setUpdateUserError(validationErrors[0]);
-      return;
-    }
-
-    setIsRequestingOTP(true);
-    setUpdateUserError(null);
-    setUpdateUserSuccess(null);
-
-    try {
-      const res = await fetch("/api/user/request-password-update-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ currentPassword }),
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        setOtpSent(true);
-        setUpdateUserSuccess("OTP sent to your email");
-      } else {
-        setUpdateUserError(data.message);
-      }
-    } catch (error) {
-      setUpdateUserError(error.message);
-    } finally {
-      setIsRequestingOTP(false);
-    }
-  };
-
-  const handlePasswordUpdate = async (e) => {
-    e.preventDefault();
-
-    const validationErrors = validatePasswords();
-
-    if (validationErrors.length > 0) {
-      setUpdateUserError(validationErrors[0]);
-      return;
-    }
-
-    setIsUpdatingPassword(true);
-    setUpdateUserError(null);
-    setUpdateUserSuccess(null);
-
-    try {
-      const res = await fetch("/api/user/update-password", {
-        method: "PUT",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          currentPassword,
-          newPassword,
-          otp,
-        }),
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        setUpdateUserSuccess("Password updated successfully");
-        setPasswordUpdateSuccess(true);
-        resetPasswordForm();
-      } else {
-        setUpdateUserError(data.message);
-      }
-    } catch (error) {
-      setUpdateUserError(error.message);
-    } finally {
-      setIsUpdatingPassword(false);
-    }
-  };
-
-  const resetPasswordForm = () => {
-    setPasswordUpdateMode(false);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    setOtp("");
-    setOtpSent(false);
-    setPasswordUpdateSuccess(false);
-  };
-
-
-  const getPasswordStrength = (password) => {
-    if (!password) return { score: 0, label: "None", color: "text-slate-400" };
-    
-    const result = zxcvbn(password);
-    const strengthLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
-    const strengthColors = [
-      "text-red-500",
-      "text-orange-500", 
-      "text-yellow-500",
-      "text-blue-500",
-      "text-green-500"
-    ];
-
-    return {
-      score: result.score,
-      label: strengthLabels[result.score],
-      color: strengthColors[result.score]
-    };
   };
 
   const modalVariants = {
@@ -312,28 +147,34 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                   </p>
                 </div>
               ) : userData ? (
-                <motion.div
-                  variants={itemVariants}
-                  className="space-y-8"
-                >
+                <motion.div variants={itemVariants} className="space-y-8">
                   {/* Profile Header */}
                   <motion.div variants={itemVariants}>
                     <div className="relative p-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-3xl border border-blue-200 dark:border-blue-800/30">
                       <div className="flex flex-col sm:flex-row items-center gap-6">
                         <div className="relative">
                           <img
-                            src={userData.profilePicture || `https://ui-avatars.com/api/?name=${userData.username}&background=random`}
+                            src={
+                              userData.profilePicture ||
+                              `https://ui-avatars.com/api/?name=${userData.username}&background=random`
+                            }
                             alt={userData.username}
                             className="w-24 h-24 rounded-full object-cover ring-4 ring-white dark:ring-slate-700 shadow-xl"
                           />
-                          <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-4 border-white dark:border-slate-800 ${userData.accountStatus === "active" ? "bg-green-500" : "bg-red-500"}`}></div>
+                          <div
+                            className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-4 border-white dark:border-slate-800 ${
+                              userData.accountStatus === "active"
+                                ? "bg-green-500"
+                                : "bg-red-500"
+                            }`}
+                          ></div>
                           {userData.isAdmin && (
                             <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
                               <Crown className="w-4 h-4 text-white" />
                             </div>
                           )}
                         </div>
-                        
+
                         <div className="text-center sm:text-left flex-1">
                           <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
                             {userData.username}
@@ -345,14 +186,27 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                             </div>
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4" />
-                              <span>Joined {new Date(userData.createdAt).toLocaleDateString()}</span>
+                              <span>
+                                Joined{" "}
+                                {new Date(
+                                  userData.createdAt
+                                ).toLocaleDateString()}
+                              </span>
                             </div>
                           </div>
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <span className={`px-4 py-2 rounded-xl font-semibold ${userData.accountStatus === "active" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"}`}>
-                            {userData.accountStatus === "active" ? "Active Account" : "Inactive"}
+                          <span
+                            className={`px-4 py-2 rounded-xl font-semibold ${
+                              userData.accountStatus === "active"
+                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                            }`}
+                          >
+                            {userData.accountStatus === "active"
+                              ? "Active Account"
+                              : "Inactive"}
                           </span>
                           {userData.isAdmin && (
                             <span className="px-4 py-2 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 text-yellow-700 dark:text-yellow-300 rounded-xl font-semibold">
@@ -377,24 +231,34 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                             Account Information
                           </h4>
                         </div>
-                        
+
                         <div className="space-y-4">
                           <div className="flex items-center justify-between">
-                            <span className="text-slate-600 dark:text-slate-400">Account Status</span>
+                            <span className="text-slate-600 dark:text-slate-400">
+                              Account Status
+                            </span>
                             <div className="flex items-center gap-2">
                               {userData.accountStatus === "active" ? (
                                 <CheckCircle className="w-4 h-4 text-green-500" />
                               ) : (
                                 <XCircle className="w-4 h-4 text-red-500" />
                               )}
-                              <span className={`font-semibold ${userData.accountStatus === "active" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                              <span
+                                className={`font-semibold ${
+                                  userData.accountStatus === "active"
+                                    ? "text-green-600 dark:text-green-400"
+                                    : "text-red-600 dark:text-red-400"
+                                }`}
+                              >
                                 {userData.accountStatus}
                               </span>
                             </div>
                           </div>
 
                           <div className="flex items-center justify-between">
-                            <span className="text-slate-600 dark:text-slate-400">User Type</span>
+                            <span className="text-slate-600 dark:text-slate-400">
+                              User Type
+                            </span>
                             <div className="flex items-center gap-2">
                               {userData.isAdmin ? (
                                 <Crown className="w-4 h-4 text-yellow-500" />
@@ -402,13 +266,17 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                                 <User className="w-4 h-4 text-blue-500" />
                               )}
                               <span className="font-semibold text-slate-900 dark:text-white">
-                                {userData.isAdmin ? "Administrator" : "Standard User"}
+                                {userData.isAdmin
+                                  ? "Administrator"
+                                  : "Standard User"}
                               </span>
                             </div>
                           </div>
 
                           <div className="flex items-center justify-between">
-                            <span className="text-slate-600 dark:text-slate-400">Created</span>
+                            <span className="text-slate-600 dark:text-slate-400">
+                              Created
+                            </span>
                             <span className="font-semibold text-slate-900 dark:text-white">
                               {formatDate(userData.createdAt)}
                             </span>
@@ -426,10 +294,12 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                             Security Settings
                           </h4>
                         </div>
-                        
+
                         <div className="space-y-4">
                           <div className="flex items-center justify-between">
-                            <span className="text-slate-600 dark:text-slate-400">Authentication</span>
+                            <span className="text-slate-600 dark:text-slate-400">
+                              Authentication
+                            </span>
                             <div className="flex items-center gap-2">
                               <Globe className="w-4 h-4 text-blue-500" />
                               <span className="font-semibold text-slate-900 dark:text-white">
@@ -439,15 +309,25 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                           </div>
 
                           <div className="flex items-center justify-between">
-                            <span className="text-slate-600 dark:text-slate-400">Two-Factor Auth</span>
+                            <span className="text-slate-600 dark:text-slate-400">
+                              Two-Factor Auth
+                            </span>
                             <div className="flex items-center gap-2">
                               {userData.securitySettings?.twoFactorEnabled ? (
                                 <CheckCircle className="w-4 h-4 text-green-500" />
                               ) : (
                                 <XCircle className="w-4 h-4 text-red-500" />
                               )}
-                              <span className={`font-semibold ${userData.securitySettings?.twoFactorEnabled ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                                {userData.securitySettings?.twoFactorEnabled ? "Enabled" : "Disabled"}
+                              <span
+                                className={`font-semibold ${
+                                  userData.securitySettings?.twoFactorEnabled
+                                    ? "text-green-600 dark:text-green-400"
+                                    : "text-red-600 dark:text-red-400"
+                                }`}
+                              >
+                                {userData.securitySettings?.twoFactorEnabled
+                                  ? "Enabled"
+                                  : "Disabled"}
                               </span>
                             </div>
                           </div>
@@ -467,27 +347,33 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                           Additional Information
                         </h4>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="text-center p-4 bg-white/50 dark:bg-slate-800/50 rounded-2xl">
                           <p className="text-2xl font-bold text-slate-900 dark:text-white">
                             {userData.postsCount || 0}
                           </p>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">Posts Created</p>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">
+                            Posts Created
+                          </p>
                         </div>
-                        
+
                         <div className="text-center p-4 bg-white/50 dark:bg-slate-800/50 rounded-2xl">
                           <p className="text-2xl font-bold text-slate-900 dark:text-white">
                             {userData.commentsCount || 0}
                           </p>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">Comments Made</p>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">
+                            Comments Made
+                          </p>
                         </div>
-                        
+
                         <div className="text-center p-4 bg-white/50 dark:bg-slate-800/50 rounded-2xl">
                           <p className="text-2xl font-bold text-slate-900 dark:text-white">
                             {userData.lastLoginDays || "N/A"}
                           </p>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">Days Since Login</p>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">
+                            Days Since Login
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -502,7 +388,8 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                     No User Data Available
                   </h3>
                   <p className="text-slate-600 dark:text-slate-400 text-center max-w-md">
-                    We couldn't load the user information. Please try again or contact support if the issue persists.
+                    We couldn't load the user information. Please try again or
+                    contact support if the issue persists.
                   </p>
                 </div>
               )}
@@ -515,4 +402,3 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
 };
 
 export default UserDetailsModal;
-                                 

@@ -34,7 +34,7 @@ export const getposts = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 9;
     const sortDirection = req.query.order === "asc" ? 1 : -1;
 
-    const posts = await Post.find({
+    let posts = await Post.find({
       ...(req.query.userId && { userId: req.query.userId }),
       ...(req.query.category && { category: req.query.category }),
       ...(req.query.slug && { slug: req.query.slug }),
@@ -48,7 +48,16 @@ export const getposts = async (req, res, next) => {
     })
       .sort({ updatedAt: sortDirection })
       .skip(startIndex)
-      .limit(limit);
+      .limit(limit)
+      .populate("userId", "username firstName lastName profilePicture isAdmin")
+      .lean(); // returns plain JS objects
+
+    // 🪄 Transform userId → user
+    posts = posts.map((post) => ({
+      ...post,
+      user: post.userId, // rename
+      userId: undefined, // remove old key
+    }));
 
     const totalPosts = await Post.countDocuments();
 
@@ -128,13 +137,26 @@ export const updatepost = async (req, res, next) => {
 // Get a single post
 export const getpost = async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id);
+    let post = await Post.findById(req.params.id)
+      .populate("userId", "username firstName lastName profilePicture isAdmin")
+      .lean();
 
     if (!post) {
       return next(errorHandler(404, "Post not found"));
     }
 
-    res.status(200).json(post);
+    // Transform userId → user
+    post = {
+      ...post,
+      user: post.userId,
+      userId: undefined,
+    };
+
+    res.status(200).json({
+      success: true,
+      message: "Post fetched successfully",
+      post,
+    });
   } catch (error) {
     next(error);
   }

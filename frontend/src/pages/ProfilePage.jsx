@@ -72,11 +72,8 @@ const ProfilePage = () => {
   }
 
   if (profileError) {
-    console.log(profileError);
     return <ErrorMessage message="Profile not found" />;
   }
-
-  if (!user) return null;
 
   const stats = [
     {
@@ -170,10 +167,10 @@ const ProfilePage = () => {
                     transition={{ delay: 0.3 }}
                   >
                     <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-                      @{user.username}
+                      {user.firstName} {user.lastName}
                     </span>
                     <div className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-300 mt-2">
-                      {user.firstName} {user.lastName}
+                      @{user.username}
                     </div>
                     {user.isAdmin && (
                       <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-pink-500 to-rose-600 text-white">

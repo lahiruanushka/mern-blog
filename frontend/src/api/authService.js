@@ -15,8 +15,18 @@ const authService = {
 
   // Signout user
   signout: async () => {
-    const response = await axiosInstance.post("/auth/signout");
-    return response.data;
+    try {
+      const response = await axiosInstance.post("/auth/signout");
+
+      // Force page reload to reset interceptor state
+      setTimeout(() => window.location.reload(), 100);
+
+      return response.data;
+    } catch (error) {
+      // Force logout even if server fails
+      setTimeout(() => (window.location.href = "/signin"), 100);
+      throw error;
+    }
   },
 
   // Google authentication

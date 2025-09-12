@@ -985,7 +985,7 @@ export const signin = async (req, res, next) => {
     const accessTokenCookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // ✅ Changed from "strict"
       maxAge: 15 * 60 * 1000, // 15 minutes
       path: "/",
     };
@@ -993,7 +993,7 @@ export const signin = async (req, res, next) => {
     const refreshTokenCookieOptions = {
       ...accessTokenCookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: "/api/auth/refresh-token",
+      path: "/",
     };
 
     // Remove sensitive data
@@ -1995,25 +1995,37 @@ export const verifyEmail = async (req, res, next) => {
 // Refresh access token
 export const refreshToken = async (req, res, next) => {
   try {
-    const refreshToken = req.cookies.refresh_token; // match the cookie name
-    if (!refreshToken)
-      return next(errorHandler(401, "No refresh token provided"));
+    const refreshToken = req.cookies.refresh_token;
 
-    const decoded = jwt.decode(refreshToken);
+    if (!refreshToken) {
+      return next(errorHandler(401, "Refresh token not found"));
+    }
 
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-      if (err) return next(errorHandler(403, "Invalid refresh token"));
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 
-      const accessToken = jwt.sign(
-        { id: user.id, isAdmin: user.isAdmin },
-        process.env.JWT_SECRET,
-        { expiresIn: "15m" }
-      );
+    // Generate new access token
+    const newAccessToken = jwt.sign(
+      { id: decoded.id, isAdmin: decoded.isAdmin },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
 
-      res.status(200).json({ accessToken });
+    // Set new access token cookie
+    res.cookie("access_token", newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 15 * 60 * 1000,
+      path: "/",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Token refreshed successfully",
     });
   } catch (error) {
-    next(error);
+    console.error("Refresh token error:", error);
+    next(errorHandler(401, "Invalid refresh token"));
   }
 };
 
