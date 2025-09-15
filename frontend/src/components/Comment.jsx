@@ -14,8 +14,8 @@ import {
   MessageCircle,
   Crown,
 } from "lucide-react";
-import userService from "../api/userService";
-import commentService from "../api/commentService";
+import userService from "../services/userService";
+import commentService from "../services/commentService";
 
 export default function Comment({ comment, onLike, onEdit, onDelete }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -23,6 +23,9 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(comment.numberOfLikes || 0);
   const { currentUser } = useSelector((state) => state.user);
+
+  // Ensure comment.user exists with safe defaults
+  const user = comment.user || {};
 
   useEffect(() => {
     if (currentUser && comment.likes) {
@@ -88,14 +91,14 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
               <img
                 className="relative w-14 h-14 rounded-full object-cover ring-2 ring-white dark:ring-slate-700 shadow-lg"
                 src={
-                  comment.user?.profilePicture ||
+                  (comment.user && comment.user.profilePicture) ||
                   `https://ui-avatars.com/api/?name=${
-                    comment.user.username || "User"
+                    (comment.user && comment.user.username) || "User"
                   }&background=random`
                 }
-                alt={comment.user.username || "User"}
+                alt={(comment.user && comment.user.username) || "User"}
               />
-              {comment.user.isAdmin && (
+              {comment.user && comment.user.isAdmin && (
                 <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
                   <Crown className="w-3 h-3 text-white" />
                 </div>
@@ -112,11 +115,11 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3 flex-wrap">
                 <h4 className="font-bold text-lg text-slate-900 dark:text-white">
-                  {comment.user.username
-                    ? `@${comment.user.username}`
+                  {user.firstName && user.lastName
+                    ? `${user.firstName} ${user.lastName}`
                     : "Anonymous User"}
                 </h4>
-                {comment.user.isAdmin && (
+                {user.isAdmin && (
                   <span className="px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
                     Admin
                   </span>

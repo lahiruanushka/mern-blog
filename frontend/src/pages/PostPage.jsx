@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import LoginPrompt from "../components/LoginPrompt";
 import ErrorMessage from "../components/ErrorMessage";
-import postService from "../api/postService";
+import postService from "../services/postService";
 import Loader from "../components/Loader";
 
 const PostPage = () => {

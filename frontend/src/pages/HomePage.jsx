@@ -15,7 +15,7 @@ import {
 } from "react-icons/hi";
 import PostCard from "../components/PostCard";
 import { Link, useNavigate } from "react-router-dom";
-import postService from "../api/postService";
+import postService from "../services/postService";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);

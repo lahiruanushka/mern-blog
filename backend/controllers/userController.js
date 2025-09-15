@@ -49,6 +49,8 @@ export const updateUser = async (req, res, next) => {
       req.params.id,
       {
         $set: {
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
           username: req.body.username,
           email: req.body.email,
           profilePicture: req.body.profilePicture,
@@ -57,7 +59,11 @@ export const updateUser = async (req, res, next) => {
       { new: true }
     );
     const { password, ...rest } = updatedUser._doc;
-    res.status(200).json({ success: true, data: rest });
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: rest,
+    });
   } catch (error) {
     next(error);
   }
@@ -119,6 +125,7 @@ export const getUsers = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
+      message: "Users fetched successfully",
       data: {
         users: usersWithoutPassword,
         totalUsers,
@@ -142,7 +149,11 @@ export const getUser = async (req, res, next) => {
       return next(errorHandler(404, "User not found"));
     }
     const { password, ...rest } = user._doc;
-    res.status(200).json({ success: true, data: rest });
+    res.status(200).json({
+      success: true,
+      message: "User fetched successfully",
+      data: rest,
+    });
   } catch (error) {
     next(error);
   }
@@ -160,7 +171,7 @@ export const getUserByUsername = async (req, res, next) => {
     const user = await User.findOne({
       username: username.toLowerCase().trim(),
     }).select(
-      "firstName lastName username profilePicture isVerified createdAt"
+      "firstName lastName username displayName profilePicture isVerified createdAt"
     );
 
     if (!user) {
@@ -175,12 +186,17 @@ export const getUserByUsername = async (req, res, next) => {
       firstName: user.firstName,
       lastName: user.lastName,
       username: user.username,
+      displayName: user.displayName,
       profilePicture: user.profilePicture,
       isVerified: user.isVerified,
       createdAt: user.createdAt,
     };
 
-    res.json({ success: true, data: safeUser });
+    res.json({
+      success: true,
+      message: "User fetched successfully",
+      data: safeUser,
+    });
   } catch (error) {
     next(error);
   }
@@ -206,7 +222,11 @@ export const getPostsByUserId = async (req, res, next) => {
       .skip(startIndex)
       .limit(limit);
 
-    res.status(200).json({ success: true, data: posts });
+    res.status(200).json({
+      success: true,
+      message: "Posts fetched successfully",
+      data: posts,
+    });
   } catch (error) {
     next(error);
   }

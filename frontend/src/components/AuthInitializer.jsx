@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import authService from "../api/authService";
 import { signInSuccess, signInFailure } from "../features/user/userSlice";
+import authService from "../services/authService";
 
 const AuthInitializer = () => {
   const dispatch = useDispatch();

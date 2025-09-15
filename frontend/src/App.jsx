@@ -29,6 +29,7 @@ import SettingsPage from "./pages/SettingsPage";
 import DashSettings from "./components/DashSettings";
 import PostsPage from "./pages/PostsPage";
 import SupportPage from "./pages/SupportPage";
+import ServiceMaintenance from "./pages/ServiceMaintenancePage";
 
 const RecaptchaBadgeRemovalWrapper = () => {
   useRecaptchaBadgeRemoval();
@@ -55,6 +56,15 @@ const App = () => {
           <Route path="/create-post" element={<CreatePostPage />} />
           <Route path="/update-post/:postId" element={<UpdatePost />} />
 
+          <Route
+            path="/maintenance"
+            element={
+              <ServiceMaintenance
+                message="We're upgrading our systems for better performance!"
+                showSocialLinks={true}
+              />
+            }
+          />
           {/* Auth routes - only accessible when NOT logged in */}
           <Route element={<PublicOnlyRoute />}>
             <Route path="/signin" element={<SignInPage />} />

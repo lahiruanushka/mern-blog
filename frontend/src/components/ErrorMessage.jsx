@@ -74,9 +74,9 @@ export const ErrorMessage = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-rose-100 dark:from-slate-900 dark:via-slate-800 dark:to-red-950/50 flex items-center justify-center p-4">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-red-50 to-rose-100 dark:from-slate-900 dark:via-slate-800 dark:to-red-950/50 flex items-center justify-center p-4">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-900/[0.04] bg-[size:20px_20px] opacity-50" />
+      <div className="fixed inset-0 w-full h-full bg-grid-slate-100 dark:bg-grid-slate-900/[0.04] bg-[size:20px_20px] opacity-50" />
 
       <motion.div
         variants={containerVariants}

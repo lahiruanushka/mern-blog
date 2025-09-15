@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import favoriteService from "../../api/favoriteService";
+import favoriteService from "../../services/favoriteService";
 
 // Async thunks for favorites operations
 export const addToFavorites = createAsyncThunk(
@@ -9,7 +9,9 @@ export const addToFavorites = createAsyncThunk(
       const response = await favoriteService.addToFavorites(postId);
 
       if (!response.success) {
-        return rejectWithValue(response.message || 'Failed to add to favorites');
+        return rejectWithValue(
+          response.message || "Failed to add to favorites"
+        );
       }
 
       return response;
@@ -26,7 +28,9 @@ export const removeFromFavorites = createAsyncThunk(
       const response = await favoriteService.removeFromFavorites(postId);
 
       if (!response.success) {
-        return rejectWithValue(response.message || 'Failed to remove from favorites');
+        return rejectWithValue(
+          response.message || "Failed to remove from favorites"
+        );
       }
 
       return response;
@@ -43,7 +47,7 @@ export const fetchFavorites = createAsyncThunk(
       const response = await favoriteService.getFavorites();
 
       if (!response.success) {
-        return rejectWithValue(response.message || 'Failed to fetch favorites');
+        return rejectWithValue(response.message || "Failed to fetch favorites");
       }
 
       return response;

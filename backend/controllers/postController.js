@@ -116,7 +116,7 @@ export const deletepost = async (req, res, next) => {
     }
 
     await Post.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "The post has been deleted" });
+    res.status(200).json({ success: true, message: "The post has been deleted" });
   } catch (error) {
     next(error);
   }
@@ -158,7 +158,11 @@ export const updatepost = async (req, res, next) => {
       { new: true }
     );
 
-    res.status(200).json(updatedPost);
+    res.status(200).json({
+      success: true,
+      message: "Post updated successfully",
+      post: updatedPost,
+    });
   } catch (error) {
     next(error);
   }
@@ -208,6 +212,7 @@ export const likePost = async (req, res, next) => {
     await post.save();
 
     res.status(201).json({
+      success: true,
       message: "Post liked successfully",
       postId: post._id,
       numberOfLikes: post.numberOfLikes,
@@ -234,6 +239,7 @@ export const unlikePost = async (req, res, next) => {
     await post.save();
 
     res.status(200).json({
+      success: true,
       message: "Post unliked successfully",
       postId: post._id,
       numberOfLikes: post.numberOfLikes,
@@ -253,6 +259,8 @@ export const getPostLikes = async (req, res, next) => {
     if (!post) return next(errorHandler(404, "Post not found"));
 
     res.status(200).json({
+      success: true,
+      message: "Post likes fetched successfully",
       postId: post._id,
       numberOfLikes: post.numberOfLikes,
       likes: post.likes,

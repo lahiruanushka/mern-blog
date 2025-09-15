@@ -19,8 +19,8 @@ import {
 } from "react-icons/hi";
 import { ShieldIcon } from "lucide-react";
 import PostCard from "../components/PostCard";
-import postService from "../api/postService";
-import userService from "../api/userService";
+import postService from "../services/postService";
+import userService from "../services/userService";
 import Loader from "../components/Loader";
 import ErrorMessage from "../components/ErrorMessage";
 

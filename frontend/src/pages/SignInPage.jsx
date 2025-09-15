@@ -22,7 +22,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import authService from "../api/authService";
+import authService from "../services/authService";
 
 const SignInPage = () => {
   const [formData, setFormData] = useState({
@@ -143,17 +143,22 @@ const SignInPage = () => {
             localStorage.setItem("loginBlockedUntil", blockUntil);
           }
 
-          dispatch(signInFailure(res.message || "Login failed. Please try again."));
+          dispatch(
+            signInFailure(res.message || "Login failed. Please try again.")
+          );
         }
       } catch (apiError) {
         console.error("API Error:", apiError);
-        const errorMessage = apiError.response?.data?.message || 
+        const errorMessage =
+          apiError.response?.data?.message ||
           "Unable to connect to the server. Please check your connection and try again.";
         dispatch(signInFailure(errorMessage));
       }
     } catch (error) {
       console.error("Unexpected error:", error);
-      dispatch(signInFailure("An unexpected error occurred. Please try again later."));
+      dispatch(
+        signInFailure("An unexpected error occurred. Please try again later.")
+      );
     }
   };
 

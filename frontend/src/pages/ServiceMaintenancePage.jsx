@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export const ServiceMaintenance = ({
+export const ServiceMaintenancePage = ({
   estimatedTime = "2 hours",
   message = "We're making some improvements to serve you better!",
   showSocialLinks = true,
@@ -238,4 +238,4 @@ export const ServiceMaintenance = ({
   );
 };
 
-export default ServiceMaintenance;
+export default ServiceMaintenancePage;

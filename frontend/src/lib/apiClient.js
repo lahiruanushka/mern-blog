@@ -1,7 +1,7 @@
-// axiosInstance.js - MAIN FIX
+// apiClient.js - MAIN FIX
 import axios from "axios";
 
-const axiosInstance = axios.create({
+const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
@@ -20,7 +20,7 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-axiosInstance.interceptors.response.use(
+apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
@@ -37,7 +37,7 @@ axiosInstance.interceptors.response.use(
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         }).then(() => {
-          return axiosInstance(originalRequest);
+          return apiClient(originalRequest);
         });
       }
 
@@ -45,9 +45,9 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axiosInstance.post("/auth/refresh-token");
+        await apiClient.post("/auth/refresh-token");
         processQueue(null);
-        return axiosInstance(originalRequest);
+        return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
 
@@ -73,4 +73,4 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-export default axiosInstance;
+export default apiClient;

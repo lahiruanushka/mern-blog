@@ -34,7 +34,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
-import categoryService from "../api/categoryService";
+import categoryService from "../services/categoryService";
 import { app } from "../firebase";
 import {
   ref,
@@ -42,9 +42,10 @@ import {
   getDownloadURL,
   getStorage,
 } from "firebase/storage";
-import postService from "../api/postService";
+import postService from "../services/postService";
 import { useToast } from "../context/ToastContext";
 import { useNavigate } from "react-router-dom";
+import ServiceMaintenanceModal from "../components/ServiceMaintenanceModal";
 
 const CreatePostPage = () => {
   // Form state
@@ -61,14 +62,12 @@ const CreatePostPage = () => {
 
   // UI state
   const [file, setFile] = useState(null);
-  const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [publishError, setPublishError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [wordCount, setWordCount] = useState(0);
-  const [autoSaveStatus, setAutoSaveStatus] = useState("saved"); // 'saving', 'saved', 'error'
   const [validationErrors, setValidationErrors] = useState({});
 
   // Tags state
@@ -76,8 +75,9 @@ const CreatePostPage = () => {
   const [suggestedTags, setSuggestedTags] = useState([]);
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
 
+  const [isMaintenanceOpen, setIsMaintenanceOpen] = useState(false);
+
   // Refs
-  const autoSaveTimeoutRef = useRef(null);
   const quillRef = useRef(null);
 
   const [categories, setCategories] = useState([]);
@@ -150,37 +150,6 @@ const CreatePostPage = () => {
       setWordCount(0);
     }
   }, [formData.content]);
-
-  // Auto-save functionality
-  const saveAsDraft = useCallback(async () => {
-    if (!formData.title.trim() && !formData.content.trim()) return;
-
-    setAutoSaveStatus("saving");
-    try {
-      await postService.saveDraft(formData);
-      setAutoSaveStatus("saved");
-    } catch (error) {
-      setAutoSaveStatus("error");
-      console.error("Autosave failed:", error);
-    }
-  }, [formData]);
-
-  // Debounced auto-save
-  useEffect(() => {
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
-
-    autoSaveTimeoutRef.current = setTimeout(() => {
-      saveAsDraft();
-    }, 2000);
-
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
-  }, [formData, saveAsDraft]);
 
   // Form validation
   const validateForm = () => {
@@ -277,21 +246,6 @@ const CreatePostPage = () => {
       setPublishError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  // Handle manual save as draft
-  const handleSaveDraft = async () => {
-    setAutoSaveStatus("saving");
-    try {
-      const response = await postService.saveDraft(formData);
-      if (response.success) {
-        setAutoSaveStatus("saved");
-      } else {
-        setAutoSaveStatus("error");
-      }
-    } catch (error) {
-      setAutoSaveStatus("error");
     }
   };
 
@@ -392,23 +346,6 @@ const CreatePostPage = () => {
     }
   };
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-        e.preventDefault();
-        handleSaveDraft();
-      }
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "Enter") {
-        e.preventDefault();
-        handleSubmit(e);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleSaveDraft]);
-
   // Auto-hide errors
   useEffect(() => {
     if (publishError || imageUploadError) {
@@ -462,34 +399,6 @@ const CreatePostPage = () => {
                 Create engaging content with our advanced editor. Auto-save
                 keeps your work safe.
               </p>
-
-              {/* Auto-save status */}
-              <div className="flex items-center justify-center gap-2 mt-4 text-sm">
-                {autoSaveStatus === "saving" && (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                    <span className="text-blue-600 dark:text-blue-400">
-                      Saving...
-                    </span>
-                  </>
-                )}
-                {autoSaveStatus === "saved" && (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
-                    <span className="text-green-600 dark:text-green-400">
-                      Draft saved
-                    </span>
-                  </>
-                )}
-                {autoSaveStatus === "error" && (
-                  <>
-                    <XCircle className="w-4 h-4 text-red-500" />
-                    <span className="text-red-600 dark:text-red-400">
-                      Save failed
-                    </span>
-                  </>
-                )}
-              </div>
             </motion.div>
 
             {/* Success Message */}
@@ -902,6 +811,7 @@ const CreatePostPage = () => {
                       whileTap={{ scale: 0.98 }}
                       type="button"
                       className="flex-1 px-6 py-3 bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 text-slate-700 dark:text-slate-300 rounded-2xl hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-500 transition-all duration-300 font-bold text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                      onClick={() => setIsMaintenanceOpen(true)}
                     >
                       <Eye className="w-5 h-5" />
                       Preview Post
@@ -911,22 +821,13 @@ const CreatePostPage = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       type="button"
-                      onClick={handleSaveDraft}
-                      disabled={autoSaveStatus === "saving"}
+                      onClick={handleSubmit}
                       className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-100 to-indigo-200 dark:from-blue-700 dark:to-indigo-600 text-blue-700 dark:text-blue-300 rounded-2xl hover:from-blue-200 hover:to-indigo-300 dark:hover:from-blue-600 dark:hover:to-indigo-500 transition-all duration-300 font-bold text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50"
-                      title="Press Ctrl + S to save draft"
                     >
-                      {autoSaveStatus === "saving" ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-5 h-5" />
-                          Save Draft
-                        </>
-                      )}
+                      <>
+                        <Save className="w-5 h-5" />
+                        Save Draft
+                      </>
                     </motion.button>
 
                     <motion.button
@@ -938,7 +839,6 @@ const CreatePostPage = () => {
                       type="submit"
                       disabled={isLoading}
                       className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 font-bold text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
-                      title="Press Ctrl + Shift + Enter to publish post"
                     >
                       {isLoading ? (
                         <>
@@ -972,6 +872,14 @@ const CreatePostPage = () => {
         <div className="absolute bottom-40 left-20 w-40 h-40 bg-gradient-to-br from-pink-400/10 to-red-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-40 w-28 h-28 bg-gradient-to-br from-green-400/10 to-blue-500/10 rounded-full blur-2xl"></div>
       </div>
+
+      <ServiceMaintenanceModal
+        isOpen={isMaintenanceOpen}
+        onClose={() => setIsMaintenanceOpen(false)}
+        estimatedTime="3 hours"
+        message="Custom maintenance message here"
+        showSocialLinks={true}
+      />
     </div>
   );
 };

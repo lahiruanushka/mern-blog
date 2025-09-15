@@ -24,7 +24,7 @@ import defaultAvatar from "/src/assets/default-avatar.png";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiMoon, HiSparkles, HiSun } from "react-icons/hi";
-import authService from "../api/authService";
+import authService from "../services/authService";
 
 const Header = () => {
   const { pathname } = useLocation();

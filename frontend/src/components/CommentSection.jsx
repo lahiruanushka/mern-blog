@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import Comment from "./Comment";
 import LoginPrompt from "./LoginPrompt";
-import commentService from "../api/commentService";
+import commentService from "../services/commentService";
 
 export default function CommentSection({ postId }) {
   const { currentUser } = useSelector((state) => state.user);

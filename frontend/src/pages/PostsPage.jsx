@@ -23,7 +23,7 @@ import {
   Star,
 } from "lucide-react";
 import Loader from "../components/Loader";
-import postService from "../api/postService";
+import postService from "../services/postService";
 
 const PostsPage = () => {
   const [posts, setPosts] = useState([]);
