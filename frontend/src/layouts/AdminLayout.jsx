@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
-import AdminHeader from "../components/AdminHeader";
-import DashSidebar from "../components/DashSidebar";
+import DashboardHeader from "../components/dashboard/DashboardHeader";
+import DashSidebar from "../components/dashboard/DashSidebar";
 import ToastComponent from "../components/ToastComponent";
 
 const AdminLayout = () => {
@@ -10,7 +10,7 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 flex flex-col">
-      <AdminHeader
+      <DashboardHeader
         onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
         sidebarOpen={isSidebarOpen}
       />

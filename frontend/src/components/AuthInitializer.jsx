@@ -1,18 +1,14 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { signInSuccess, signInFailure } from "../features/user/userSlice";
 import authService from "../services/authService";
 
 const AuthInitializer = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
     const checkAuth = async () => {
-      console.log(currentUser);
-
       try {
         // Only check auth if we don't have a user in the store
         if (!currentUser) {
@@ -26,7 +22,6 @@ const AuthInitializer = () => {
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-        dispatch(signInFailure("Failed to check authentication status"));
       }
     };
 

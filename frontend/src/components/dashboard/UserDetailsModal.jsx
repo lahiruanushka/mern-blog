@@ -20,9 +20,9 @@ import {
   Loader,
   Settings,
 } from "lucide-react";
-import { useToast } from "../context/ToastContext";
+import { useToast } from "../../context/ToastContext";
 import zxcvbn from "zxcvbn";
-import userService from "../services/userService";
+import userService from "../../services/userService";
 
 const UserDetailsModal = ({ isOpen, onClose, userId }) => {
   const [userData, setUserData] = useState(null);

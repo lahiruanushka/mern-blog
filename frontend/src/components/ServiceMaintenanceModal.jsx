@@ -151,57 +151,7 @@ const ServiceMaintenanceModal = ({
                 ))}
               </div>
             </div>
-
-            {/* Status Updates */}
-            <div
-              className="mb-6 animate-slideUp"
-              style={{ animationDelay: "0.3s" }}
-            >
-              <div className="grid md:grid-cols-3 gap-3">
-                <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800/30 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200">
-                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold text-green-800 dark:text-green-300 text-sm">
-                      Security
-                    </div>
-                    <div className="text-xs text-green-600 dark:text-green-400">
-                      Enhanced
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/30 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold text-blue-800 dark:text-blue-300 text-sm">
-                      Performance
-                    </div>
-                    <div className="text-xs text-blue-600 dark:text-blue-400">
-                      Optimizing
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800/30 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200">
-                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                    <Heart className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold text-purple-800 dark:text-purple-300 text-sm">
-                      Experience
-                    </div>
-                    <div className="text-xs text-purple-600 dark:text-purple-400">
-                      Improving
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+            
             {/* Action Buttons */}
             <div
               className="space-y-3 animate-slideUp"

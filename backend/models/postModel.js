@@ -23,6 +23,10 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    readTime: {
+      type: String,
+      default: 0,
+    },
     imageUrl: {
       type: String,
     },
@@ -53,7 +57,7 @@ const postSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    publishAt: {
+    publishedAt: {
       type: Date,
       default: Date.now,
     },
@@ -62,17 +66,32 @@ const postSchema = new mongoose.Schema(
       enum: ["draft", "published"],
       default: "draft",
     },
+    isTrending: {
+      type: Boolean,
+      default: false,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+    views: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
 
-// Auto-generate slug from title
 postSchema.pre("save", function (next) {
   if (this.isModified("title")) {
+    // Auto-generate slug from title
     this.slug = this.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "");
+
+    // Read time
+    this.readTime = this.content.split(" ").length / 200;
   }
   next();
 });

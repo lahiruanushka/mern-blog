@@ -201,33 +201,3 @@ export const getUserByUsername = async (req, res, next) => {
     next(error);
   }
 };
-
-/**
- * @desc    Get all posts by a user ID
- * @route   GET /api/users/:id/posts
- * @access  Public
- */
-export const getPostsByUserId = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return next(errorHandler(404, "User not found"));
-    }
-
-    const startIndex = parseInt(req.query.startIndex) || 0;
-    const limit = parseInt(req.query.limit) || 10;
-
-    const posts = await Post.find({ userId: req.params.id })
-      .sort({ createdAt: -1 })
-      .skip(startIndex)
-      .limit(limit);
-
-    res.status(200).json({
-      success: true,
-      message: "Posts fetched successfully",
-      data: posts,
-    });
-  } catch (error) {
-    next(error);
-  }
-};

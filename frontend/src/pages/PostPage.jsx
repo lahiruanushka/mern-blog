@@ -26,6 +26,8 @@ import {
   Sparkles,
   BookOpen,
   Crown,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import LoginPrompt from "../components/LoginPrompt";
 import ErrorMessage from "../components/ErrorMessage";
@@ -212,6 +214,28 @@ const PostPage = () => {
     setIsLoginPromptOpen(false);
   };
 
+  // Handle post deletion
+  const handleDeletePost = async (postId) => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this post? This action cannot be undone."
+      )
+    ) {
+      try {
+        const res = await postService.deletePost(postId);
+        if (res.success) {
+          showToast("Post deleted successfully", "success");
+          navigate("/");
+        } else {
+          showToast(res.message || "Failed to delete post", "error");
+        }
+      } catch (error) {
+        showToast("An error occurred while deleting the post", "error");
+        console.error("Error deleting post:", error);
+      }
+    }
+  };
+
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
     in: { opacity: 1, y: 0 },
@@ -319,7 +343,7 @@ const PostPage = () => {
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-pink-500/10 to-orange-500/10 rounded-full blur-2xl" />
 
             <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6 flex-wrap">
                 {/* Profile Picture with Link */}
                 <Link
                   to={`/users/${post.user?.username}`}
@@ -414,6 +438,26 @@ const PostPage = () => {
                     </span>
                   </div>
                 </div>
+
+                {/* Edit and Delete Buttons - Only show if current user is the post owner */}
+                {currentUser && currentUser._id === post.user?._id && (
+                  <div className="flex items-center gap-3 mt-4 sm:mt-0">
+                    <Link
+                      to={`/update-post/${post.slug}`}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors duration-200"
+                    >
+                      <Edit className="w-4 h-4" />
+                      <span>Edit</span>
+                    </Link>
+                    <button
+                      onClick={() => handleDeletePost(post._id)}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-sm font-medium hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors duration-200"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
@@ -475,7 +519,47 @@ const PostPage = () => {
           className="article-content mb-16"
         >
           <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-indigo-600 dark:prose-a:text-indigo-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:bg-indigo-50 dark:prose-code:bg-indigo-900/30 prose-code:text-indigo-700 dark:prose-code:text-indigo-300 prose-code:px-2 prose-code:py-1 prose-code:rounded-lg prose-code:font-semibold prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-gradient-to-r prose-blockquote:from-indigo-50 prose-blockquote:to-purple-50 dark:prose-blockquote:from-indigo-900/20 dark:prose-blockquote:to-purple-900/20 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-2xl prose-blockquote:shadow-lg prose-blockquote:border-l-indigo-500">
-            <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            <div
+              className="article-content prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-h2:text-3xl prose-h3:text-2xl prose-h4:text-xl prose-a:text-indigo-600 dark:prose-a:text-indigo-400 hover:prose-a:text-indigo-700 dark:hover:prose-a:text-indigo-300 prose-a:transition-colors prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:pl-4 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-800/50 prose-blockquote:not-italic prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-pre:bg-gray-800 prose-pre:rounded-xl prose-pre:p-4 prose-img:rounded-2xl prose-img:shadow-xl dark:prose-pre:bg-gray-900/50 dark:prose-img:border dark:prose-img:border-gray-700/50"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+
+            {/* Tags */}
+            {post?.tags?.length > 0 && (
+              <div className="mt-12 mb-8">
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.map((tag, index) => {
+                    // Generate a consistent gradient based on the tag text
+                    const colors = [
+                      "from-blue-500 to-cyan-400",
+                      "from-purple-500 to-pink-500",
+                      "from-green-500 to-emerald-400",
+                      "from-amber-500 to-yellow-400",
+                      "from-rose-500 to-pink-400",
+                      "from-indigo-500 to-blue-400",
+                      "from-teal-500 to-cyan-400",
+                    ];
+                    const colorIndex =
+                      Math.abs(
+                        tag
+                          .split("")
+                          .reduce((sum, char) => sum + char.charCodeAt(0), 0)
+                      ) % colors.length;
+                    const gradient = colors[colorIndex];
+
+                    return (
+                      <Link
+                        key={index}
+                        to={`/search?tag=${encodeURIComponent(tag)}`}
+                        className={`px-4 py-2 text-sm font-medium rounded-full bg-clip-text text-transparent bg-gradient-to-r ${gradient} shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5`}
+                      >
+                        #{tag}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
 

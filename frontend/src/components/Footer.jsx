@@ -27,8 +27,6 @@ const Footer = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigate = useNavigate();
-
   const handleSubscribe = async (e) => {
     e.preventDefault();
     if (email.trim()) {
@@ -88,10 +86,10 @@ const Footer = () => {
   ];
 
   const quickLinks = [
-    { label: "Latest Posts", href: "#" },
-    { label: "Trending Topics", href: "#" },
-    { label: "Categories", href: "#" },
-    { label: "Authors", href: "#" },
+    { label: "Latest Posts", href: "/explore" },
+    { label: "Trending Topics", href: "/explore" },
+    { label: "Categories", href: "/explore" },
+    { label: "Authors", href: "/explore" },
   ];
 
   const supportLinks = [
@@ -99,6 +97,12 @@ const Footer = () => {
     { label: "Contact Us", href: "/support" },
     { label: "Community Guidelines", href: "/support" },
     { label: "Report Content", href: "/support" },
+  ];
+
+  const legalLinks = [
+    { label: "Privacy Policy", href: "/legal?tab=privacy" },
+    { label: "Terms of Service", href: "/legal?tab=terms" },
+    { label: "Cookie Policy", href: "/legal?tab=cookies" },
   ];
 
   const stats = [
@@ -412,7 +416,8 @@ const Footer = () => {
                       transition={{ type: "spring", stiffness: 300 }}
                     >
                       <FlowbiteFooter.Link
-                        href={link.href}
+                        as={Link}
+                        to={link.href}
                         className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 font-medium flex items-center gap-2 group"
                       >
                         <Zap className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -442,7 +447,8 @@ const Footer = () => {
                       transition={{ type: "spring", stiffness: 300 }}
                     >
                       <FlowbiteFooter.Link
-                        onClick={() => navigate(link.href)}
+                        as={Link}
+                        to={link.href}
                         className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 font-medium flex items-center gap-2 group"
                       >
                         <Zap className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -482,22 +488,21 @@ const Footer = () => {
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-6">
-                  {["Privacy Policy", "Terms of Service", "Cookie Policy"].map(
-                    (item, index) => (
-                      <motion.div
-                        key={item}
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ type: "spring", stiffness: 300 }}
+                  {legalLinks.map((item, index) => (
+                    <motion.div
+                      key={item}
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <FlowbiteFooter.Link
+                        as={Link}
+                        to={item.href}
+                        className="text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 font-medium"
                       >
-                        <FlowbiteFooter.Link
-                          href="#"
-                          className="text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 font-medium"
-                        >
-                          {item}
-                        </FlowbiteFooter.Link>
-                      </motion.div>
-                    )
-                  )}
+                        {item.label}
+                      </FlowbiteFooter.Link>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
 

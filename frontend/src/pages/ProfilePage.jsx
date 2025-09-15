@@ -48,8 +48,10 @@ const ProfilePage = () => {
 
         // Then get posts by user ID
         if (userData.data?._id) {
-          const postsData = await userService.getUserPosts(userData.data._id);
-          setPosts(postsData.data);
+          const response = await postService.getPosts({
+            userId: userData.data._id,
+          });
+          setPosts(response.posts);
         }
       } catch (err) {
         console.error("Error fetching profile data:", err);

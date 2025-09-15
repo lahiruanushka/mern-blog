@@ -78,7 +78,6 @@ const Header = () => {
     { path: "/", label: "Home", icon: Home },
     { path: "/posts", label: "Posts", icon: HiSparkles },
     { path: "/favorites", label: "Favorites", icon: Star },
-    { path: "/create-post", label: "Write", icon: Pencil },
     { path: "/about", label: "About", icon: Info },
   ];
 

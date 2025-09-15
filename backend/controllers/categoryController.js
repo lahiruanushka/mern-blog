@@ -2,7 +2,7 @@ import Category from "../models/categoryModel.js";
 
 export const createCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, color } = req.body;
 
     // Check if category already exists
     const existingCategory = await Category.findOne({
@@ -19,6 +19,7 @@ export const createCategory = async (req, res) => {
     const newCategory = new Category({
       name: name.trim(),
       description: description || "",
+      color: color,
     });
 
     const savedCategory = await newCategory.save();
@@ -55,7 +56,7 @@ export const getCategories = async (req, res) => {
 
 export const updateCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, color } = req.body;
 
     // Check if category already exists
     const existingCategory = await Category.findOne({
@@ -74,6 +75,7 @@ export const updateCategory = async (req, res) => {
       {
         name: name.trim().toLowerCase(),
         description: description || "",
+        color: color,
       },
       { new: true, runValidators: true }
     );

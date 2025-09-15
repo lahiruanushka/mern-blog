@@ -17,7 +17,7 @@ import {
 import { FiShield } from "react-icons/fi";
 import { ShieldIcon } from "lucide-react";
 import UserDetailsModal from "./UserDetailsModal";
-import userService from "../services/userService";
+import userService from "../../services/userService";
 
 const DashUsers = () => {
   const { currentUser } = useSelector((state) => state.user);

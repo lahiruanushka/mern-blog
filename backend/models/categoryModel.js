@@ -13,6 +13,10 @@ const categorySchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    color: {
+      type: String,
+      default: "blue",
+    },
     description: {
       type: String,
       default: "",

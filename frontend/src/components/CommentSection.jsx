@@ -214,7 +214,7 @@ export default function CommentSection({ postId }) {
                   to="/dashboard?tab=profile"
                   className="text-lg font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors"
                 >
-                  @{currentUser.username}
+                  {currentUser.firstName} {currentUser.lastName}
                 </Link>
               </div>
             </motion.div>
