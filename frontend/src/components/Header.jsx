@@ -1,20 +1,17 @@
 import { Avatar, Button, Dropdown, Navbar, TextInput } from "flowbite-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaMoon, FaSearch, FaSun, FaBolt } from "react-icons/fa";
+import { FaSearch, FaBolt } from "react-icons/fa";
 import {
   Home,
   Info,
-  BookmarkCheck,
   ArrowRight,
   Star,
-  Sparkles,
   Zap,
   UserCircle2,
   LayoutDashboard,
   LogOut,
   Cog,
   Bell,
-  Pencil,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
@@ -22,7 +19,7 @@ import { toggleTheme } from "../features/theme/themeSlice";
 import { signoutSuccess } from "../features/user/userSlice";
 import defaultAvatar from "/src/assets/default-avatar.png";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { HiMoon, HiSparkles, HiSun } from "react-icons/hi";
 import authService from "../services/authService";
 

@@ -4,8 +4,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import {
   Search,
-  Filter,
-  SortAsc,
   SortDesc,
   Grid,
   List,
@@ -13,7 +11,6 @@ import {
   Tag,
   TrendingUp,
   Clock,
-  Eye,
   Heart,
   ChevronLeft,
   ChevronRight,
@@ -35,7 +32,6 @@ const PostsPage = () => {
   const [sortBy, setSortBy] = useState("latest");
   const [viewMode, setViewMode] = useState("grid");
   const [currentPage, setCurrentPage] = useState(1);
-  const [showFilters, setShowFilters] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -431,11 +427,11 @@ const PostsPage = () => {
                     {searchTerm && (
                       <span>
                         {" "}
-                        for "
+                        for &quot;
                         <span className="font-semibold text-blue-600 dark:text-blue-400">
                           {searchTerm}
                         </span>
-                        "
+                        &quot;
                       </span>
                     )}
                     {selectedCategory !== "all" && (
@@ -470,7 +466,7 @@ const PostsPage = () => {
                     : "grid-cols-1 max-w-4xl mx-auto"
                 }`}
               >
-                {currentPosts.map((post, index) => (
+                {currentPosts.map((post) => (
                   <motion.div
                     key={post._id}
                     variants={itemVariants}
@@ -502,7 +498,7 @@ const PostsPage = () => {
                   No Posts Found
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto">
-                  We couldn't find any articles matching your search criteria.
+                  We couldn&apos;t find any articles matching your search criteria.
                   Try adjusting your filters or search terms.
                 </p>
                 <button

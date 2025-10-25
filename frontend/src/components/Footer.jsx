@@ -1,5 +1,5 @@
-import { Footer as FlowbiteFooter, Button, TextInput } from "flowbite-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Footer as FlowbiteFooter, TextInput } from "flowbite-react";
+import { Link } from "react-router-dom";
 import {
   BsFacebook,
   BsInstagram,
@@ -8,7 +8,7 @@ import {
   BsLinkedin,
   BsYoutube,
 } from "react-icons/bs";
-import { FaBolt, FaEnvelope, FaArrowRight, FaHeart } from "react-icons/fa";
+import { FaBolt, FaHeart } from "react-icons/fa";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -371,7 +371,7 @@ const Footer = () => {
               <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed max-w-lg text-lg">
                 Empowering minds through digital storytelling. Join our
                 community of innovators, creators, and forward-thinkers as we
-                explore the ideas that shape tomorrow's digital landscape.
+                explore the ideas that shape tomorrow&apos;s digital landscape.
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -490,7 +490,7 @@ const Footer = () => {
                 <div className="flex flex-wrap justify-center gap-6">
                   {legalLinks.map((item, index) => (
                     <motion.div
-                      key={item}
+                      key={index}
                       whileHover={{ scale: 1.05 }}
                       transition={{ type: "spring", stiffness: 300 }}
                     >
