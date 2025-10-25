@@ -31,7 +31,7 @@ import {
   EyeOff,
   Eye,
 } from "lucide-react";
-import authService from "../api/authService";
+import authService from "../services/authService";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({

@@ -15,11 +15,11 @@ import {
 } from "react-icons/hi";
 import PostCard from "../components/PostCard";
 import { Link, useNavigate } from "react-router-dom";
-import postService from "../api/postService";
+import postService from "../services/postService";
+import CategorySection from "../components/CategorySection";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
 
   const navigate = useNavigate();
 
@@ -127,19 +127,11 @@ export default function Home() {
     },
   };
 
-  // Auto-rotate hero content
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % posts.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [posts.length]);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 overflow-hidden">
       {/* Hero Section - Enhanced */}
       <motion.section
-        className="relative pt-16 lg:pt-24 pb-20 flex items-center px-4"
+        className="relative pt-16 lg:pt-22 pb-20 flex items-center px-4"
         variants={itemVariants}
       >
         <div className="max-w-7xl mx-auto w-full">
@@ -161,7 +153,7 @@ export default function Home() {
                 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 leading-tight"
                 variants={itemVariants}
               >
-                <span className="inline-block bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+                <span className="inline-block bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent pb-4">
                   ByteThoughts
                 </span>
               </motion.h1>
@@ -293,7 +285,7 @@ export default function Home() {
               </span>
             </motion.div>
 
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-900 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6 py-2 bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-900 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent">
               Technology Domains
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
@@ -409,6 +401,9 @@ export default function Home() {
           </div>
         </motion.section>
       )}
+
+      {/* Category Section */}
+      <CategorySection />
     </div>
   );
 }

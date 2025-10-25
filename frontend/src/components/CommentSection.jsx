@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Comment from "./Comment";
 import LoginPrompt from "./LoginPrompt";
+import commentService from "../services/commentService";
 
 export default function CommentSection({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
@@ -35,30 +36,22 @@ export default function CommentSection({ postId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (comment.length > 200 || !comment.trim()) {
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/comment/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: comment,
-          postId,
-          userId: currentUser._id,
-        }),
+      const res = await commentService.createComment({
+        postId,
+        content: comment,
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
+      if (res.success) {
         setComment("");
         setCommentError(null);
-        setComments([data, ...comments]);
+        setComments([res.comment, ...comments]);
       }
     } catch (error) {
       setCommentError(error.message);
@@ -70,10 +63,9 @@ export default function CommentSection({ postId }) {
   useEffect(() => {
     const getComments = async () => {
       try {
-        const res = await fetch(`/api/comment/getPostComments/${postId}`);
-        if (res.ok) {
-          const data = await res.json();
-          setComments(data);
+        const res = await commentService.getPostComments(postId);
+        if (res.success) {
+          setComments(res.comments);
         }
       } catch (error) {
         console.log(error.message);
@@ -88,18 +80,15 @@ export default function CommentSection({ postId }) {
         setIsLoginPromptOpen(true);
         return;
       }
-      const res = await fetch(`/api/comment/likeComment/${commentId}`, {
-        method: "PUT",
-      });
-      if (res.ok) {
-        const data = await res.json();
+      const res = await commentService.likeComment(commentId);
+      if (res.success) {
         setComments(
           comments.map((comment) =>
             comment._id === commentId
               ? {
                   ...comment,
-                  likes: data.likes,
-                  numberOfLikes: data.likes.length,
+                  likes: res.likes,
+                  numberOfLikes: res.likes.length,
                 }
               : comment
           )
@@ -125,10 +114,8 @@ export default function CommentSection({ postId }) {
         navigate("/signin");
         return;
       }
-      const res = await fetch(`/api/comment/deleteComment/${commentId}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
+      const res = await commentService.deleteComment(commentId);
+      if (res.success) {
         setComments(comments.filter((comment) => comment._id !== commentId));
       }
     } catch (error) {
@@ -227,7 +214,7 @@ export default function CommentSection({ postId }) {
                   to="/dashboard?tab=profile"
                   className="text-lg font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors"
                 >
-                  @{currentUser.username}
+                  {currentUser.firstName} {currentUser.lastName}
                 </Link>
               </div>
             </motion.div>

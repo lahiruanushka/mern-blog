@@ -6,7 +6,7 @@ import { app } from "../firebase";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../features/user/userSlice";
 import { useNavigate } from "react-router-dom";
-import authService from "../api/authService";
+import authService from "../services/authService";
 
 const OAuth = () => {
   const auth = getAuth(app);

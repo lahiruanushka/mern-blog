@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { signoutSuccess } from "../features/user/userSlice";
-import { toggleTheme } from "../features/theme/themeSlice";
+import { signoutSuccess } from "../../features/user/userSlice";
+import { toggleTheme } from "../../features/theme/themeSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   HiUser,
@@ -32,7 +32,7 @@ import { Menu } from "lucide-react";
 import { Avatar, Dropdown } from "flowbite-react";
 import { FaBolt } from "react-icons/fa";
 
-const AdminHeader = ({ onMenuClick, sidebarOpen }) => {
+const DashboardHeader = ({ onMenuClick, sidebarOpen }) => {
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
   const dispatch = useDispatch();
@@ -249,4 +249,4 @@ const AdminHeader = ({ onMenuClick, sidebarOpen }) => {
   );
 };
 
-export default AdminHeader;
+export default DashboardHeader;

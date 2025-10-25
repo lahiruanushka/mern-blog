@@ -15,7 +15,7 @@ import zxcvbn from "zxcvbn";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBolt, FaLock, FaCheckCircle } from "react-icons/fa";
 import { Sparkles } from "lucide-react";
-import authService from "../api/authService";
+import authService from "../services/authService";
 
 const ResetPasswordPage = () => {
   const { token } = useParams();

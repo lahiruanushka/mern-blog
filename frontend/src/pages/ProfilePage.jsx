@@ -19,10 +19,10 @@ import {
 } from "react-icons/hi";
 import { ShieldIcon } from "lucide-react";
 import PostCard from "../components/PostCard";
-import postService from "../api/postService";
-import userService from "../api/userService";
+import postService from "../services/postService";
+import userService from "../services/userService";
 import Loader from "../components/Loader";
-import Error from "../components/Error";
+import ErrorMessage from "../components/ErrorMessage";
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -37,25 +37,33 @@ const ProfilePage = () => {
   const [profileError, setProfileError] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUserData = async () => {
       try {
         setProfileLoading(true);
         setProfileError(null);
 
-        // Get user by username
+        // First, get user by username
         const userData = await userService.getUserByUsername(username);
         setUser(userData.data);
-        // Get posts by user ID
-        const postsData = await userService.getUserPosts(user._id);
-        setPosts(postsData.data);
+
+        // Then get posts by user ID
+        if (userData.data?._id) {
+          const response = await postService.getPosts({
+            userId: userData.data._id,
+          });
+          setPosts(response.posts);
+        }
       } catch (err) {
-        setProfileError(err.message || "Something went wrong");
+        console.error("Error fetching profile data:", err);
+        setProfileError(err.response?.data?.message || "Something went wrong");
       } finally {
         setProfileLoading(false);
       }
     };
 
-    if (username) fetchData();
+    if (username) {
+      fetchUserData();
+    }
   }, [username]);
 
   // Check if this is the current user's profile
@@ -66,11 +74,8 @@ const ProfilePage = () => {
   }
 
   if (profileError) {
-    console.log(profileError);
-    return <Error message="Profile not found" />;
+    return <ErrorMessage message="Profile not found" />;
   }
-
-  if (!user) return null;
 
   const stats = [
     {
@@ -164,10 +169,10 @@ const ProfilePage = () => {
                     transition={{ delay: 0.3 }}
                   >
                     <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-                      @{user.username}
+                      {user.firstName} {user.lastName}
                     </span>
                     <div className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-300 mt-2">
-                      {user.firstName} {user.lastName}
+                      @{user.username}
                     </div>
                     {user.isAdmin && (
                       <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-pink-500 to-rose-600 text-white">

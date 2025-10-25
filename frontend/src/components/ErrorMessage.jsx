@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  AlertTriangle, 
-  RefreshCw, 
-  Home, 
-  ArrowLeft, 
-  Wrench, 
-  Clock, 
+import {
+  AlertTriangle,
+  RefreshCw,
+  Home,
+  ArrowLeft,
+  Wrench,
+  Clock,
   Coffee,
   Zap,
   Shield,
   Heart,
-  MessageCircle
+  MessageCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export const Error = ({ 
-  error = "Something went wrong", 
-  onRetry, 
+export const ErrorMessage = ({
+  error = "Something went wrong",
+  onRetry,
   showHomeButton = true,
-  showBackButton = false 
+  showBackButton = false,
 }) => {
   const [isRetrying, setIsRetrying] = useState(false);
 
@@ -74,10 +74,10 @@ export const Error = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-rose-100 dark:from-slate-900 dark:via-slate-800 dark:to-red-950/50 flex items-center justify-center p-4">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-red-50 to-rose-100 dark:from-slate-900 dark:via-slate-800 dark:to-red-950/50 flex items-center justify-center p-4">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-900/[0.04] bg-[size:20px_20px] opacity-50" />
-      
+      <div className="fixed inset-0 w-full h-full bg-grid-slate-100 dark:bg-grid-slate-900/[0.04] bg-[size:20px_20px] opacity-50" />
+
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -86,18 +86,13 @@ export const Error = ({
       >
         {/* Main Error Card */}
         <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-slate-700/20 overflow-hidden">
-          
           {/* Decorative Elements */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/10 to-rose-500/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-orange-500/10 to-red-500/10 rounded-full blur-2xl" />
-          
+
           <div className="relative p-8 text-center">
-            
             {/* Animated Icon */}
-            <motion.div
-              variants={itemVariants}
-              className="mb-8"
-            >
+            <motion.div variants={itemVariants} className="mb-8">
               <motion.div
                 variants={floatingVariants}
                 animate="animate"
@@ -125,7 +120,8 @@ export const Error = ({
                 </p>
               </div>
               <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                Don't worry, these things happen. We've been notified and are working on it.
+                Don't worry, these things happen. We've been notified and are
+                working on it.
               </p>
             </motion.div>
 
@@ -143,7 +139,7 @@ export const Error = ({
                 ) : (
                   <RefreshCw className="w-5 h-5" />
                 )}
-                <span>{isRetrying ? 'Retrying...' : 'Try Again'}</span>
+                <span>{isRetrying ? "Retrying..." : "Try Again"}</span>
               </motion.button>
 
               <div className="flex gap-3">
@@ -177,4 +173,4 @@ export const Error = ({
   );
 };
 
-export default Error;
+export default ErrorMessage;

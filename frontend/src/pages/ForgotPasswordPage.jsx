@@ -5,7 +5,7 @@ import { Mail, ArrowLeft, Loader, Send, Shield, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBolt, FaEnvelope } from "react-icons/fa";
 import { Sparkles } from "lucide-react";
-import authService from "../api/authService";
+import authService from "../services/authService";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");

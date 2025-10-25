@@ -49,6 +49,8 @@ export const updateUser = async (req, res, next) => {
       req.params.id,
       {
         $set: {
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
           username: req.body.username,
           email: req.body.email,
           profilePicture: req.body.profilePicture,
@@ -57,7 +59,11 @@ export const updateUser = async (req, res, next) => {
       { new: true }
     );
     const { password, ...rest } = updatedUser._doc;
-    res.status(200).json({ success: true, data: rest });
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: rest,
+    });
   } catch (error) {
     next(error);
   }
@@ -119,6 +125,7 @@ export const getUsers = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
+      message: "Users fetched successfully",
       data: {
         users: usersWithoutPassword,
         totalUsers,
@@ -131,22 +138,22 @@ export const getUsers = async (req, res, next) => {
 };
 
 /**
- * @desc    Get a single user by ID (Admin only)
+ * @desc    Get a single user by ID
  * @route   GET /api/users/:id
- * @access  Private/Admin
+ * @access  Private
  */
 export const getUser = async (req, res, next) => {
-  if (!req.user.isAdmin) {
-    return next(errorHandler(403, "You are not allowed to see this user"));
-  }
-
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
       return next(errorHandler(404, "User not found"));
     }
     const { password, ...rest } = user._doc;
-    res.status(200).json({ success: true, data: rest });
+    res.status(200).json({
+      success: true,
+      message: "User fetched successfully",
+      data: rest,
+    });
   } catch (error) {
     next(error);
   }
@@ -164,7 +171,7 @@ export const getUserByUsername = async (req, res, next) => {
     const user = await User.findOne({
       username: username.toLowerCase().trim(),
     }).select(
-      "firstName lastName username profilePicture isVerified createdAt"
+      "firstName lastName username displayName profilePicture isVerified createdAt"
     );
 
     if (!user) {
@@ -173,46 +180,23 @@ export const getUserByUsername = async (req, res, next) => {
         .json({ success: false, message: "User not found" });
     }
 
-    console.log(user);
-
     // Only return safe fields
     const safeUser = {
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       username: user.username,
+      displayName: user.displayName,
       profilePicture: user.profilePicture,
       isVerified: user.isVerified,
       createdAt: user.createdAt,
     };
 
-    res.json({ success: true, data: safeUser });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * @desc    Get all posts by a user ID
- * @route   GET /api/users/:id/posts
- * @access  Public
- */
-export const getPostsByUserId = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return next(errorHandler(404, "User not found"));
-    }
-
-    const startIndex = parseInt(req.query.startIndex) || 0;
-    const limit = parseInt(req.query.limit) || 10;
-
-    const posts = await Post.find({ userId: req.params.id })
-      .sort({ createdAt: -1 })
-      .skip(startIndex)
-      .limit(limit);
-
-    res.status(200).json({ success: true, data: posts });
+    res.json({
+      success: true,
+      message: "User fetched successfully",
+      data: safeUser,
+    });
   } catch (error) {
     next(error);
   }

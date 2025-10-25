@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaHeart,
@@ -17,9 +17,9 @@ import {
 } from "react-icons/fa";
 import { fetchFavorites } from "../features/favorites/favoritesSlice";
 import { Button, TextInput, Dropdown, Badge } from "flowbite-react";
-import PostCard from "../components/PostCard";
 import FavouritePostCard from "../components/FavouritePostCard";
-import Error from "../components/Error";
+import { PostsLoader } from "../components/Loader";
+import ErrorMessage from "../components/ErrorMessage";
 
 const FavoritesPage = () => {
   const dispatch = useDispatch();
@@ -29,6 +29,7 @@ const FavoritesPage = () => {
     loading,
     error,
   } = useSelector((state) => state.favorites);
+  const navigate = useNavigate();
 
   const [hasHadItems, setHasHadItems] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,7 +37,7 @@ const FavoritesPage = () => {
   const [sortBy, setSortBy] = useState("newest");
 
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser?._id) {
       dispatch(fetchFavorites());
     }
   }, [dispatch, currentUser]);
@@ -149,39 +150,17 @@ const FavoritesPage = () => {
 
   if (loading) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900"
-      >
-        <motion.div className="text-center">
-          <motion.div
-            animate={{
-              rotate: 360,
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              rotate: { repeat: Infinity, duration: 2, ease: "linear" },
-              scale: { repeat: Infinity, duration: 1, ease: "easeInOut" },
-            }}
-            className="w-16 h-16 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl"
-          >
-            <FaBolt className="text-white text-2xl" />
-          </motion.div>
-          <p className="text-gray-600 dark:text-gray-400 font-medium">
-            Loading your favorite bytes...
-          </p>
-        </motion.div>
-      </motion.div>
+      <div className="min-h-screen flex items-center justify-center">
+        <PostsLoader />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Error
-        onRetry={async () => await dispatch(fetchFavorites())}
-        showBackButton={true}
-      />
+      <div className="min-h-screen flex items-center justify-center">
+        <ErrorMessage message={error} />
+      </div>
     );
   }
 
@@ -227,31 +206,30 @@ const FavoritesPage = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/" className="w-full sm:w-auto">
-              <motion.button
-                whileHover={{
-                  scale: 1.03,
-                  boxShadow: "0 10px 25px -5px rgba(139, 92, 246, 0.3)",
-                }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full px-8 py-3.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                <FaSearch className="w-4 h-4" />
-                <span>Discover Articles</span>
-              </motion.button>
-            </Link>
-            <Link to="/search" className="w-full sm:w-auto">
-              <motion.button
-                whileHover={{
-                  scale: 1.03,
-                  boxShadow: "0 10px 25px -5px rgba(99, 102, 241, 0.2)",
-                }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full px-8 py-3.5 bg-white dark:bg-gray-800 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 font-semibold rounded-xl transition-all duration-300"
-              >
-                Search Topics
-              </motion.button>
-            </Link>
+            <motion.button
+              whileHover={{
+                scale: 1.03,
+                boxShadow: "0 10px 25px -5px rgba(139, 92, 246, 0.3)",
+              }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full px-8 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+              onClick={() => navigate("/posts")}
+            >
+              <FaSearch className="w-4 h-4" />
+              <span>Discover Articles</span>
+            </motion.button>
+
+            <motion.button
+              whileHover={{
+                scale: 1.03,
+                boxShadow: "0 10px 25px -5px rgba(99, 102, 241, 0.2)",
+              }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full px-8 py-2 bg-white dark:bg-gray-800 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 font-semibold rounded-xl transition-all duration-300"
+              onClick={() => navigate("/search")}
+            >
+              Search Topics
+            </motion.button>
           </div>
         </motion.div>
       </motion.div>

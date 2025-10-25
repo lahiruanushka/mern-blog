@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema(
       default:
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
     },
+    displayName: {
+      type: String,
+      default: "",
+    },
     isAdmin: {
       type: Boolean,
       default: false,
@@ -140,7 +144,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Optional: Add a pre-save hook for additional validation or processing
+// Add a pre-save hook for additional validation or processing
 userSchema.pre("save", function (next) {
   // Ensure username is lowercase and trimmed
   if (this.isModified("username")) {
@@ -150,6 +154,11 @@ userSchema.pre("save", function (next) {
   // Ensure email is lowercase
   if (this.isModified("email")) {
     this.email = this.email.toLowerCase().trim();
+  }
+
+  // Update displayName whenever firstName or lastName changes
+  if (this.isModified("firstName") || this.isModified("lastName")) {
+    this.displayName = `${this.firstName} ${this.lastName}`.trim();
   }
 
   next();

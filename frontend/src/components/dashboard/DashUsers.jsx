@@ -17,6 +17,7 @@ import {
 import { FiShield } from "react-icons/fi";
 import { ShieldIcon } from "lucide-react";
 import UserDetailsModal from "./UserDetailsModal";
+import userService from "../../services/userService";
 
 const DashUsers = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -35,11 +36,10 @@ const DashUsers = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/user/getusers`);
-        const data = await res.json();
-        if (res.ok) {
-          setUsers(data.users);
-          if (data.users.length < 9) {
+        const res = await userService.getUsers();
+        if (res.success) {
+          setUsers(res.data.users);
+          if (res.data.users.length < 9) {
             setShowMore(false);
           }
         }
@@ -58,11 +58,10 @@ const DashUsers = () => {
     const startIndex = users.length;
     try {
       setLoadingMore(true);
-      const res = await fetch(`/api/user/getusers?startIndex=${startIndex}`);
-      const data = await res.json();
-      if (res.ok) {
-        setUsers((prev) => [...prev, ...data.users]);
-        if (data.users.length < 9) {
+      const res = await userService.getUsers(startIndex);
+      if (res.success) {
+        setUsers((prev) => [...prev, ...res.data.users]);
+        if (res.data.users.length < 9) {
           setShowMore(false);
         }
       }
@@ -75,16 +74,13 @@ const DashUsers = () => {
 
   const handleDeleteUser = async () => {
     try {
-      const res = await fetch(`/api/user/delete/${userIdToDelete}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (res.ok) {
+      const res = await userService.deleteUser(userIdToDelete);
+      if (res.success) {
         setUsers((prev) => prev.filter((user) => user._id !== userIdToDelete));
         setShowModal(false);
         // showToast("User account deleted successfully", "success");
       } else {
-        console.log(data.message);
+        console.log(res.message);
       }
     } catch (error) {
       console.log(error.message);

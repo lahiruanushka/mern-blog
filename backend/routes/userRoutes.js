@@ -5,7 +5,6 @@ import {
   getUsers,
   getUser,
   getUserByUsername,
-  getPostsByUserId,
 } from "../controllers/userController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -16,8 +15,5 @@ router.get("/:id", protect, getUser);
 router.get("/username/:username", getUserByUsername);
 router.put("/:id", protect, updateUser);
 router.delete("/:id", protect, deleteUser);
-
-// GET posts by user ID (sub-resource)
-router.get("/:id/posts", getPostsByUserId);
 
 export default router;

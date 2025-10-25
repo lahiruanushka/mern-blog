@@ -4,8 +4,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import {
   Search,
-  Filter,
-  SortAsc,
   SortDesc,
   Grid,
   List,
@@ -13,7 +11,6 @@ import {
   Tag,
   TrendingUp,
   Clock,
-  Eye,
   Heart,
   ChevronLeft,
   ChevronRight,
@@ -23,7 +20,7 @@ import {
   Star,
 } from "lucide-react";
 import Loader from "../components/Loader";
-import postService from "../api/postService";
+import postService from "../services/postService";
 
 const PostsPage = () => {
   const [posts, setPosts] = useState([]);
@@ -35,7 +32,6 @@ const PostsPage = () => {
   const [sortBy, setSortBy] = useState("latest");
   const [viewMode, setViewMode] = useState("grid");
   const [currentPage, setCurrentPage] = useState(1);
-  const [showFilters, setShowFilters] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -64,12 +60,11 @@ const PostsPage = () => {
       try {
         setLoading(true);
 
-        const data = await postService.getPosts();
+        const response = await postService.getPosts();
 
-        console.log(data);
-        if (data.success) {
-          setPosts(data.posts || []);
-          setFilteredPosts(data.posts || []);
+        if (response.success) {
+          setPosts(response.posts || []);
+          setFilteredPosts(response.posts || []);
         } else {
           setError("Failed to fetch posts");
         }
@@ -432,11 +427,11 @@ const PostsPage = () => {
                     {searchTerm && (
                       <span>
                         {" "}
-                        for "
+                        for &quot;
                         <span className="font-semibold text-blue-600 dark:text-blue-400">
                           {searchTerm}
                         </span>
-                        "
+                        &quot;
                       </span>
                     )}
                     {selectedCategory !== "all" && (
@@ -467,11 +462,11 @@ const PostsPage = () => {
                 exit="hidden"
                 className={`grid gap-8 mb-16 ${
                   viewMode === "grid"
-                    ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                    ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     : "grid-cols-1 max-w-4xl mx-auto"
                 }`}
               >
-                {currentPosts.map((post, index) => (
+                {currentPosts.map((post) => (
                   <motion.div
                     key={post._id}
                     variants={itemVariants}
@@ -503,7 +498,7 @@ const PostsPage = () => {
                   No Posts Found
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto">
-                  We couldn't find any articles matching your search criteria.
+                  We couldn&apos;t find any articles matching your search criteria.
                   Try adjusting your filters or search terms.
                 </p>
                 <button
