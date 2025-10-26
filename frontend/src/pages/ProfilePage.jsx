@@ -16,8 +16,9 @@ import {
   HiChat,
   HiX,
   HiRefresh,
+  HiPencil,
 } from "react-icons/hi";
-import { ShieldIcon } from "lucide-react";
+import { ShieldIcon, Plus } from "lucide-react";
 import PostCard from "../components/PostCard";
 import postService from "../services/postService";
 import userService from "../services/userService";
@@ -129,7 +130,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <motion.div
           initial="hidden"
@@ -138,7 +139,7 @@ const ProfilePage = () => {
         >
           {/* Enhanced Profile Header */}
           <motion.div
-            className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-900/60 backdrop-blur-xl border border-white/20 dark:border-gray-800/50 shadow-2xl mb-10"
+            className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-900/60 backdrop-blur-xl border border-white/20 dark:border-gray-800/50 shadow-2xl mb-10 transition-all duration-300"
             variants={itemVariants}
           >
             {/* Background Gradient */}
@@ -150,39 +151,63 @@ const ProfilePage = () => {
             <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-pink-500/20 to-orange-500/20 rounded-full translate-y-20 -translate-x-20 blur-3xl" />
 
             <div className="relative p-8 sm:p-12">
-              {/* Profile Picture */}
-              <div className="relative w-32 h-32 mx-auto sm:mx-0">
-                <img
-                  src={user.profilePicture || "https://via.placeholder.com/150"}
-                  alt={user.username}
-                  className="w-full h-full rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-xl"
-                />
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8">
+                {/* Profile Picture */}
+                <div className="flex items-center gap-6">
+                  <div className="relative w-32 h-32">
+                    <img
+                      src={
+                        user.profilePicture || "https://via.placeholder.com/150"
+                      }
+                      alt={user.username}
+                      className="w-full h-full rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-xl transition-colors duration-300"
+                    />
+                  </div>
+
+                  {/* User Info */}
+                  <div className="flex-1">
+                    <motion.h1
+                      className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight mb-2"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent transition-all duration-300">
+                        {user.firstName} {user.lastName}
+                      </span>
+                      <div className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-300 mt-2 transition-colors duration-300">
+                        @{user.username}
+                      </div>
+                      {user.isAdmin && (
+                        <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-pink-500 to-rose-600 text-white">
+                          <ShieldIcon className="w-3 h-3 mr-1" /> Admin
+                        </span>
+                      )}
+                    </motion.h1>
+                  </div>
+                </div>
+
+                {/* Create Post Button - Only show for own profile */}
+                {isOwnProfile && (
+                  <motion.button
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate("/create-post")}
+                    className="group relative px-6 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-2 overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <span className="relative flex items-center gap-2">
+                      <Plus className="w-5 h-5" />
+                      Create Post
+                    </span>
+                  </motion.button>
+                )}
               </div>
 
-              <div className="flex flex-col lg:flex-row items-center lg:items-end gap-8">
-                {/* User Info */}
-                <div className="flex-1 text-center lg:text-left">
-                  <motion.h1
-                    className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight mb-2"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-                      {user.firstName} {user.lastName}
-                    </span>
-                    <div className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-300 mt-2">
-                      @{user.username}
-                    </div>
-                    {user.isAdmin && (
-                      <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-pink-500 to-rose-600 text-white">
-                        <ShieldIcon className="w-3 h-3 mr-1" /> Admin
-                      </span>
-                    )}
-                  </motion.h1>
-
-                  <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 mb-6">
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+              <div className="flex flex-col lg:flex-row items-start lg:items-end gap-8">
+                <div className="flex-1">
+                  <div className="flex flex-col sm:flex-row items-start lg:items-start gap-4 mb-6">
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 transition-colors duration-300">
                       <HiCalendar className="w-5 h-5" />
                       <span>
                         Joined {new Date(user.createdAt).toLocaleDateString()}
@@ -191,10 +216,10 @@ const ProfilePage = () => {
                   </div>
 
                   {/* Enhanced Badges */}
-                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-6">
+                  <div className="flex flex-wrap items-center gap-3 mb-6">
                     <motion.span
                       whileHover={{ scale: 1.05 }}
-                      className="px-4 py-2 rounded-2xl bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-semibold shadow-lg backdrop-blur-xl"
+                      className="px-4 py-2 rounded-2xl bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-semibold shadow-lg backdrop-blur-xl transition-all duration-300"
                     >
                       Member since {new Date(user.createdAt).getFullYear()}
                     </motion.span>
@@ -202,7 +227,7 @@ const ProfilePage = () => {
                     {user.isAdmin && (
                       <motion.span
                         whileHover={{ scale: 1.05 }}
-                        className="px-4 py-2 rounded-2xl bg-gradient-to-r from-pink-500/20 to-rose-500/20 border border-pink-200 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-semibold shadow-lg backdrop-blur-xl flex items-center gap-2"
+                        className="px-4 py-2 rounded-2xl bg-gradient-to-r from-pink-500/20 to-rose-500/20 border border-pink-200 dark:border-pink-800 text-pink-700 dark:text-pink-300 font-semibold shadow-lg backdrop-blur-xl flex items-center gap-2 transition-all duration-300"
                       >
                         <ShieldIcon className="w-4 h-4" />
                         Admin
@@ -211,7 +236,7 @@ const ProfilePage = () => {
 
                     <motion.span
                       whileHover={{ scale: 1.05 }}
-                      className="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-semibold shadow-lg backdrop-blur-xl flex items-center gap-2"
+                      className="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-semibold shadow-lg backdrop-blur-xl flex items-center gap-2 transition-all duration-300"
                     >
                       <HiSparkles className="w-4 h-4" />
                       Active Contributor
@@ -238,10 +263,10 @@ const ProfilePage = () => {
                       >
                         <stat.icon className="w-6 h-6 text-white" />
                       </div>
-                      <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1 transition-colors duration-300">
                         {stat.value}
                       </div>
-                      <div className="text-gray-600 dark:text-gray-400 font-medium text-sm">
+                      <div className="text-gray-600 dark:text-gray-400 font-medium text-sm transition-colors duration-300">
                         {stat.label}
                       </div>
                     </div>
@@ -260,11 +285,11 @@ const ProfilePage = () => {
                 transition={{ delay: 0.4 }}
                 className="flex items-center gap-4"
               >
-                <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-900 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent">
+                <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-900 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent transition-all duration-300">
                   {isOwnProfile ? "Your" : `${user.username}'s`} Posts
                 </h2>
-                <div className="px-4 py-2 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200 dark:border-indigo-800 rounded-2xl">
-                  <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">
+                <div className="px-4 py-2 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200 dark:border-indigo-800 rounded-2xl transition-all duration-300">
+                  <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300 transition-colors duration-300">
                     {posts.length} articles
                   </span>
                 </div>
@@ -279,13 +304,13 @@ const ProfilePage = () => {
                 className="text-center py-20"
               >
                 <div className="max-w-md mx-auto">
-                  <div className="w-24 h-24 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-                    <HiBookOpen className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+                  <div className="w-24 h-24 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl transition-all duration-300">
+                    <HiBookOpen className="w-12 h-12 text-gray-400 dark:text-gray-500 transition-colors duration-300" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 transition-colors duration-300">
                     No Posts Yet
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
+                  <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed transition-colors duration-300">
                     {isOwnProfile
                       ? "Start sharing your thoughts and ideas with the world!"
                       : `${user.username} hasn't published any posts yet.`}
@@ -297,9 +322,10 @@ const ProfilePage = () => {
                         boxShadow: "0 25px 50px rgba(99, 102, 241, 0.4)",
                       }}
                       whileTap={{ scale: 0.95 }}
-                      className="mt-6 px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300"
+                      className="mt-6 px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-2 mx-auto"
                       onClick={() => navigate("/create-post")}
                     >
+                      <Plus className="w-5 h-5" />
                       Create Your First Post
                     </motion.button>
                   )}

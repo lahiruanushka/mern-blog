@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  HelpCircle, 
-  MessageCircle, 
-  Shield, 
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  HelpCircle,
+  MessageCircle,
+  Shield,
   Flag,
   Search,
   BookOpen,
@@ -26,74 +26,74 @@ import {
   Lightbulb,
   Zap,
   Globe,
-  Lock
-} from 'lucide-react';
+  Lock,
+} from "lucide-react";
 
 const SupportPage = () => {
-  const [activeTab, setActiveTab] = useState('help-center');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState("help-center");
+  const [searchQuery, setSearchQuery] = useState("");
   const [contactForm, setContactForm] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    category: 'general',
-    message: ''
+    name: "",
+    email: "",
+    subject: "",
+    category: "general",
+    message: "",
   });
   const [reportForm, setReportForm] = useState({
-    contentUrl: '',
-    reportType: 'spam',
-    description: ''
+    contentUrl: "",
+    reportType: "spam",
+    description: "",
   });
 
   const tabs = [
     {
-      id: 'help-center',
-      label: 'Help Center',
+      id: "help-center",
+      label: "Help Center",
       icon: HelpCircle,
-      color: 'from-blue-500 to-cyan-500'
+      color: "from-blue-500 to-cyan-500",
     },
     {
-      id: 'contact',
-      label: 'Contact Us',
+      id: "contact",
+      label: "Contact Us",
       icon: MessageCircle,
-      color: 'from-green-500 to-emerald-500'
+      color: "from-green-500 to-emerald-500",
     },
     {
-      id: 'guidelines',
-      label: 'Community Guidelines',
+      id: "guidelines",
+      label: "Community Guidelines",
       icon: Shield,
-      color: 'from-purple-500 to-indigo-500'
+      color: "from-purple-500 to-indigo-500",
     },
     {
-      id: 'report',
-      label: 'Report Content',
+      id: "report",
+      label: "Report Content",
       icon: Flag,
-      color: 'from-red-500 to-orange-500'
-    }
+      color: "from-red-500 to-orange-500",
+    },
   ];
 
   const handleContactSubmit = (e) => {
     e.preventDefault();
-    console.log('Contact form submitted:', contactForm);
+    console.log("Contact form submitted:", contactForm);
     // Handle form submission
   };
 
   const handleReportSubmit = (e) => {
     e.preventDefault();
-    console.log('Report form submitted:', reportForm);
+    console.log("Report form submitted:", reportForm);
     // Handle report submission
   };
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
     in: { opacity: 1, y: 0 },
-    out: { opacity: 0, y: -20 }
+    out: { opacity: 0, y: -20 },
   };
 
   const contentVariants = {
     initial: { opacity: 0, x: 20 },
     in: { opacity: 1, x: 0 },
-    out: { opacity: 0, x: -20 }
+    out: { opacity: 0, x: -20 },
   };
 
   return (
@@ -103,13 +103,13 @@ const SupportPage = () => {
       exit="out"
       variants={pageVariants}
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden"
+      className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 relative overflow-hidden transition-colors duration-300"
     >
       {/* Animated Background */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/5 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-500" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 dark:bg-purple-500/10 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 dark:bg-blue-500/10 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/5 dark:bg-pink-500/5 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-500" />
       </div>
 
       <div className="relative z-10 px-6 py-12">
@@ -119,28 +119,32 @@ const SupportPage = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-full mb-8"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 dark:border-blue-400/30 rounded-full mb-8 transition-colors duration-300"
           >
-            <HelpCircle className="w-5 h-5 text-blue-400 mr-3" />
-            <span className="text-blue-200 font-bold tracking-wide uppercase">Support Center</span>
+            <HelpCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3 transition-colors duration-300" />
+            <span className="text-blue-700 dark:text-blue-200 font-bold tracking-wide uppercase transition-colors duration-300">
+              Support Center
+            </span>
           </motion.div>
-          
-          <motion.h1 
+
+          <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-6xl md:text-7xl font-black text-transparent bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text mb-6 tracking-tight"
+            className="text-6xl md:text-7xl font-black text-transparent bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text mb-6 tracking-tight transition-all duration-300"
           >
             We're Here to Help
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
+            className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed transition-colors duration-300"
           >
-            Find answers to your questions, get in touch with our team, or learn about our community standards. We're committed to providing you with the best possible experience.
+            Find answers to your questions, get in touch with our team, or learn
+            about our community standards. We're committed to providing you with
+            the best possible experience.
           </motion.p>
         </div>
 
@@ -148,7 +152,7 @@ const SupportPage = () => {
         <div className="max-w-6xl mx-auto mb-12">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-3xl blur-xl" />
-            <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/10 p-2">
+            <div className="relative bg-white/80 dark:bg-white/5 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 p-2 shadow-xl dark:shadow-none transition-all duration-300">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                 {tabs.map((tab) => {
                   const IconComponent = tab.icon;
@@ -160,8 +164,10 @@ const SupportPage = () => {
                       whileTap={{ scale: 0.98 }}
                       className={`relative p-6 rounded-2xl transition-all duration-300 overflow-hidden ${
                         activeTab === tab.id
-                          ? 'bg-gradient-to-r ' + tab.color + ' text-white shadow-2xl'
-                          : 'text-gray-300 hover:text-white hover:bg-white/10'
+                          ? "bg-gradient-to-r " +
+                            tab.color +
+                            " text-white shadow-2xl"
+                          : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10"
                       }`}
                     >
                       {activeTab === tab.id && (
@@ -172,8 +178,14 @@ const SupportPage = () => {
                         />
                       )}
                       <div className="relative z-10 flex flex-col items-center text-center">
-                        <IconComponent className={`w-8 h-8 mb-3 ${activeTab === tab.id ? 'text-white' : ''}`} />
-                        <span className="font-bold text-sm lg:text-base">{tab.label}</span>
+                        <IconComponent
+                          className={`w-8 h-8 mb-3 ${
+                            activeTab === tab.id ? "text-white" : ""
+                          }`}
+                        />
+                        <span className="font-bold text-sm lg:text-base">
+                          {tab.label}
+                        </span>
                       </div>
                     </motion.button>
                   );
@@ -195,10 +207,27 @@ const SupportPage = () => {
               transition={{ duration: 0.3 }}
               className="relative"
             >
-              {activeTab === 'help-center' && <HelpCenterContent searchQuery={searchQuery} setSearchQuery={setSearchQuery} />}
-              {activeTab === 'contact' && <ContactContent form={contactForm} setForm={setContactForm} onSubmit={handleContactSubmit} />}
-              {activeTab === 'guidelines' && <GuidelinesContent />}
-              {activeTab === 'report' && <ReportContent form={reportForm} setForm={setReportForm} onSubmit={handleReportSubmit} />}
+              {activeTab === "help-center" && (
+                <HelpCenterContent
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                />
+              )}
+              {activeTab === "contact" && (
+                <ContactContent
+                  form={contactForm}
+                  setForm={setContactForm}
+                  onSubmit={handleContactSubmit}
+                />
+              )}
+              {activeTab === "guidelines" && <GuidelinesContent />}
+              {activeTab === "report" && (
+                <ReportContent
+                  form={reportForm}
+                  setForm={setReportForm}
+                  onSubmit={handleReportSubmit}
+                />
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -211,62 +240,71 @@ const SupportPage = () => {
 const HelpCenterContent = ({ searchQuery, setSearchQuery }) => {
   const faqs = [
     {
-      category: 'Getting Started',
+      category: "Getting Started",
       icon: Lightbulb,
-      color: 'from-yellow-500 to-orange-500',
+      color: "from-yellow-500 to-orange-500",
       questions: [
         {
-          question: 'How do I create an account?',
-          answer: 'Click on the "Sign Up" button in the top right corner and fill out the registration form with your details.'
+          question: "How do I create an account?",
+          answer:
+            'Click on the "Sign Up" button in the top right corner and fill out the registration form with your details.',
         },
         {
-          question: 'How do I write my first blog post?',
-          answer: 'After logging in, click on "Write" in the navigation menu and use our intuitive editor to craft your story.'
+          question: "How do I write my first blog post?",
+          answer:
+            'After logging in, click on "Write" in the navigation menu and use our intuitive editor to craft your story.',
         },
         {
-          question: 'Can I customize my profile?',
-          answer: 'Yes! Go to your profile settings to upload a profile picture, write a bio, and customize your public information.'
-        }
-      ]
+          question: "Can I customize my profile?",
+          answer:
+            "Yes! Go to your profile settings to upload a profile picture, write a bio, and customize your public information.",
+        },
+      ],
     },
     {
-      category: 'Publishing & Content',
+      category: "Publishing & Content",
       icon: BookOpen,
-      color: 'from-blue-500 to-indigo-500',
+      color: "from-blue-500 to-indigo-500",
       questions: [
         {
-          question: 'How do I add images to my posts?',
-          answer: 'Use the image upload button in the editor toolbar or drag and drop images directly into your post.'
+          question: "How do I add images to my posts?",
+          answer:
+            "Use the image upload button in the editor toolbar or drag and drop images directly into your post.",
         },
         {
-          question: 'Can I schedule posts for later?',
-          answer: 'Yes, you can schedule posts using the publish options. Select a future date and time for automatic publishing.'
+          question: "Can I schedule posts for later?",
+          answer:
+            "Yes, you can schedule posts using the publish options. Select a future date and time for automatic publishing.",
         },
         {
-          question: 'How do I make my posts discoverable?',
-          answer: 'Use relevant tags, write compelling titles, and engage with the community to increase visibility.'
-        }
-      ]
+          question: "How do I make my posts discoverable?",
+          answer:
+            "Use relevant tags, write compelling titles, and engage with the community to increase visibility.",
+        },
+      ],
     },
     {
-      category: 'Community & Engagement',
+      category: "Community & Engagement",
       icon: Users,
-      color: 'from-green-500 to-emerald-500',
+      color: "from-green-500 to-emerald-500",
       questions: [
         {
-          question: 'How do comments work?',
-          answer: 'Readers can comment on your posts, and you can reply to create discussions. You can moderate comments on your own posts.'
+          question: "How do comments work?",
+          answer:
+            "Readers can comment on your posts, and you can reply to create discussions. You can moderate comments on your own posts.",
         },
         {
-          question: 'Can I follow other writers?',
-          answer: 'Yes! Follow writers you enjoy to see their latest posts in your personalized feed.'
+          question: "Can I follow other writers?",
+          answer:
+            "Yes! Follow writers you enjoy to see their latest posts in your personalized feed.",
         },
         {
-          question: 'How do I report inappropriate content?',
-          answer: 'Use the report button on any post or comment, or visit the Report Content section in our Support Center.'
-        }
-      ]
-    }
+          question: "How do I report inappropriate content?",
+          answer:
+            "Use the report button on any post or comment, or visit the Report Content section in our Support Center.",
+        },
+      ],
+    },
   ];
 
   const [expandedFaq, setExpandedFaq] = useState(null);
@@ -276,16 +314,16 @@ const HelpCenterContent = ({ searchQuery, setSearchQuery }) => {
       {/* Search Bar */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl blur-xl" />
-        <div className="relative bg-white/10 backdrop-blur-3xl rounded-3xl border border-white/10 p-8">
+        <div className="relative bg-white/90 dark:bg-white/10 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-xl dark:shadow-none transition-all duration-300">
           <div className="max-w-2xl mx-auto">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 dark:text-gray-400 transition-colors duration-300" />
               <input
                 type="text"
                 placeholder="Search for help topics, FAQs, and guides..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                className="w-full pl-12 pr-4 py-4 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-2xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
               />
             </div>
           </div>
@@ -304,45 +342,56 @@ const HelpCenterContent = ({ searchQuery, setSearchQuery }) => {
               transition={{ delay: sectionIndex * 0.1, duration: 0.6 }}
               className="relative"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-white/10 rounded-3xl blur-xl" />
-              <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/10 p-8">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-white/50 dark:from-white/5 dark:to-white/10 rounded-3xl blur-xl" />
+              <div className="relative bg-white/90 dark:bg-white/5 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-xl dark:shadow-none transition-all duration-300">
                 <div className="flex items-center mb-6">
-                  <div className={`p-3 bg-gradient-to-r ${section.color} rounded-2xl mr-4`}>
+                  <div
+                    className={`p-3 bg-gradient-to-r ${section.color} rounded-2xl mr-4`}
+                  >
                     <IconComponent className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white">{section.category}</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+                    {section.category}
+                  </h3>
                 </div>
 
                 <div className="space-y-4">
                   {section.questions.map((faq, faqIndex) => {
-                    const isExpanded = expandedFaq === `${sectionIndex}-${faqIndex}`;
+                    const isExpanded =
+                      expandedFaq === `${sectionIndex}-${faqIndex}`;
                     return (
                       <motion.div
                         key={faqIndex}
-                        className="bg-white/10 rounded-2xl overflow-hidden border border-white/10"
+                        className="bg-gray-50 dark:bg-white/10 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 transition-all duration-300"
                       >
                         <button
-                          onClick={() => setExpandedFaq(isExpanded ? null : `${sectionIndex}-${faqIndex}`)}
-                          className="w-full p-6 text-left flex items-center justify-between hover:bg-white/5 transition-all duration-300"
+                          onClick={() =>
+                            setExpandedFaq(
+                              isExpanded ? null : `${sectionIndex}-${faqIndex}`
+                            )
+                          }
+                          className="w-full p-6 text-left flex items-center justify-between hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-300"
                         >
-                          <span className="text-lg font-semibold text-white pr-4">{faq.question}</span>
+                          <span className="text-lg font-semibold text-gray-900 dark:text-white pr-4 transition-colors duration-300">
+                            {faq.question}
+                          </span>
                           <motion.div
                             animate={{ rotate: isExpanded ? 90 : 0 }}
                             transition={{ duration: 0.2 }}
                           >
-                            <ChevronRight className="w-5 h-5 text-gray-400" />
+                            <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400 transition-colors duration-300" />
                           </motion.div>
                         </button>
                         <AnimatePresence>
                           {isExpanded && (
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
+                              animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
                               transition={{ duration: 0.3 }}
                               className="overflow-hidden"
                             >
-                              <div className="px-6 pb-6 text-gray-300 leading-relaxed border-t border-white/10">
+                              <div className="px-6 pb-6 text-gray-700 dark:text-gray-300 leading-relaxed border-t border-gray-200 dark:border-white/10 transition-colors duration-300">
                                 <div className="pt-4">{faq.answer}</div>
                               </div>
                             </motion.div>
@@ -361,13 +410,30 @@ const HelpCenterContent = ({ searchQuery, setSearchQuery }) => {
       {/* Quick Links */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl blur-xl" />
-        <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/10 p-8">
-          <h3 className="text-2xl font-bold text-white mb-6 text-center">Quick Links</h3>
+        <div className="relative bg-white/90 dark:bg-white/5 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-xl dark:shadow-none transition-all duration-300">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center transition-colors duration-300">
+            Quick Links
+          </h3>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: FileText, label: 'Documentation', desc: 'Complete guides and tutorials', color: 'from-blue-500 to-cyan-500' },
-              { icon: Globe, label: 'API Reference', desc: 'Technical documentation for developers', color: 'from-green-500 to-emerald-500' },
-              { icon: MessageSquare, label: 'Community Forum', desc: 'Connect with other users', color: 'from-purple-500 to-pink-500' }
+              {
+                icon: FileText,
+                label: "Documentation",
+                desc: "Complete guides and tutorials",
+                color: "from-blue-500 to-cyan-500",
+              },
+              {
+                icon: Globe,
+                label: "API Reference",
+                desc: "Technical documentation for developers",
+                color: "from-green-500 to-emerald-500",
+              },
+              {
+                icon: MessageSquare,
+                label: "Community Forum",
+                desc: "Connect with other users",
+                color: "from-purple-500 to-pink-500",
+              },
             ].map((link, index) => {
               const IconComponent = link.icon;
               return (
@@ -375,15 +441,19 @@ const HelpCenterContent = ({ searchQuery, setSearchQuery }) => {
                   key={index}
                   href="#"
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="block p-6 bg-white/10 rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group"
+                  className="block p-6 bg-gray-50 dark:bg-white/10 rounded-2xl border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all duration-300 group shadow-lg dark:shadow-none"
                 >
-                  <div className={`p-3 bg-gradient-to-r ${link.color} rounded-2xl mb-4 w-fit`}>
+                  <div
+                    className={`p-3 bg-gradient-to-r ${link.color} rounded-2xl mb-4 w-fit`}
+                  >
                     <IconComponent className="w-6 h-6 text-white" />
                   </div>
-                  <h4 className="text-lg font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">
+                  <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors duration-300">
                     {link.label}
                   </h4>
-                  <p className="text-gray-400 text-sm">{link.desc}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-300">
+                    {link.desc}
+                  </p>
                 </motion.a>
               );
             })}
@@ -399,25 +469,25 @@ const ContactContent = ({ form, setForm, onSubmit }) => {
   const contactMethods = [
     {
       icon: Mail,
-      title: 'Email Support',
-      description: 'Get help via email within 24 hours',
-      contact: 'support@blogsite.com',
-      color: 'from-blue-500 to-cyan-500'
+      title: "Email Support",
+      description: "Get help via email within 24 hours",
+      contact: "support@blogsite.com",
+      color: "from-blue-500 to-cyan-500",
     },
     {
       icon: MessageCircle,
-      title: 'Live Chat',
-      description: 'Chat with our support team now',
-      contact: 'Available 9 AM - 6 PM EST',
-      color: 'from-green-500 to-emerald-500'
+      title: "Live Chat",
+      description: "Chat with our support team now",
+      contact: "Available 9 AM - 6 PM EST",
+      color: "from-green-500 to-emerald-500",
     },
     {
       icon: Phone,
-      title: 'Phone Support',
-      description: 'Speak directly with our team',
-      contact: '+1 (555) 123-4567',
-      color: 'from-purple-500 to-pink-500'
-    }
+      title: "Phone Support",
+      description: "Speak directly with our team",
+      contact: "+1 (555) 123-4567",
+      color: "from-purple-500 to-pink-500",
+    },
   ];
 
   return (
@@ -435,14 +505,22 @@ const ContactContent = ({ form, setForm, onSubmit }) => {
               whileHover={{ scale: 1.05, y: -5 }}
               className="relative group cursor-pointer"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500" />
-              <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/10 group-hover:border-white/20 p-8 transition-all duration-300">
-                <div className={`p-4 bg-gradient-to-r ${method.color} rounded-2xl mb-6 w-fit mx-auto`}>
+              <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-white/50 dark:from-white/10 dark:to-white/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500" />
+              <div className="relative bg-white/90 dark:bg-white/5 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 group-hover:border-gray-300 dark:group-hover:border-white/20 p-8 transition-all duration-300 shadow-xl dark:shadow-none">
+                <div
+                  className={`p-4 bg-gradient-to-r ${method.color} rounded-2xl mb-6 w-fit mx-auto`}
+                >
                   <IconComponent className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3 text-center">{method.title}</h3>
-                <p className="text-gray-300 text-center mb-4">{method.description}</p>
-                <p className="text-center font-semibold text-blue-300">{method.contact}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 text-center transition-colors duration-300">
+                  {method.title}
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-center mb-4 transition-colors duration-300">
+                  {method.description}
+                </p>
+                <p className="text-center font-semibold text-blue-600 dark:text-blue-300 transition-colors duration-300">
+                  {method.contact}
+                </p>
               </div>
             </motion.div>
           );
@@ -452,70 +530,92 @@ const ContactContent = ({ form, setForm, onSubmit }) => {
       {/* Contact Form */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl blur-xl" />
-        <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/10 p-8">
-          <h3 className="text-3xl font-bold text-white mb-8 text-center">Send us a Message</h3>
-          
+        <div className="relative bg-white/90 dark:bg-white/5 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-xl dark:shadow-none transition-all duration-300">
+          <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center transition-colors duration-300">
+            Send us a Message
+          </h3>
+
           <form onSubmit={onSubmit} className="max-w-2xl mx-auto space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-white font-semibold mb-2">Name</label>
+                <label className="block text-gray-900 dark:text-white font-semibold mb-2 transition-colors duration-300">
+                  Name
+                </label>
                 <input
                   type="text"
                   required
                   value={form.name}
-                  onChange={(e) => setForm({...form, name: e.target.value})}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   placeholder="Your full name"
                 />
               </div>
               <div>
-                <label className="block text-white font-semibold mb-2">Email</label>
+                <label className="block text-gray-900 dark:text-white font-semibold mb-2 transition-colors duration-300">
+                  Email
+                </label>
                 <input
                   type="email"
                   required
                   value={form.email}
-                  onChange={(e) => setForm({...form, email: e.target.value})}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="w-full px-4 py-3 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   placeholder="your.email@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-white font-semibold mb-2">Category</label>
+              <label className="block text-gray-900 dark:text-white font-semibold mb-2 transition-colors duration-300">
+                Category
+              </label>
               <select
                 value={form.category}
-                onChange={(e) => setForm({...form, category: e.target.value})}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                className="w-full px-4 py-3 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
               >
-                <option value="general" className="bg-gray-800">General Question</option>
-                <option value="technical" className="bg-gray-800">Technical Issue</option>
-                <option value="billing" className="bg-gray-800">Billing & Payments</option>
-                <option value="feature" className="bg-gray-800">Feature Request</option>
-                <option value="bug" className="bg-gray-800">Bug Report</option>
+                <option value="general" className="bg-white dark:bg-gray-800">
+                  General Question
+                </option>
+                <option value="technical" className="bg-white dark:bg-gray-800">
+                  Technical Issue
+                </option>
+                <option value="billing" className="bg-white dark:bg-gray-800">
+                  Billing & Payments
+                </option>
+                <option value="feature" className="bg-white dark:bg-gray-800">
+                  Feature Request
+                </option>
+                <option value="bug" className="bg-white dark:bg-gray-800">
+                  Bug Report
+                </option>
               </select>
             </div>
 
             <div>
-              <label className="block text-white font-semibold mb-2">Subject</label>
+              <label className="block text-gray-900 dark:text-white font-semibold mb-2 transition-colors duration-300">
+                Subject
+              </label>
               <input
                 type="text"
                 required
                 value={form.subject}
-                onChange={(e) => setForm({...form, subject: e.target.value})}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                className="w-full px-4 py-3 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                 placeholder="Brief description of your inquiry"
               />
             </div>
 
             <div>
-              <label className="block text-white font-semibold mb-2">Message</label>
+              <label className="block text-gray-900 dark:text-white font-semibold mb-2 transition-colors duration-300">
+                Message
+              </label>
               <textarea
                 required
                 rows={6}
                 value={form.message}
-                onChange={(e) => setForm({...form, message: e.target.value})}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                className="w-full px-4 py-3 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
                 placeholder="Please provide as much detail as possible..."
               />
             </div>
@@ -541,48 +641,48 @@ const GuidelinesContent = () => {
   const guidelines = [
     {
       icon: Heart,
-      title: 'Be Respectful',
-      color: 'from-red-500 to-pink-500',
+      title: "Be Respectful",
+      color: "from-red-500 to-pink-500",
       rules: [
-        'Treat all community members with kindness and respect',
-        'Avoid personal attacks, harassment, or discriminatory language',
-        'Respect different opinions and engage in constructive discussions',
-        'Use inclusive language that welcomes all community members'
-      ]
+        "Treat all community members with kindness and respect",
+        "Avoid personal attacks, harassment, or discriminatory language",
+        "Respect different opinions and engage in constructive discussions",
+        "Use inclusive language that welcomes all community members",
+      ],
     },
     {
       icon: CheckCircle,
-      title: 'Create Quality Content',
-      color: 'from-green-500 to-emerald-500',
+      title: "Create Quality Content",
+      color: "from-green-500 to-emerald-500",
       rules: [
-        'Write original, well-researched, and engaging content',
-        'Properly cite sources and give credit where due',
-        'Use clear, readable formatting and structure',
-        'Avoid duplicate or low-effort posts'
-      ]
+        "Write original, well-researched, and engaging content",
+        "Properly cite sources and give credit where due",
+        "Use clear, readable formatting and structure",
+        "Avoid duplicate or low-effort posts",
+      ],
     },
     {
       icon: Lock,
-      title: 'Privacy & Safety',
-      color: 'from-blue-500 to-indigo-500',
+      title: "Privacy & Safety",
+      color: "from-blue-500 to-indigo-500",
       rules: [
-        'Do not share personal information of others without consent',
-        'Respect privacy and confidentiality',
-        'Report suspicious or harmful behavior',
-        'Keep personal data secure and private'
-      ]
+        "Do not share personal information of others without consent",
+        "Respect privacy and confidentiality",
+        "Report suspicious or harmful behavior",
+        "Keep personal data secure and private",
+      ],
     },
     {
       icon: AlertTriangle,
-      title: 'Prohibited Content',
-      color: 'from-orange-500 to-red-500',
+      title: "Prohibited Content",
+      color: "from-orange-500 to-red-500",
       rules: [
-        'No spam, self-promotion, or misleading content',
-        'No hate speech, violence, or illegal activities',
-        'No copyright infringement or plagiarism',
-        'No explicit or inappropriate content'
-      ]
-    }
+        "No spam, self-promotion, or misleading content",
+        "No hate speech, violence, or illegal activities",
+        "No copyright infringement or plagiarism",
+        "No explicit or inappropriate content",
+      ],
+    },
   ];
 
   return (
@@ -590,14 +690,17 @@ const GuidelinesContent = () => {
       {/* Introduction */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-3xl blur-xl" />
-        <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/10 p-8 text-center">
+        <div className="relative bg-white/90 dark:bg-white/5 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 p-8 text-center shadow-xl dark:shadow-none transition-all duration-300">
           <div className="p-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl w-fit mx-auto mb-6">
             <Shield className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-white mb-4">Our Community Standards</h2>
-          <p className="text-gray-300 text-lg leading-relaxed max-w-3xl mx-auto">
-            These guidelines help us maintain a positive, inclusive, and productive environment for all community members. 
-            By participating in our platform, you agree to follow these standards.
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+            Our Community Standards
+          </h2>
+          <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed max-w-3xl mx-auto transition-colors duration-300">
+            These guidelines help us maintain a positive, inclusive, and
+            productive environment for all community members. By participating
+            in our platform, you agree to follow these standards.
           </p>
         </div>
       </div>
@@ -614,20 +717,29 @@ const GuidelinesContent = () => {
               transition={{ delay: index * 0.1, duration: 0.6 }}
               className="relative"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-white/10 rounded-3xl blur-xl" />
-              <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/10 p-8">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-white/50 dark:from-white/5 dark:to-white/10 rounded-3xl blur-xl" />
+              <div className="relative bg-white/90 dark:bg-white/5 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-xl dark:shadow-none transition-all duration-300">
                 <div className="flex items-center mb-6">
-                  <div className={`p-3 bg-gradient-to-r ${section.color} rounded-2xl mr-4`}>
+                  <div
+                    className={`p-3 bg-gradient-to-r ${section.color} rounded-2xl mr-4`}
+                  >
                     <IconComponent className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white">{section.title}</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+                    {section.title}
+                  </h3>
                 </div>
 
                 <div className="grid gap-4">
                   {section.rules.map((rule, ruleIndex) => (
-                    <div key={ruleIndex} className="flex items-start space-x-4 p-4 bg-white/10 rounded-2xl border border-white/10">
+                    <div
+                      key={ruleIndex}
+                      className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-white/10 rounded-2xl border border-gray-200 dark:border-white/10 transition-all duration-300"
+                    >
                       <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mt-2 flex-shrink-0" />
-                      <p className="text-gray-300 leading-relaxed">{rule}</p>
+                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-300">
+                        {rule}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -640,81 +752,110 @@ const GuidelinesContent = () => {
       {/* Enforcement */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-3xl blur-xl" />
-        <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/10 p-8">
-          <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
-            <AlertTriangle className="w-6 h-6 mr-3 text-orange-400" />
+        <div className="relative bg-white/90 dark:bg-white/5 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-xl dark:shadow-none transition-all duration-300">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center transition-colors duration-300">
+            <AlertTriangle className="w-6 h-6 mr-3 text-orange-500 dark:text-orange-400 transition-colors duration-300" />
             Enforcement & Consequences
           </h3>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-white">Warning System</h4>
-              <p className="text-gray-300">
-                We operate on a three-strike warning system for violations of our community guidelines. Each violation is reviewed by our moderation team.
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
+                Warning System
+              </h4>
+              <p className="text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                We operate on a three-strike warning system for violations of
+                our community guidelines. Each violation is reviewed by our
+                moderation team.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-start">
                   <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2 mr-3 flex-shrink-0" />
-                  <span className="text-gray-300">1st violation: Warning and content removal</span>
+                  <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    1st violation: Warning and content removal
+                  </span>
                 </li>
                 <li className="flex items-start">
                   <div className="w-2 h-2 bg-orange-400 rounded-full mt-2 mr-3 flex-shrink-0" />
-                  <span className="text-gray-300">2nd violation: Temporary suspension (7 days)</span>
+                  <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    2nd violation: Temporary suspension (7 days)
+                  </span>
                 </li>
                 <li className="flex items-start">
                   <div className="w-2 h-2 bg-red-400 rounded-full mt-2 mr-3 flex-shrink-0" />
-                  <span className="text-gray-300">3rd violation: Permanent account termination</span>
+                  <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    3rd violation: Permanent account termination
+                  </span>
                 </li>
               </ul>
             </div>
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-white">Severe Violations</h4>
-              <p className="text-gray-300">
-                Severe violations, including hate speech, harassment, or illegal content, may result in immediate account termination without prior warning.
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
+                Severe Violations
+              </h4>
+              <p className="text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                Severe violations, including hate speech, harassment, or illegal
+                content, may result in immediate account termination without
+                prior warning.
               </p>
-              <div className="p-4 bg-red-900/30 border border-red-500/30 rounded-xl">
-                <h5 className="font-semibold text-red-300 mb-2 flex items-center">
+              <div className="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-500/30 rounded-xl transition-all duration-300">
+                <h5 className="font-semibold text-red-700 dark:text-red-300 mb-2 flex items-center transition-colors duration-300">
                   <AlertTriangle className="w-4 h-4 mr-2" />
                   Zero Tolerance
                 </h5>
-                <p className="text-sm text-red-200">
-                  We have a zero-tolerance policy for threats, harassment, or any form of discrimination. Such violations will result in immediate and permanent bans.
+                <p className="text-sm text-red-600 dark:text-red-200 transition-colors duration-300">
+                  We have a zero-tolerance policy for threats, harassment, or
+                  any form of discrimination. Such violations will result in
+                  immediate and permanent bans.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 pt-8 border-t border-white/10">
-            <h4 className="text-lg font-semibold text-white mb-4">Appeals Process</h4>
+          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-white/10 transition-colors duration-300">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+              Appeals Process
+            </h4>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <h5 className="font-medium text-white">Submitting an Appeal</h5>
-                <p className="text-gray-300">
-                  If you believe your content was removed or your account was suspended in error, you may submit an appeal through our contact form.
+                <h5 className="font-medium text-gray-900 dark:text-white transition-colors duration-300">
+                  Submitting an Appeal
+                </h5>
+                <p className="text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                  If you believe your content was removed or your account was
+                  suspended in error, you may submit an appeal through our
+                  contact form.
                 </p>
-                <ul className="space-y-2 text-gray-300">
+                <ul className="space-y-2 text-gray-700 dark:text-gray-300 transition-colors duration-300">
                   <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0 transition-colors duration-300" />
                     Include your username and relevant details
                   </li>
                   <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0 transition-colors duration-300" />
                     Explain why you believe the action was in error
                   </li>
                   <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0 transition-colors duration-300" />
                     We typically respond within 3-5 business days
                   </li>
                 </ul>
               </div>
               <div className="space-y-4">
-                <h5 className="font-medium text-white">What to Expect</h5>
-                <p className="text-gray-300">
-                  Our team will review your appeal and the original content or violation. We may request additional information if needed.
+                <h5 className="font-medium text-gray-900 dark:text-white transition-colors duration-300">
+                  What to Expect
+                </h5>
+                <p className="text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                  Our team will review your appeal and the original content or
+                  violation. We may request additional information if needed.
                 </p>
-                <div className="p-4 bg-blue-900/30 border border-blue-500/30 rounded-xl">
-                  <h6 className="font-medium text-blue-300 mb-2">Note</h6>
-                  <p className="text-sm text-blue-200">
-                    Submitting multiple appeals for the same issue will not result in a faster response. Please be patient while we review your case.
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-500/30 rounded-xl transition-all duration-300">
+                  <h6 className="font-medium text-blue-700 dark:text-blue-300 mb-2 transition-colors duration-300">
+                    Note
+                  </h6>
+                  <p className="text-sm text-blue-600 dark:text-blue-200 transition-colors duration-300">
+                    Submitting multiple appeals for the same issue will not
+                    result in a faster response. Please be patient while we
+                    review your case.
                   </p>
                 </div>
               </div>
@@ -729,12 +870,36 @@ const GuidelinesContent = () => {
 // Report Content Component
 const ReportContent = ({ form, setForm, onSubmit }) => {
   const reportTypes = [
-    { value: 'spam', label: 'Spam or Scam', description: 'Unsolicited promotion or fraudulent content' },
-    { value: 'harassment', label: 'Harassment or Bullying', description: 'Targeted harassment or threats' },
-    { value: 'hate_speech', label: 'Hate Speech', description: 'Content that promotes violence or hatred' },
-    { value: 'explicit', label: 'Explicit Content', description: 'Adult or NSFW content' },
-    { value: 'copyright', label: 'Copyright Infringement', description: 'Unauthorized use of copyrighted material' },
-    { value: 'other', label: 'Other', description: 'Something else that violates our policies' },
+    {
+      value: "spam",
+      label: "Spam or Scam",
+      description: "Unsolicited promotion or fraudulent content",
+    },
+    {
+      value: "harassment",
+      label: "Harassment or Bullying",
+      description: "Targeted harassment or threats",
+    },
+    {
+      value: "hate_speech",
+      label: "Hate Speech",
+      description: "Content that promotes violence or hatred",
+    },
+    {
+      value: "explicit",
+      label: "Explicit Content",
+      description: "Adult or NSFW content",
+    },
+    {
+      value: "copyright",
+      label: "Copyright Infringement",
+      description: "Unauthorized use of copyrighted material",
+    },
+    {
+      value: "other",
+      label: "Other",
+      description: "Something else that violates our policies",
+    },
   ];
 
   return (
@@ -742,15 +907,18 @@ const ReportContent = ({ form, setForm, onSubmit }) => {
       {/* Introduction */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-3xl blur-xl" />
-        <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/10 p-8">
+        <div className="relative bg-white/90 dark:bg-white/5 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-xl dark:shadow-none transition-all duration-300">
           <div className="max-w-3xl mx-auto text-center">
             <div className="p-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl w-fit mx-auto mb-6">
               <Flag className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-4">Report Inappropriate Content</h2>
-            <p className="text-gray-300 text-lg">
-              Help us keep our community safe by reporting content that violates our community guidelines.
-              All reports are confidential and will be reviewed by our moderation team.
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+              Report Inappropriate Content
+            </h2>
+            <p className="text-gray-700 dark:text-gray-300 text-lg transition-colors duration-300">
+              Help us keep our community safe by reporting content that violates
+              our community guidelines. All reports are confidential and will be
+              reviewed by our moderation team.
             </p>
           </div>
         </div>
@@ -759,42 +927,58 @@ const ReportContent = ({ form, setForm, onSubmit }) => {
       {/* Report Form */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-3xl blur-xl" />
-        <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/10 p-8">
+        <div className="relative bg-white/90 dark:bg-white/5 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-xl dark:shadow-none transition-all duration-300">
           <form onSubmit={onSubmit} className="space-y-6">
             <div>
-              <label className="block text-white font-semibold mb-2">URL of the content</label>
+              <label className="block text-gray-900 dark:text-white font-semibold mb-2 transition-colors duration-300">
+                URL of the content
+              </label>
               <input
                 type="url"
                 required
                 value={form.contentUrl}
-                onChange={(e) => setForm({...form, contentUrl: e.target.value})}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300"
+                onChange={(e) =>
+                  setForm({ ...form, contentUrl: e.target.value })
+                }
+                className="w-full px-4 py-3 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300"
                 placeholder="https://example.com/posts/123"
               />
-              <p className="mt-1 text-sm text-gray-400">
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                 Please provide the direct link to the content you're reporting
               </p>
             </div>
 
             <div>
-              <label className="block text-white font-semibold mb-3">Type of Report</label>
+              <label className="block text-gray-900 dark:text-white font-semibold mb-3 transition-colors duration-300">
+                Type of Report
+              </label>
               <div className="grid gap-3">
                 {reportTypes.map((type) => (
-                  <label 
+                  <label
                     key={type.value}
-                    className={`flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all ${form.reportType === type.value ? 'border-red-500 bg-red-900/20' : 'border-white/10 hover:border-white/20'}`}
+                    className={`flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                      form.reportType === type.value
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/20"
+                        : "border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 bg-gray-50 dark:bg-white/5"
+                    }`}
                   >
                     <input
                       type="radio"
                       name="reportType"
                       value={type.value}
                       checked={form.reportType === type.value}
-                      onChange={() => setForm({...form, reportType: type.value})}
+                      onChange={() =>
+                        setForm({ ...form, reportType: type.value })
+                      }
                       className="mt-1 text-red-500 focus:ring-red-500"
                     />
                     <div className="ml-3">
-                      <span className="block font-medium text-white">{type.label}</span>
-                      <span className="block text-sm text-gray-400 mt-1">{type.description}</span>
+                      <span className="block font-medium text-gray-900 dark:text-white transition-colors duration-300">
+                        {type.label}
+                      </span>
+                      <span className="block text-sm text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
+                        {type.description}
+                      </span>
                     </div>
                   </label>
                 ))}
@@ -802,19 +986,24 @@ const ReportContent = ({ form, setForm, onSubmit }) => {
             </div>
 
             <div>
-              <label className="block text-white font-semibold mb-2">
+              <label className="block text-gray-900 dark:text-white font-semibold mb-2 transition-colors duration-300">
                 Additional Details
-                <span className="text-gray-400 text-sm font-normal ml-2">(Optional but helpful)</span>
+                <span className="text-gray-600 dark:text-gray-400 text-sm font-normal ml-2 transition-colors duration-300">
+                  (Optional but helpful)
+                </span>
               </label>
               <textarea
                 rows={5}
                 value={form.description}
-                onChange={(e) => setForm({...form, description: e.target.value})}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300 resize-none"
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+                className="w-full px-4 py-3 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300 resize-none"
                 placeholder="Please provide any additional details about your report..."
               />
-              <p className="mt-1 text-sm text-gray-400">
-                The more details you can provide, the better we can address your report.
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                The more details you can provide, the better we can address your
+                report.
               </p>
             </div>
 
@@ -826,12 +1015,16 @@ const ReportContent = ({ form, setForm, onSubmit }) => {
                     name="confirmation"
                     type="checkbox"
                     required
-                    className="h-4 w-4 text-red-500 border-white/20 rounded focus:ring-red-500"
+                    className="h-4 w-4 text-red-500 border-gray-300 dark:border-white/20 rounded focus:ring-red-500 transition-colors duration-300"
                   />
                 </div>
                 <div className="ml-3 text-sm">
-                  <label htmlFor="confirmation" className="text-gray-300">
-                    I confirm that this report is accurate and submitted in good faith.
+                  <label
+                    htmlFor="confirmation"
+                    className="text-gray-700 dark:text-gray-300 transition-colors duration-300"
+                  >
+                    I confirm that this report is accurate and submitted in good
+                    faith.
                   </label>
                 </div>
               </div>
@@ -846,8 +1039,9 @@ const ReportContent = ({ form, setForm, onSubmit }) => {
               >
                 Submit Report
               </motion.button>
-              <p className="mt-3 text-center text-sm text-gray-400">
-                We take all reports seriously. False reports may result in account restrictions.
+              <p className="mt-3 text-center text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                We take all reports seriously. False reports may result in
+                account restrictions.
               </p>
             </div>
           </form>
@@ -856,35 +1050,47 @@ const ReportContent = ({ form, setForm, onSubmit }) => {
 
       {/* What Happens Next */}
       <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-white/10 rounded-3xl blur-xl" />
-        <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/10 p-8">
-          <h3 className="text-2xl font-bold text-white mb-6">What Happens Next?</h3>
+        <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-white/50 dark:from-white/5 dark:to-white/10 rounded-3xl blur-xl" />
+        <div className="relative bg-white/90 dark:bg-white/5 backdrop-blur-3xl rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-xl dark:shadow-none transition-all duration-300">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
+            What Happens Next?
+          </h3>
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
                 icon: Eye,
-                title: 'Review Process',
-                description: 'Our moderation team will review your report and take appropriate action if necessary.'
+                title: "Review Process",
+                description:
+                  "Our moderation team will review your report and take appropriate action if necessary.",
               },
               {
                 icon: MessageCircle,
-                title: 'Confirmation',
-                description: 'You may receive a confirmation email once your report has been processed.'
+                title: "Confirmation",
+                description:
+                  "You may receive a confirmation email once your report has been processed.",
               },
               {
                 icon: Lock,
-                title: 'Confidentiality',
-                description: 'Your report is confidential. The reported user won\'t know who reported them.'
-              }
+                title: "Confidentiality",
+                description:
+                  "Your report is confidential. The reported user won't know who reported them.",
+              },
             ].map((item, index) => {
               const Icon = item.icon;
               return (
-                <div key={index} className="p-6 bg-white/5 rounded-2xl border border-white/10">
+                <div
+                  key={index}
+                  className="p-6 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 transition-all duration-300"
+                >
                   <div className="p-3 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-2xl w-fit mb-4">
-                    <Icon className="w-6 h-6 text-red-400" />
+                    <Icon className="w-6 h-6 text-red-600 dark:text-red-400 transition-colors duration-300" />
                   </div>
-                  <h4 className="text-lg font-semibold text-white mb-2">{item.title}</h4>
-                  <p className="text-gray-300 text-sm">{item.description}</p>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 transition-colors duration-300">
+                    {item.title}
+                  </h4>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm transition-colors duration-300">
+                    {item.description}
+                  </p>
                 </div>
               );
             })}

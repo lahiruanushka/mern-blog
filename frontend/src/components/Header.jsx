@@ -362,11 +362,10 @@ const Header = () => {
               {navItems.map((item) => {
                 const isActive = pathname === item.path;
                 return (
-                  <Navbar.Link
+                  <Link
                     key={item.path}
-                    as={Link}
                     to={item.path}
-                    className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
+                    className={`flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 ease-in-out ${
                       isActive
                         ? "text-white bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 font-bold shadow-lg transform scale-[1.02]"
                         : "text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20"
@@ -380,7 +379,7 @@ const Header = () => {
                         className="ml-auto w-2 h-2 bg-white rounded-full"
                       />
                     )}
-                  </Navbar.Link>
+                  </Link>
                 );
               })}
             </div>
@@ -398,7 +397,7 @@ const Header = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                  className={`relative flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-colors duration-200 ease-in-out ${
                     isActive
                       ? "text-purple-600 dark:text-purple-400 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20"
                       : "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-gray-50 dark:hover:bg-gray-800/50"
