@@ -2,16 +2,15 @@
   "name": "mern-blog",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
+  "description": "",
+  "author": "",
+  "license": "ISC",
   "scripts": {
     "dev": "nodemon backend/index.js",
     "start": "node backend/index.js",
-    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend"
+    "build": "npm ci --include=dev && npm run build --prefix frontend"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "type": "module",
   "dependencies": {
     "axios": "^1.7.8",
     "bcryptjs": "^2.4.3",
