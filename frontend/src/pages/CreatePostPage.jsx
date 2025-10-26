@@ -56,6 +56,7 @@ const CreatePostPage = () => {
   // UI state
   const [file, setFile] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
+  const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [publishError, setPublishError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);

@@ -76,6 +76,7 @@ const PostPage = () => {
           return;
         } else {
           setPost(res.posts[0]);
+          console.log("Fetched post:", res.posts[0]);
           const fetchedPost = res.posts[0];
           setLikeCount(
             fetchedPost?.numberOfLikes || fetchedPost?.likes?.length || 0
@@ -314,7 +315,7 @@ const PostPage = () => {
             whileHover={{ scale: 1.02 }}
           >
             <Link
-              to={`/search?category=${post.category?.slug}`}
+              to={`/search?category=${post.category?.name}`}
               className="group inline-flex items-center gap-3 px-6 py-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl border border-indigo-100 dark:border-indigo-900/50 hover:border-indigo-300 dark:hover:border-indigo-700 rounded-2xl text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 shadow-lg hover:shadow-xl transition-all duration-300"
             >
               <div className="p-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
