@@ -200,15 +200,12 @@ const Footer = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full"
-                    style={{
-                      borderRadius: "16px",
-                      background: "rgba(255, 255, 255, 0.95)",
-                      backdropFilter: "blur(10px)",
-                      border: "1px solid rgba(255, 255, 255, 0.2)",
-                    }}
+                    className="w-full text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 
+             bg-white dark:bg-gray-800 rounded-[16px] border border-gray-200 dark:border-gray-700 
+             backdrop-blur-md"
                     disabled={isLoading}
                   />
+
                   <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 </div>
                 <motion.button

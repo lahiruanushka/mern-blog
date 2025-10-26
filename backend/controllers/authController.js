@@ -1177,11 +1177,19 @@ export const google = async (req, res, next) => {
       }
     } else {
       // Create new user with Google OAuth
+      // Split the full name into first and last name
+      const nameParts = name.split(" ");
+      const firstName = nameParts[0];
+      const lastName =
+        nameParts.length > 1 ? nameParts.slice(1).join(" ") : firstName; // Use firstName as lastName if no lastName provided
+
       const newUser = new User({
         username:
           name.toLowerCase().split(" ").join("") +
           Math.random().toString(9).slice(-4),
         email,
+        firstName,
+        lastName,
         profilePicture: googlePhotoUrl,
         authProvider: "google",
         googleId: googleId,

@@ -17,10 +17,19 @@ import {
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
   HiHome,
+  HiMenu,
+  HiArrowSmLeft,
 } from "react-icons/hi";
-import { ShieldIcon } from "lucide-react";
+import {
+  ShieldIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import "./DashSidebar.css";
 
 const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
   const { currentUser } = useSelector((state) => state.user);
@@ -30,7 +39,7 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
     open: {
       x: 0,
       opacity: 1,
-      width: isCollapsed ? "5rem" : "20rem",
+      width: isCollapsed ? "5rem" : "18rem",
       transition: {
         type: "spring",
         stiffness: 300,
@@ -41,7 +50,7 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
     closed: {
       x: "-100%",
       opacity: 0,
-      width: isCollapsed ? "5rem" : "20rem",
+      width: isCollapsed ? "5rem" : "18rem",
       transition: {
         type: "spring",
         stiffness: 400,
@@ -85,145 +94,106 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
         className="w-full group block"
         title={isCollapsed ? label : ""}
       >
-        <div
+        <motion.div
+          whileHover={{ x: isCollapsed ? 0 : 4 }}
+          whileTap={{ scale: 0.98 }}
           className={`
-            flex items-center gap-3 px-4 py-3 mx-2 rounded-2xl
-            transition-all duration-300 transform
+            relative flex items-center gap-3 px-3 py-3 mx-3 my-1 rounded-xl
+            transition-all duration-300
             ${
               isActive
-                ? "bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white shadow-lg scale-105"
-                : "text-gray-700 hover:bg-gray-100/80 dark:text-gray-300 dark:hover:bg-gray-800/50 hover:scale-102"
+                ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800/80"
             }
-            ${isCollapsed ? "justify-center" : ""}
+            ${isCollapsed ? "justify-center px-0" : ""}
           `}
         >
-          <div
-            className={`
-            p-2 rounded-xl transition-all duration-300 flex-shrink-0
-            ${
-              isActive
-                ? "bg-white/20 shadow-md"
-                : "bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700"
-            }
-          `}
-          >
-            <Icon className="w-5 h-5" />
-          </div>
+          {/* Icon */}
+          <Icon
+            className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${
+              isActive ? "drop-shadow-sm" : ""
+            }`}
+          />
+
+          {/* Label */}
           {!isCollapsed && (
-            <>
-              <span className="font-semibold flex-1 text-left truncate">
-                {label}
-              </span>
-              {badge && (
-                <div
-                  className={`
-                  px-2 py-1 rounded-full text-xs font-bold flex-shrink-0
-                  ${
-                    isActive
-                      ? "bg-white/20 text-white"
-                      : "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
-                  }
-                `}
-                >
-                  {badge}
-                </div>
-              )}
-            </>
+            <span
+              className={`font-medium flex-1 text-sm transition-all duration-300 ${
+                isActive ? "drop-shadow-sm" : ""
+              }`}
+            >
+              {label}
+            </span>
           )}
-          {isActive && !isCollapsed && (
-            <div className="w-1 h-8 bg-white rounded-full opacity-80" />
+
+          {/* Badge */}
+          {!isCollapsed && badge && (
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className={`
+                px-2 py-0.5 rounded-lg text-xs font-bold flex-shrink-0
+                ${
+                  isActive
+                    ? "bg-white/20 text-white"
+                    : "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+                }
+              `}
+            >
+              {badge}
+            </motion.span>
           )}
-        </div>
+
+          {/* Active Indicator */}
+          {isActive && (
+            <motion.div
+              layoutId={isCollapsed ? "collapsedActive" : "expandedActive"}
+              className={`absolute ${
+                isCollapsed
+                  ? "right-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-l-full"
+                  : "left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full"
+              } bg-white`}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            />
+          )}
+        </motion.div>
       </Link>
     );
   };
 
   return (
     <>
-      {/* Custom CSS for gradient scrollbar - only when expanded */}
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: ${isCollapsed ? "0px" : "8px"};
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-          border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: linear-gradient(45deg, #6366f1, #8b5cf6, #ec4899);
-          border-radius: 10px;
-          border: 2px solid transparent;
-          background-clip: content-box;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(45deg, #4f46e5, #7c3aed, #db2777);
-          border-radius: 10px;
-          border: 2px solid transparent;
-          background-clip: content-box;
-        }
-
-        /* For Firefox */
-        .custom-scrollbar {
-          scrollbar-width: ${isCollapsed ? "none" : "thin"};
-          scrollbar-color: #6366f1 transparent;
-        }
-      `}</style>
+      {/* Custom CSS moved to DashSidebar.css */}
 
       <AnimatePresence>
         <motion.aside
           initial="closed"
           animate={isOpen ? "open" : "closed"}
           variants={sidebarVariants}
-          className="fixed top-0 left-0 bottom-0 z-40 md:top-16 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl border-r border-white/20 dark:border-gray-800/50"
+          className="fixed top-0 left-0 bottom-0 z-40 md:top-16 bg-white dark:bg-gray-900 shadow-xl border-r border-gray-200 dark:border-gray-800 transition-colors duration-300"
         >
-          <div className="flex flex-col h-full relative">
-            {/* Centered Collapse Button */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={onToggleCollapse}
-              className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-50 p-3 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              <motion.div
-                animate={{ rotate: isCollapsed ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
+          <div className="flex flex-col h-full">
+            {/* Toggle Button */}
+            <div className="relative flex items-center justify-end p-3 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onToggleCollapse}
+                className="p-2 rounded-lg bg-gradient-to-r from-gray-100 to-gray-50 hover:from-indigo-50 hover:to-purple-50 dark:from-gray-800 dark:to-gray-700 dark:hover:from-indigo-950/50 dark:hover:to-purple-950/50 text-gray-700 dark:text-gray-300 transition-all duration-300 border border-gray-200 dark:border-gray-700"
+                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               >
-                <HiOutlineChevronLeft className="w-5 h-5" />
-              </motion.div>
-            </motion.button>
-
-            {/* Header */}
-            <div className="flex items-center justify-between p-4">
-              {!isCollapsed && (
                 <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex items-center gap-3"
+                  animate={{ rotate: isCollapsed ? 180 : 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
                 >
-                  <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg">
-                    <ShieldIcon className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                      Dashboard
-                    </h2>
-                  </div>
+                  <ChevronLeft className="w-5 h-5" />
                 </motion.div>
-              )}
+              </motion.button>
             </div>
 
             {/* Navigation Items with Custom Scrollbar */}
-            <nav
-              className={`flex-1 overflow-y-auto py-6 px-2 space-y-2 ${
-                !isCollapsed ? "custom-scrollbar" : ""
-              }`}
-            >
+            <nav className="flex-1 overflow-y-auto py-4 custom-scrollbar">
               {/* Main Dashboard */}
               {currentUser?.isAdmin && (
                 <motion.div
@@ -234,13 +204,12 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
                 >
                   {!isCollapsed && (
                     <motion.div
-                      className="px-4 mb-3"
+                      className="px-6 mb-2"
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 }}
                     >
-                      <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                        <div className="w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
+                      <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                         Overview
                       </h3>
                     </motion.div>
@@ -249,7 +218,6 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
                     to="/dashboard"
                     icon={HiChartPie}
                     label="Dashboard"
-                    badge="New"
                   />
                 </motion.div>
               )}
@@ -265,14 +233,13 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
                   >
                     {!isCollapsed && (
                       <motion.div
-                        className="px-4 mb-3"
+                        className="px-6 mb-2"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                       >
-                        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                          <div className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full"></div>
-                          Content Management
+                        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                          Content
                         </h3>
                       </motion.div>
                     )}
@@ -298,13 +265,12 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
                   >
                     {!isCollapsed && (
                       <motion.div
-                        className="px-4 mb-3"
+                        className="px-6 mb-2"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                       >
-                        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                          <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full"></div>
+                        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                           Community
                         </h3>
                       </motion.div>
@@ -326,13 +292,12 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
                   >
                     {!isCollapsed && (
                       <motion.div
-                        className="px-4 mb-3"
+                        className="px-6 mb-2"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
                       >
-                        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                          <div className="w-2 h-2 bg-gradient-to-r from-orange-500 to-red-600 rounded-full"></div>
+                        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                           System
                         </h3>
                       </motion.div>
@@ -348,59 +313,20 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
             </nav>
 
             {/* Footer */}
-            <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
-              {!isCollapsed && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-3 gap-2 mb-4">
-                    <div className="text-center p-2 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 rounded-xl border border-indigo-200/50 dark:border-indigo-800/50">
-                      <div className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                        42
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                        Posts
-                      </div>
-                    </div>
-                    <div className="text-center p-2 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50 rounded-xl border border-emerald-200/50 dark:border-emerald-800/50">
-                      <div className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                        1.2K
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                        Users
-                      </div>
-                    </div>
-                    <div className="text-center p-2 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/50 dark:to-amber-950/50 rounded-xl border border-orange-200/50 dark:border-orange-800/50">
-                      <div className="text-lg font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-                        89%
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                        Uptime
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
+            <div className="p-3 border-t border-gray-200 dark:border-gray-800 transition-colors duration-300">
               {/* Back to Blog Button */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate("/")}
-                className={`flex items-center gap-3 w-full px-4 py-3 mb-2 text-indigo-600 dark:text-indigo-400 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-950/50 dark:hover:to-purple-950/50 rounded-2xl transition-all duration-300 group transform hover:shadow-lg border border-transparent hover:border-indigo-200/50 dark:hover:border-indigo-800/50 ${
+                className={`flex items-center gap-3 w-full px-3 py-2.5 mb-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-xl transition-all duration-300 group ${
                   isCollapsed ? "justify-center" : ""
                 }`}
                 title={isCollapsed ? "Back to Blog" : ""}
               >
-                <div className="p-2 bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-950/50 dark:to-purple-950/50 rounded-xl group-hover:from-indigo-200 group-hover:to-purple-200 dark:group-hover:from-indigo-900/50 dark:group-hover:to-purple-900/50 transition-all duration-300 shadow-sm">
-                  <HiHome className="w-5 h-5 " />
-                </div>
+                <HiHome className="w-5 h-5 flex-shrink-0" />
                 {!isCollapsed && (
-                  <span className="font-semibold">Back to Blog</span>
+                  <span className="font-medium text-sm">Back to Blog</span>
                 )}
               </motion.button>
 
@@ -409,38 +335,16 @@ const DashSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }) => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSignout}
-                className={`flex items-center gap-3 w-full px-4 py-3 text-red-600 dark:text-red-400 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-950/50 dark:hover:to-pink-950/50 rounded-2xl transition-all duration-300 group transform hover:shadow-lg border border-transparent hover:border-red-200/50 dark:hover:border-red-800/50 ${
+                className={`flex items-center gap-3 w-full px-3 py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all duration-300 group ${
                   isCollapsed ? "justify-center" : ""
                 }`}
                 title={isCollapsed ? "Sign Out" : ""}
               >
-                <div className="p-2 bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-950/50 dark:to-pink-950/50 rounded-xl group-hover:from-red-200 group-hover:to-pink-200 dark:group-hover:from-red-900/50 dark:group-hover:to-pink-900/50 transition-all duration-300 shadow-sm">
-                  <HiArrowSmRight className="w-5 h-5" />
-                </div>
+                <HiArrowSmLeft className="w-5 h-5 flex-shrink-0" />
                 {!isCollapsed && (
-                  <span className="font-semibold">Sign Out</span>
+                  <span className="font-medium text-sm">Sign Out</span>
                 )}
               </motion.button>
-
-              {!isCollapsed && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3, delay: 0.2 }}
-                  className="mt-4 text-center"
-                >
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    ByteThoughts Dashboard
-                  </div>
-                  <div className="flex items-center justify-center gap-1">
-                    <div className="w-2 h-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">
-                      v2.0 • Online
-                    </span>
-                  </div>
-                </motion.div>
-              )}
             </div>
           </div>
         </motion.aside>

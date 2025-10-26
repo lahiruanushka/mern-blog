@@ -58,7 +58,6 @@ const App = () => {
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/posts" element={<PostsPage />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/users/:username" element={<ProfilePage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/explore" element={<ExplorePage />} />
           <Route
@@ -77,6 +76,7 @@ const App = () => {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/create-post" element={<CreatePostPage />} />
             <Route path="/update-post/:postSlug" element={<UpdatePostPage />} />
+            <Route path="/users/:username" element={<ProfilePage />} />
           </Route>
 
           {/* Auth routes - only accessible when NOT logged in */}
